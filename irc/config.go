@@ -1,4 +1,4 @@
-package config
+package irc
 
 import (
   "encoding/json"
@@ -15,7 +15,7 @@ type Config struct {
 
 // FromJSONFile reads a Config struct from a file containing a JSON encoded
 // value.
-func FromJSONFile(path string) Config {
+func ConfigFromJSONFile(path string) Config {
   var cfg Config
   file, err := os.Open(path)
   if err != nil {

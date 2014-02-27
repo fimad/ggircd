@@ -4,8 +4,7 @@ import (
   "flag"
   "log"
 
-  "github.com/fimad/ggircd/irc/config"
-  "github.com/fimad/ggircd/irc/server"
+  "github.com/fimad/ggircd/irc"
 )
 
 var configFile = flag.String("config", "/etc/ggircd.conf",
@@ -15,7 +14,7 @@ func main() {
   flag.Parse()
   log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-  cfg := config.FromJSONFile(*configFile)
-  server := server.NewLocal(cfg)
+  cfg := irc.ConfigFromJSONFile(*configFile)
+  server := irc.NewLocalServer(cfg)
   server.Loop()
 }

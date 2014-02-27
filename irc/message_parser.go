@@ -1,22 +1,22 @@
-package message
+package irc
 
 import (
   "bufio"
   "bytes"
   "errors"
   "io"
-  "regexp"
   "log"
+  "regexp"
 )
 
 // Scanner is a function that returns a Message and a boolean indicating if the
 // end of the stream has been reached. If the boolean is false, then the
 // returned Message should be ignored and the end of the input has been reached.
-type Parser func() (Message, bool)
+type MessageParser func() (Message, bool)
 
 // NewParser will create a new Parser function that can be called repeatedly to
 // parse Messages from the given io.Reader.
-func NewParser(reader io.Reader) Parser {
+func NewMessageParser(reader io.Reader) MessageParser {
   scanner := bufio.NewScanner(reader)
   scanner.Split(splitFunc)
   return func() (Message, bool) {
