@@ -18,8 +18,8 @@ type Dispatcher struct {
   //  servers map[int64]ServerInfo
   clients map[int64]*Client
 
-  relayToClient map[int64][]*Client
-  //relayToServer map[int64][]*Server
+  relayToClient map[int64]map[int64]bool
+  relayToServer map[int64]map[int64]bool
 
   nextID int64
 }
@@ -42,6 +42,11 @@ func NewDispatcher(cfg Config) Dispatcher {
 
     nicks: make(map[string]int64),
     users: make(map[string]int64),
+
+    clients: make(map[int64]*Client),
+
+    relayToClient: make(map[int64]map[int64]bool),
+    relayToServer: make(map[int64]map[int64]bool),
 
     nextID: 1,
   }

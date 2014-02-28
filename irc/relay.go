@@ -22,6 +22,8 @@ type Relay struct {
   killOutbox chan killToken
 }
 
+// NewRelay creates a new Relay and registers it with the Dispatcher by
+// assigning it a unique ID.
 func (d *Dispatcher) NewRelay(conn net.Conn) *Relay {
   relay := &Relay{
     ID:         d.nextID,
@@ -32,8 +34,22 @@ func (d *Dispatcher) NewRelay(conn net.Conn) *Relay {
     killInbox:  make(chan killToken),
     killOutbox: make(chan killToken),
   }
+  d.relayToClient[relay.ID] = make(map[int64]bool)
+  d.relayToServer[relay.ID] = make(map[int64]bool)
   d.nextID++
   return relay
+}
+
+// KillRelay removes a relay from a Dispatcher. It does not send any messages or
+// remove servers or clients.
+func (d *Dispatcher) KillRelay(relay *Relay) {
+  if d.relayToClient[relay.ID] != nil {
+    delete(d.relayToClient, relay.ID)
+  }
+
+  if d.relayToServer[relay.ID] != nil {
+    delete(d.relayToServer, relay.ID)
+  }
 }
 
 // Kill shuts down a Relay. It does not handle unregistering it from the
