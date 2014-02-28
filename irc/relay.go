@@ -72,11 +72,15 @@ func (r *Relay) outboxLoop() {
 // inboxLoop continuously pulls messages from the recv channel and sends the
 // message to the connected client.
 func (r *Relay) inboxLoop() {
+  var shouldKill = false
+
   for {
     select {
     case _ = <-r.killInbox:
       break
     case msg := <-r.Inbox:
+      shouldKill = msg.ShouldKill
+
       line, ok := msg.ToString()
       if !ok {
         log.Printf("Malformed message: %v", msg)
@@ -88,6 +92,10 @@ func (r *Relay) inboxLoop() {
         log.Printf("Error encountered sending message to client: %v", err)
         continue
       }
+    }
+
+    if shouldKill {
+      r.Kill()
     }
   }
 }
