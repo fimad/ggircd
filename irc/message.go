@@ -9,21 +9,12 @@ type Message struct {
   Command string
   Params  []string
 
-  // The connection that this message originated from
-  // Sender ...
+  // The Relay that this message originated from.
+  Relay *Relay
 
-  // The Client responsible for sending this message. Nil if not send by a
-  // client.
-  Client Client
-
-  // The Server responsible for sending this message. Nil if not send by a
-  // server.
-  //Server Server
-
-  // IsNewConn indicates that this message is coming from a Server or Client
-  // that is not yet registered with the Local server. This field is only set by
-  // handleNewConn.
-  IsNewConn bool
+  // Only used in Dispatcher to Relay messages. If true, the Relay will shut
+  // down after sending this message.
+  ShouldKill bool
 }
 
 // ToString serializes a Message to an IRC protocol compatible string.
