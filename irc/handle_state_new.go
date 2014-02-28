@@ -54,11 +54,6 @@ func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
       d.KillClient(client)
     }
 
-    msg.Relay.Handler = d.getHandleStateClient(client)
-  }
-}
-
-func (d *Dispatcher) getHandleStateClient(client *Client) func(Message) {
-  return func(msg Message) {
+    msg.Relay.Handler = d.getHandleStateConnected(client, nil)
   }
 }
