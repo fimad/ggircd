@@ -13,8 +13,8 @@ type Config struct {
   Port int
 }
 
-// FromJSONFile reads a Config struct from a file containing a JSON encoded
-// value.
+// ConfigFromJSONFile reads a Config struct from a file containing a JSON
+// encoded value.
 func ConfigFromJSONFile(path string) Config {
   var cfg Config
   file, err := os.Open(path)

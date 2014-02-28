@@ -33,8 +33,8 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
   msg.Relay.Handler = d.getHandleStateUser(client)
 }
 
-// handleStateUser handles Relay state where the Relay is registering as a
-// client and is expected to send the USER command.
+// getHandleStateUser returns a handler for a Relay state where the Relay is
+// registering as a client and is expected to send the USER command.
 func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
   return func(msg Message) {
     if len(msg.Params) < 4 {

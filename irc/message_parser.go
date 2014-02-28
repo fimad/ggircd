@@ -9,13 +9,13 @@ import (
   "regexp"
 )
 
-// Scanner is a function that returns a Message and a boolean indicating if the
-// end of the stream has been reached. If the boolean is false, then the
+// MessageParser is a function that returns a Message and a boolean indicating
+// if the end of the stream has been reached. If the boolean is false, then the
 // returned Message should be ignored and the end of the input has been reached.
 type MessageParser func() (Message, bool)
 
-// NewParser will create a new Parser function that can be called repeatedly to
-// parse Messages from the given io.Reader.
+// NewMessageParser will create a new Parser function that can be called
+// repeatedly to parse Messages from the given io.Reader.
 func NewMessageParser(reader io.Reader) MessageParser {
   scanner := bufio.NewScanner(reader)
   scanner.Split(splitFunc)

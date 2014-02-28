@@ -24,6 +24,8 @@ type Dispatcher struct {
   nextID int64
 }
 
+// NewDispatcher creates a new dispatcher with the given configuration. This
+// method is responsible for initializing the socket.
 func NewDispatcher(cfg Config) Dispatcher {
   ln, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
   if err != nil {
@@ -51,8 +53,8 @@ func (d *Dispatcher) Loop() {
   d.handleLoop()
 }
 
-// acceptLoop waits for a new connection, and calls handleConn in a new
-// goroutine for each received connection.
+// acceptLoop waits for a new connection, and spins off a new Relay in a
+// separate go routine for each new connection.
 func (d *Dispatcher) acceptLoop() {
   for {
     conn, err := d.listener.Accept()
