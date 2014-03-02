@@ -93,5 +93,5 @@ func (d *Dispatcher) handleLoop() {
 func (d *Dispatcher) sendKillingMessage(relay *Relay, msg Message) {
   d.KillRelay(relay)
   msg.ShouldKill = true
-  go func() { relay.Inbox <- msg }()
+  relay.Inbox <- msg
 }

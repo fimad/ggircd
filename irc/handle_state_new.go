@@ -27,7 +27,7 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
   client := d.NewClient(msg.Relay)
   ok, errMsg := d.SetNick(client, nick)
   if !ok {
-    go func() { msg.Relay.Inbox <- errMsg }()
+    msg.Relay.Inbox <- errMsg
     return
   }
 
@@ -51,7 +51,7 @@ func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
 // registering as a client and is expected to send the USER command.
 func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
   if len(msg.Params) < 4 {
-    go func() { msg.Relay.Inbox <- ErrorNeedMoreParams }()
+    msg.Relay.Inbox <- ErrorNeedMoreParams
     return
   }
 
@@ -61,7 +61,7 @@ func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
   realName := msg.Params[3]
   ok, errMsg := d.SetUser(client, user, host, server, realName)
   if !ok {
-    go func() { msg.Relay.Inbox <- errMsg }()
+    msg.Relay.Inbox <- errMsg
     return
   }
 
