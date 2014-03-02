@@ -9,8 +9,8 @@ import (
 type Dispatcher struct {
   listener net.Listener
 
-  Config   Config
-  Inbox    chan Message
+  Config Config
+  Inbox  chan Message
 
   nicks map[string]int64
   users map[string]int64
@@ -37,8 +37,8 @@ func NewDispatcher(cfg Config) Dispatcher {
   return Dispatcher{
     listener: ln,
 
-    Config:   cfg,
-    Inbox:    inbox,
+    Config: cfg,
+    Inbox:  inbox,
 
     nicks: make(map[string]int64),
     users: make(map[string]int64),
@@ -79,8 +79,19 @@ func (d *Dispatcher) acceptLoop() {
 func (d *Dispatcher) handleLoop() {
   for {
     msg := <-d.Inbox
-    log.Printf("Got new message. prefix = '%s', command = '%s', params = %q",
-      msg.Prefix, msg.Command, msg.Params)
-    msg.Relay.Handler(msg)
+    if msg.Relay.Handler != nil {
+      log.Printf("Got new message. prefix = '%s', command = '%s', params = %q",
+        msg.Prefix, msg.Command, msg.Params)
+      msg.Relay.Handler(msg)
+    }
   }
+}
+
+// sendKillingMessage will send a message to the given Relay and cause the Relay
+// to shut down after processing it. It also handles killing the references to
+// the Relay owned by the Dispatcher.
+func (d *Dispatcher) sendKillingMessage(relay *Relay, msg Message) {
+  d.KillRelay(relay)
+  msg.ShouldKill = true
+  go func() { relay.Inbox <- msg }()
 }

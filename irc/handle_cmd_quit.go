@@ -1,14 +1,21 @@
 package irc
 
 func (d *Dispatcher) handleCmdQuit(msg Message, client *Client, server *Server) {
-  if client == nil {
-    Todo("non-client QUIT")
+  if client != nil {
+    d.KillClient(client)
   }
 
-  nonServer := len(d.relayToServer[msg.Relay.ID]) == 0
-  d.KillClient(client)
-  if nonServer {
-    d.KillRelay(msg.Relay)
-    msg.Relay.Kill()
+  if server != nil {
+    Todo("server QUIT")
+  }
+
+  // Only kill the relay if there is exactly one connection.
+  oneEntity := 1 >=
+    len(d.relayToServer[msg.Relay.ID])+
+      len(d.relayToClient[msg.Relay.ID])
+  if oneEntity {
+    d.sendKillingMessage(msg.Relay, Message{})
+    //d.KillRelay(msg.Relay)
+    //msg.Relay.Kill()
   }
 }

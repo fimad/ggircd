@@ -19,6 +19,10 @@ type Message struct {
 
 // ToString serializes a Message to an IRC protocol compatible string.
 func (m Message) ToString() (string, bool) {
+  if m.Command == "" {
+    return "", false
+  }
+
   var msg string
   if len(m.Prefix) > 0 {
     msg = ":" + m.Prefix + " "

@@ -20,11 +20,13 @@ func NewMessageParser(reader io.Reader) MessageParser {
   scanner := bufio.NewScanner(reader)
   scanner.Split(splitFunc)
   return func() (Message, bool) {
-    ok := scanner.Scan()
-    if !ok {
-      return Message{}, false
+    for scanner.Scan() {
+      msg, ok := parseMessage(scanner.Text())
+      if ok {
+        return msg, true
+      }
     }
-    return parseMessage(scanner.Text())
+    return Message{}, false
   }
 }
 
@@ -47,7 +49,7 @@ func splitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
 //var nickRegex = `[a-zA-Z][a-zA-Z0-9\-\[\]\\` + "`" + `^{}]*`
 var prefix = `(?::([^ ]+) )?`
 var command = `([a-zA-Z]+|[0-9]{3})`
-var params = `( .*)`
+var params = `( .*)?`
 var message = regexp.MustCompile(`^` + prefix + command + params + `$`)
 
 // parseMessage takes a raw line from the IRC protocol (minus the trailing CRLF)

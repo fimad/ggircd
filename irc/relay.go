@@ -57,7 +57,6 @@ func (d *Dispatcher) KillRelay(relay *Relay) {
 func (r *Relay) Kill() {
   r.killInbox <- killToken{}
   r.killOutbox <- killToken{}
-  r.conn.Close()
 }
 
 // Loop is the entry point for the local server. This method does not return.
@@ -70,48 +69,62 @@ func (r *Relay) Loop() {
 // Messages to the LocalServer via the send channel.
 func (r *Relay) outboxLoop() {
   parser := NewMessageParser(r.conn)
-  for {
+
+  var msg Message
+  hasMore := true
+  alive := true
+  for alive && hasMore {
     select {
     case _ = <-r.killOutbox:
-      break
+      alive = false
     default:
-      msg, ok := parser()
-      if !ok {
-        continue
+      msg, hasMore = parser()
+      if !hasMore {
+        // TODO(will): This may send an extra quit message if the client sends
+        // QUIT and then hangs up. Which is fine I guess since the first should
+        // boot the relay any way.
+        r.Outbox <- Message{Command: "QUIT", Relay: r}
+        break
       }
+
       msg.Relay = r
       r.Outbox <- msg
     }
   }
+
+  if alive {
+    _ = <-r.killOutbox
+  }
+
+  r.conn.Close()
 }
 
 // inboxLoop continuously pulls messages from the recv channel and sends the
 // message to the connected client.
 func (r *Relay) inboxLoop() {
-  var shouldKill = false
-
-  for {
+  alive := true
+  shouldKill := false
+  for alive {
     select {
     case _ = <-r.killInbox:
-      break
+      alive = false
     case msg := <-r.Inbox:
       shouldKill = msg.ShouldKill
 
       line, ok := msg.ToString()
       if !ok {
-        log.Printf("Malformed message: %v", msg)
-        continue
+        break
       }
 
       _, err := io.WriteString(r.conn, line)
       if err != nil {
         log.Printf("Error encountered sending message to client: %v", err)
-        continue
+        break
       }
     }
 
-    if shouldKill {
-      r.Kill()
+    if alive && shouldKill {
+      go r.Kill()
     }
   }
 }

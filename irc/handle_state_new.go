@@ -10,6 +10,8 @@ func (d *Dispatcher) handleStateNew(msg Message) {
     d.handleStateNewCmdNick(msg)
   case "SERVER":
     Todo("Implement the SERVER case")
+  case "QUIT":
+    d.handleCmdQuit(msg, nil, nil)
   }
 }
 
@@ -25,9 +27,8 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
   client := d.NewClient(msg.Relay)
   ok, errMsg := d.SetNick(client, nick)
   if !ok {
-    errMsg.ShouldKill = true
-    msg.Relay.Inbox <- errMsg
-    d.KillClient(client)
+    go func() { msg.Relay.Inbox <- errMsg }()
+    return
   }
 
   msg.Relay.Handler = d.getHandleStateUser(client)
@@ -37,23 +38,32 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
 // registering as a client and is expected to send the USER command.
 func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
   return func(msg Message) {
-    if len(msg.Params) < 4 {
-      msg.Relay.Inbox <- ErrorNeedMoreParams
-      return
+    switch msg.Command {
+    case "USER":
+      d.handleStateUserCmdUser(msg, client)
+    case "QUIT":
+      d.handleCmdQuit(msg, client, nil)
     }
-    user := msg.Params[0]
-    host := msg.Params[1]
-    server := msg.Params[2]
-    realName := msg.Params[3]
-
-    client := d.NewClient(msg.Relay)
-    ok, errMsg := d.SetUser(client, user, host, server, realName)
-    if !ok {
-      errMsg.ShouldKill = true
-      msg.Relay.Inbox <- errMsg
-      d.KillClient(client)
-    }
-
-    msg.Relay.Handler = d.getHandleStateConnected(client, nil)
   }
+}
+
+// getHandleStateUser returns a handler for a Relay state where the Relay is
+// registering as a client and is expected to send the USER command.
+func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
+  if len(msg.Params) < 4 {
+    go func() { msg.Relay.Inbox <- ErrorNeedMoreParams }()
+    return
+  }
+
+  user := msg.Params[0]
+  host := msg.Params[1]
+  server := msg.Params[2]
+  realName := msg.Params[3]
+  ok, errMsg := d.SetUser(client, user, host, server, realName)
+  if !ok {
+    go func() { msg.Relay.Inbox <- errMsg }()
+    return
+  }
+
+  msg.Relay.Handler = d.getHandleStateConnected(client, nil)
 }
