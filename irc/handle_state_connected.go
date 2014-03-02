@@ -5,6 +5,8 @@ func (d *Dispatcher) getHandleStateConnected(client *Client, server *Server) fun
     switch msg.Command {
     case "QUIT":
       d.handleCmdQuit(msg, client, server)
+    case "JOIN":
+      d.handleCmdJoin(msg, client, server)
     case "PING":
       d.handleCmdPing(msg)
     }

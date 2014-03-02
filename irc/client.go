@@ -1,5 +1,9 @@
 package irc
 
+import (
+  "fmt"
+)
+
 // Client contains metadata about connected clients.
 type Client struct {
   ID int64
@@ -10,6 +14,8 @@ type Client struct {
   Server   string
   RealName string
 
+  Channels map[string]bool
+
   // The relay that should be used to send messages to this client.
   Relay *Relay
 }
@@ -18,9 +24,11 @@ type Client struct {
 // assigning it a unique id.
 func (d *Dispatcher) NewClient(relay *Relay) *Client {
   client := &Client{
-    ID:    d.nextID,
-    Relay: relay,
+    ID:       d.nextID,
+    Channels: make(map[string]bool),
+    Relay:    relay,
   }
+  d.clients[client.ID] = client
   d.relayToClient[relay.ID][client.ID] = true
   d.nextID++
   return client
@@ -29,17 +37,14 @@ func (d *Dispatcher) NewClient(relay *Relay) *Client {
 // KillClient removes a client from the Dispatchers registry of clients. This
 // method does not send any messages, and does not terminate any Relays.
 func (d *Dispatcher) KillClient(client *Client) {
-  if client.Nick != "" {
-    delete(d.nicks, client.Nick)
+  for ch := range client.Channels {
+    d.RemoveFromChannel(d.channels[ch], client, "Bye")
   }
 
-  if client.User != "" {
-    delete(d.users, client.User)
-  }
-
-  if d.relayToClient[client.Relay.ID][client.ID] {
-    delete(d.relayToClient[client.Relay.ID], client.ID)
-  }
+  delete(d.clients, client.ID)
+  delete(d.nicks, client.Nick)
+  delete(d.users, client.User)
+  delete(d.relayToClient[client.Relay.ID], client.ID)
 }
 
 // SetNick attempts to set the nick name of a given client. Returns a boolean
@@ -67,4 +72,10 @@ func (d *Dispatcher) SetUser(client *Client, user, host, server, realName string
   client.RealName = realName
   d.users[user] = client.ID
   return true, Message{}
+}
+
+// Prefix returns the prefix string that should be used in Messages originating
+// from this Client.
+func (c *Client) Prefix() string {
+  return fmt.Sprintf("%s!%s@%s", c.Nick, c.User, c.Host)
 }

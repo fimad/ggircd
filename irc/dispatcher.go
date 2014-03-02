@@ -12,6 +12,9 @@ type Dispatcher struct {
   Config Config
   Inbox  chan Message
 
+  channels        map[string]*Channel
+  channelToClient map[string]map[int64]bool
+
   nicks map[string]int64
   users map[string]int64
 
@@ -39,6 +42,9 @@ func NewDispatcher(cfg Config) Dispatcher {
 
     Config: cfg,
     Inbox:  inbox,
+
+    channels:        make(map[string]*Channel),
+    channelToClient: make(map[string]map[int64]bool),
 
     nicks: make(map[string]int64),
     users: make(map[string]int64),

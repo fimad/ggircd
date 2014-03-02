@@ -13,6 +13,8 @@ type Config struct {
   Network string
   Port    int
   MOTD    string
+
+  DefaultChannelMode string
 }
 
 // ConfigFromJSONFile reads a Config struct from a file containing a JSON
