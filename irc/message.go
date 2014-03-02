@@ -17,6 +17,12 @@ type Message struct {
   ShouldKill bool
 }
 
+// WithParams creates a new copy of a message with the given parameters.
+func (m Message) WithParams(params ...string) Message {
+  m.Params = params
+  return m
+}
+
 // ToString serializes a Message to an IRC protocol compatible string.
 func (m Message) ToString() (string, bool) {
   if m.Command == "" {

@@ -1,7 +1,11 @@
 package irc
 
 var (
-  ReplyNone            = Message{Command: "300"}
+  ReplyWelcome         = Message{Command: "001"}
+  ReplyYourHost        = Message{Command: "002"}
+  ReplyCreated         = Message{Command: "003"}
+  ReplyMyInfo          = Message{Command: "004"}
+  ReplyBounce          = Message{Command: "005"}
   ReplyUserHost        = Message{Command: "302"}
   ReplyIsOn            = Message{Command: "303"}
   ReplyAway            = Message{Command: "301"}

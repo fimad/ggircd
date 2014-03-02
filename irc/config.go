@@ -9,8 +9,10 @@ import (
 // Config contains all of the configuration settings required to bring up a
 // local irc server.
 type Config struct {
-  Name string
-  Port int
+  Name    string
+  Network string
+  Port    int
+  MOTD    string
 }
 
 // ConfigFromJSONFile reads a Config struct from a file containing a JSON

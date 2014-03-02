@@ -65,5 +65,7 @@ func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
     return
   }
 
+  d.sendIntro(msg.Relay, client)
+
   msg.Relay.Handler = d.getHandleStateConnected(client, nil)
 }

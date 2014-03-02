@@ -66,23 +66,32 @@ func (r *Relay) Loop() {
 }
 
 // outboxLoop reads messages from the connected client and continuously pushes
-// Messages to the LocalServer via the send channel.
+// Messages to the Dispatcher via the Outbox channel.
 func (r *Relay) outboxLoop() {
   parser := NewMessageParser(r.conn)
 
   var msg Message
   hasMore := true
   alive := true
+  didQuit := false
   for alive && hasMore {
     select {
     case _ = <-r.killOutbox:
       alive = false
     default:
       msg, hasMore = parser()
+
+      // Don't double send QUIT messages. QUIT messages will cause the
+      // Dispatcher to send a message that will result in the Relay's loops
+      // being torn down. If multiple quit messages are sent then the dispatcher
+      // will hang on the second because there will be nothing at the other end
+      // to read from the channel.
+      didQuit = didQuit || msg.Command == "QUIT"
+      if didQuit {
+        break
+      }
+
       if !hasMore {
-        // TODO(will): This may send an extra quit message if the client sends
-        // QUIT and then hangs up. Which is fine I guess since the first should
-        // boot the relay any way.
         r.Outbox <- Message{Command: "QUIT", Relay: r}
         break
       }
@@ -99,7 +108,7 @@ func (r *Relay) outboxLoop() {
   r.conn.Close()
 }
 
-// inboxLoop continuously pulls messages from the recv channel and sends the
+// inboxLoop continuously pulls messages from the Inbox channel and sends the
 // message to the connected client.
 func (r *Relay) inboxLoop() {
   alive := true
