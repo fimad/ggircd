@@ -5,7 +5,6 @@ import (
   "bytes"
   "errors"
   "io"
-  "log"
   "regexp"
 )
 
@@ -58,13 +57,11 @@ var message = regexp.MustCompile(`^` + prefix + command + params + `$`)
 // TODO(will): This does not currently validate the prefix portion of the
 // message.
 func parseMessage(line string) (Message, bool) {
-  log.Printf("raw line: %s", line)
   var msg Message
 
   // Parse the message into prefix, command and parameter strings.
   parts := message.FindStringSubmatch(line)
   if parts == nil {
-    log.Printf("Does not match regexp")
     return msg, false
   }
 
@@ -77,7 +74,6 @@ func parseMessage(line string) (Message, bool) {
   for i < len(parts[3])-1 {
     // Each parameter must begin with a space.
     if parts[3][i] != ' ' {
-      log.Printf("Does not start with a space")
       return msg, false
     }
     // Skip extra white space.

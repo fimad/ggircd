@@ -1,7 +1,6 @@
 package irc
 
 import (
-  "log"
   "strings"
 )
 
@@ -26,8 +25,6 @@ func (d *Dispatcher) handleCmdJoin(msg Message, client *Client, server *Server) 
   for i := 0; i < len(channels); i++ {
     name := channels[i]
     channel := d.GetChannel(name)
-
-    log.Printf("trying to join channel: %s", name)
 
     if channel == nil {
       msg.Relay.Inbox <- ErrorNoSuchChannel.WithParams(name, "No such channel")

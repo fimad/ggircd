@@ -86,7 +86,6 @@ func (r *Relay) outboxLoop() {
       // being torn down. If multiple quit messages are sent then the dispatcher
       // will hang on the second because there will be nothing at the other end
       // to read from the channel.
-      didQuit = didQuit || msg.Command == CmdQuit
       if didQuit {
         break
       }
@@ -98,6 +97,8 @@ func (r *Relay) outboxLoop() {
 
       msg.Relay = r
       r.Outbox <- msg
+
+      didQuit = didQuit || msg.Command == CmdQuit
     }
   }
 

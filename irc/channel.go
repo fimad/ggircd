@@ -100,6 +100,11 @@ func (d *Dispatcher) AddToChannel(channel *Channel, client *Client) {
   client.Channels[channel.Name] = true
   d.channelToClient[channel.Name][client.ID] = true
 
+  // Make the client an op if they are the first in the channel.
+  if len(channel.Clients) == 1 {
+    channel.Ops[client.ID] = true
+  }
+
   joinMsg := Message{
     Prefix:  client.Prefix(),
     Command: CmdJoin,
@@ -113,7 +118,7 @@ func (d *Dispatcher) AddToChannel(channel *Channel, client *Client) {
   client.Relay.Inbox <- ReplyTopic.WithParams(
     client.Nick, channel.Name, channel.Topic)
 
-  d.sendNames(client.Relay, channel)
+  d.sendNames(client, channel)
 }
 
 // KillChannel unregisters the channel from the dispatcher and deletes all
@@ -127,10 +132,6 @@ func (d *Dispatcher) KillChannel(channel *Channel) {
 // RemoveFromChannel removes a client from a given channel and sends out the
 // appropriate messages.
 func (d *Dispatcher) RemoveFromChannel(channel *Channel, client *Client, reason string) {
-  delete(channel.Clients, client.ID)
-  delete(client.Channels, channel.Name)
-  delete(d.channelToClient[channel.Name], client.ID)
-
   partMsg := Message{
     Prefix:  client.Prefix(),
     Command: CmdPart,
@@ -139,6 +140,11 @@ func (d *Dispatcher) RemoveFromChannel(channel *Channel, client *Client, reason 
   for cid := range channel.Clients {
     d.clients[cid].Relay.Inbox <- partMsg
   }
+
+  // The parting user should see their part message.
+  delete(channel.Clients, client.ID)
+  delete(client.Channels, channel.Name)
+  delete(d.channelToClient[channel.Name], client.ID)
 
   // Kill the channel if there is no one left in it.
   if len(channel.Clients) == 0 {

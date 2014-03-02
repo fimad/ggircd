@@ -38,7 +38,7 @@ func (d *Dispatcher) NewClient(relay *Relay) *Client {
 // method does not send any messages, and does not terminate any Relays.
 func (d *Dispatcher) KillClient(client *Client) {
   for ch := range client.Channels {
-    d.RemoveFromChannel(d.channels[ch], client, "Bye")
+    d.RemoveFromChannel(d.channels[ch], client, "QUIT")
   }
 
   delete(d.clients, client.ID)

@@ -1,24 +1,34 @@
 package irc
 
 // sendNames sends the messages associated with a NAMES request.
-func (d *Dispatcher) sendNames(relay *Relay, channels ...*Channel) {
+func (d *Dispatcher) sendNames(client *Client, channels ...*Channel) {
   for _, channel := range channels {
-    params := make([]string, 2, 3)
+    params := make([]string, 3, 4)
+
+    params[0] = client.Nick
+
     if channel.Mode[ChannelModeSecret] {
-      params[0] = "@"
+      params[1] = "@"
     } else if channel.Mode[ChannelModePrivate] {
-      params[0] = "*"
+      params[1] = "*"
     } else {
-      params[0] = "="
+      params[1] = "="
     }
 
-    params[1] = channel.Name
+    params[2] = channel.Name
 
     for cid := range channel.Clients {
-      params = append(params, d.clients[cid].Nick)
+      nick := d.clients[cid].Nick
+      if channel.Ops[cid] {
+        nick = "@" + nick
+      } else if channel.Voice[cid] {
+        nick = "+" + nick
+      }
+      params = append(params, nick)
     }
 
-    relay.Inbox <- ReplyNamReply.WithParams(params...)
+    client.Relay.Inbox <- ReplyNamReply.WithParams(params...)
+    client.Relay.Inbox <- ReplyEndOfNames.
+      WithParams(client.Nick, channel.Name, "End of NAMES list")
   }
-  relay.Inbox <- ReplyEndOfNames.WithParams("End of NAMES list")
 }
