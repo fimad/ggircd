@@ -4,13 +4,13 @@ package irc
 // classified as either a server or a client.
 func (d *Dispatcher) handleStateNew(msg Message) {
   switch msg.Command {
-  case "PASS":
+  case CmdPass:
     Todo("Implement the PASS case")
-  case "NICK":
+  case CmdNick:
     d.handleStateNewCmdNick(msg)
-  case "SERVER":
+  case CmdServer:
     Todo("Implement the SERVER case")
-  case "QUIT":
+  case CmdQuit:
     d.handleCmdQuit(msg, nil, nil)
   }
 }
@@ -39,9 +39,9 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
 func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
   return func(msg Message) {
     switch msg.Command {
-    case "USER":
+    case CmdUser:
       d.handleStateUserCmdUser(msg, client)
-    case "QUIT":
+    case CmdQuit:
       d.handleCmdQuit(msg, client, nil)
     }
   }

@@ -102,7 +102,7 @@ func (d *Dispatcher) AddToChannel(channel *Channel, client *Client) {
 
   joinMsg := Message{
     Prefix:  client.Prefix(),
-    Command: "JOIN",
+    Command: CmdJoin,
     Params:  []string{channel.Name},
   }
   for cid := range channel.Clients {
@@ -133,7 +133,7 @@ func (d *Dispatcher) RemoveFromChannel(channel *Channel, client *Client, reason 
 
   partMsg := Message{
     Prefix:  client.Prefix(),
-    Command: "PART",
+    Command: CmdPart,
     Params:  []string{channel.Name, reason},
   }
   for cid := range channel.Clients {

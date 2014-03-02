@@ -3,11 +3,11 @@ package irc
 func (d *Dispatcher) getHandleStateConnected(client *Client, server *Server) func(Message) {
   return func(msg Message) {
     switch msg.Command {
-    case "QUIT":
+    case CmdQuit:
       d.handleCmdQuit(msg, client, server)
-    case "JOIN":
+    case CmdJoin:
       d.handleCmdJoin(msg, client, server)
-    case "PING":
+    case CmdPing:
       d.handleCmdPing(msg)
     }
   }
