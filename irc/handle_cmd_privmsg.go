@@ -37,6 +37,7 @@ func (d *Dispatcher) handleCmdPrivMsg(msg Message, client *Client) {
     return
   }
 
+  msg.Prefix = client.Prefix()
   for cid := range channel.Clients {
     // Don't send the message to the client that sent it.
     if cid == client.ID {
