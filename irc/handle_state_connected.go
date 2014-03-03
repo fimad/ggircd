@@ -15,6 +15,8 @@ func (d *Dispatcher) getHandleStateConnected(client *Client, server *Server) fun
       d.handleCmdPrivMsg(msg, client)
     case CmdQuit:
       d.handleCmdQuit(msg, client, server)
+    case CmdTopic:
+      d.handleCmdTopic(msg, client)
     }
   }
 }

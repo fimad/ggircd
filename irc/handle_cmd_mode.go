@@ -132,9 +132,7 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
 
   // Broadcast the mode change, are we suppose to do this?
   msg.Prefix = client.Prefix()
-  for cid := range channel.Clients {
-    d.clients[cid].Relay.Inbox <- msg
-  }
+  d.SendToChannel(channel, msg)
 }
 
 func (d *Dispatcher) handleCmdModeUser(msg Message, client *Client) {

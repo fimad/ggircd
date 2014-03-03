@@ -11,5 +11,6 @@ const (
   CmdPrivMsg = "PRIVMSG"
   CmdQuit    = "QUIT"
   CmdServer  = "SERVER"
+  CmdTopic   = "TOPIC"
   CmdUser    = "USER"
 )

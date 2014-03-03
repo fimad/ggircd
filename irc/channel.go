@@ -131,9 +131,7 @@ func (d *Dispatcher) AddToChannel(channel *Channel, client *Client) {
     c.Relay.Inbox <- joinMsg
   }
 
-  client.Relay.Inbox <- ReplyTopic.WithParams(
-    client.Nick, channel.Name, channel.Topic)
-
+  d.sendTopic(client, channel)
   d.sendNames(client, channel)
 }
 
@@ -165,5 +163,11 @@ func (d *Dispatcher) RemoveFromChannel(channel *Channel, client *Client, reason 
   // Kill the channel if there is no one left in it.
   if len(channel.Clients) == 0 {
     d.KillChannel(channel)
+  }
+}
+
+func (d *Dispatcher) SendToChannel(channel *Channel, msg Message) {
+  for cid := range channel.Clients {
+    d.clients[cid].Relay.Inbox <- msg
   }
 }
