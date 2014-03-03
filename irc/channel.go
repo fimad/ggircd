@@ -11,6 +11,7 @@ const (
   ChannelModeInvite    = "i"
   ChannelModeTopicOp   = "t"
   ChannelModeNoOutside = "n"
+  ChannelModeModerated = "m"
   ChannelModeUserLimit = "l"
   ChannelModeBanMask   = "b"
   ChannelModeVoice     = "v"
@@ -48,6 +49,7 @@ var ValidChannelModes = map[ModeFlag]bool{
   ChannelModeInvite:    true,
   ChannelModeTopicOp:   true,
   ChannelModeNoOutside: true,
+  ChannelModeModerated: true,
   ChannelModeUserLimit: true,
   ChannelModeBanMask:   true,
   ChannelModeVoice:     true,
@@ -91,6 +93,20 @@ func (d *Dispatcher) GetChannel(name string) *Channel {
 func (c *Channel) IsBanned(client *Client) bool {
   Todo("Handle banned users")
   return false
+}
+
+// CanPrivMsg returns a boolean indicating whether or not the given client has
+// permission to message the channel.
+func (c *Channel) CanPrivMsg(client *Client) bool {
+  if c.Mode[ChannelModeNoOutside] && !c.Clients[client.ID] {
+    return false
+  }
+
+  if c.Mode[ChannelModeModerated] && !c.Voice[client.ID] && !c.Ops[client.ID] {
+    return false
+  }
+
+  return true
 }
 
 // AddToChannel adds a Client to the given Channel. This method sends the

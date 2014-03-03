@@ -16,7 +16,6 @@ type Dispatcher struct {
   channelToClient map[string]map[int64]bool
 
   nicks map[string]int64
-  users map[string]int64
 
   //  servers map[int64]ServerInfo
   clients map[int64]*Client
@@ -47,7 +46,6 @@ func NewDispatcher(cfg Config) Dispatcher {
     channelToClient: make(map[string]map[int64]bool),
 
     nicks: make(map[string]int64),
-    users: make(map[string]int64),
 
     clients: make(map[int64]*Client),
 

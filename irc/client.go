@@ -43,7 +43,6 @@ func (d *Dispatcher) KillClient(client *Client) {
 
   delete(d.clients, client.ID)
   delete(d.nicks, client.Nick)
-  delete(d.users, client.User)
   delete(d.relayToClient[client.Relay.ID], client.ID)
 }
 
@@ -51,7 +50,7 @@ func (d *Dispatcher) KillClient(client *Client) {
 // indicating success and an error message in the case of failure.
 func (d *Dispatcher) SetNick(client *Client, nick string) (bool, Message) {
   if d.nicks[nick] != 0 {
-    return false, ErrorNickCollision
+    return false, ErrorNicknameInUse.WithParams(nick, "Nickname is in use.")
   }
 
   client.Nick = nick
@@ -62,15 +61,10 @@ func (d *Dispatcher) SetNick(client *Client, nick string) (bool, Message) {
 // SetUser attempts to set the user info of a given client. Returns a boolean
 // indicating success and an error message in the case of failure.
 func (d *Dispatcher) SetUser(client *Client, user, host, server, realName string) (bool, Message) {
-  if d.users[user] != 0 {
-    return false, ErrorAlreadyRegistred
-  }
-
   client.User = user
   client.Host = host
   client.Server = server
   client.RealName = realName
-  d.users[user] = client.ID
   return true, Message{}
 }
 
