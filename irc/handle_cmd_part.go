@@ -26,8 +26,7 @@ func (d *Dispatcher) handleCmdPart(msg Message, client *Client, server *Server) 
     channel := d.GetChannel(name)
 
     if channel == nil {
-      client.Relay.Inbox <- ErrorNoSuchChannel.WithParams(
-        channel.Name, "No such channel")
+      client.Relay.Inbox <- ErrorNoSuchChannel.WithParams("No such channel")
       continue
     }
 

@@ -15,6 +15,10 @@ type Message struct {
   // Only used in Dispatcher to Relay messages. If true, the Relay will shut
   // down after sending this message.
   ShouldKill bool
+
+  // Some commands expect the last parameter to be prefixed by a colon always.
+  // Other's break...
+  ForceColon bool
 }
 
 // WithParams creates a new copy of a message with the given parameters.
@@ -43,8 +47,13 @@ func (m Message) ToString() (string, bool) {
     }
     msg += " " + param
   }
-  // Always prefix the last parameter with a ':'
-  msg += " :" + m.Params[len(m.Params)-1]
+
+  last := m.Params[len(m.Params)-1]
+  if m.ForceColon || strings.Index(last, " ") != -1 {
+    msg += " :" + last
+  } else {
+    msg += " " + last
+  }
 
   msg += "\x0d\x0a"
 

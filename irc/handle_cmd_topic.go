@@ -33,6 +33,7 @@ func (d *Dispatcher) handleCmdTopic(msg Message, client *Client) {
   }
 
   msg.Prefix = client.Prefix()
+  msg.ForceColon = true
   channel.Topic = msg.Params[1]
   d.SendToChannel(channel, msg)
 }

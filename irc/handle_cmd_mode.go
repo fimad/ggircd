@@ -40,22 +40,17 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   }
 
   modes := msg.Params[1]
-
-  affinity := true
-  if modes[0] == '-' || modes[0] == '+' {
-    affinity = modes[0] == '+'
-    modes = modes[1:]
-  } else {
-    channel.Mode = make(Mode)
-  }
-
   params := msg.Params[2:]
   numParams := 0
 
   // Ensures that all of the flags are valid and count the number of params
   // needed.
-  for _, f := range modes[1:] {
+  for _, f := range modes {
     flag := ModeFlag(f)
+    if flag == "-" || flag == "+" {
+      continue
+    }
+
     if flag == ChannelModeOp || flag == ChannelModeBanMask ||
       flag == ChannelModeUserLimit || flag == ChannelModeKey {
       numParams++
@@ -73,9 +68,14 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   curParam := 0
 
   // Actually attempt to update the modes.
+  affinity := true
   for _, f := range modes {
     flag := ModeFlag(f)
     switch flag {
+    case "+":
+      affinity = true
+    case "-":
+      affinity = false
     case ChannelModeOp:
       nick := params[curParam]
       if cid, ok := d.nicks[nick]; ok {
