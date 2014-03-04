@@ -8,5 +8,6 @@ func (d *Dispatcher) sendChannelMode(client *Client, channel *Channel) {
     }
   }
   client.Relay.Inbox <- ReplyChannelModeIs.
+    WithPrefix(d.Config.Name).
     WithParams(client.Nick, channel.Name, mode)
 }

@@ -4,7 +4,9 @@ package irc
 func (d *Dispatcher) sendTopic(client *Client, channel *Channel) {
   msg := ReplyTopic.WithParams(client.Nick, channel.Name, channel.Topic)
   if channel.Topic == "" {
-    msg = ReplyNoTopic.WithParams(channel.Name, "Not topic set")
+    msg = ReplyNoTopic.
+      WithPrefix(d.Config.Name).
+      WithParams(channel.Name, "Not topic set")
   }
   client.Relay.Inbox <- msg
 }

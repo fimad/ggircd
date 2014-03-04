@@ -27,6 +27,12 @@ func (m Message) WithParams(params ...string) Message {
   return m
 }
 
+// WithPrefix creates a new copy of a message with the given prefix.
+func (m Message) WithPrefix(prefix string) Message {
+  m.Prefix = prefix
+  return m
+}
+
 // ToString serializes a Message to an IRC protocol compatible string.
 func (m Message) ToString() (string, bool) {
   if m.Command == "" {
