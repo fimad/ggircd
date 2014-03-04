@@ -1,7 +1,6 @@
 package irc
 
 import (
-  "log"
   "strconv"
 )
 
@@ -11,7 +10,7 @@ func (d *Dispatcher) handleCmdMode(msg Message, client *Client) {
     return
   }
 
-  if len(msg.Params) < 2 {
+  if len(msg.Params) < 1 {
     client.Relay.Inbox <- ErrorNeedMoreParams
     return
   }
@@ -27,6 +26,11 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   channel := d.channels[msg.Params[0]]
   if channel == nil {
     msg.Relay.Inbox <- ErrorNoSuchChannel
+    return
+  }
+
+  if len(msg.Params) == 1 {
+    d.sendChannelMode(client, channel)
     return
   }
 
@@ -121,7 +125,6 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
     case ChannelModeInvite:
       fallthrough
     case ChannelModeTopicOp:
-      log.Printf("set affin...%q", affinity)
       fallthrough
     case ChannelModeNoOutside:
       fallthrough

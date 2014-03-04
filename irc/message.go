@@ -36,19 +36,15 @@ func (m Message) ToString() (string, bool) {
 
   msg += m.Command
 
-  for i := 0; i < len(m.Params); i++ {
+  for i := 0; i < len(m.Params)-1; i++ {
     param := m.Params[i]
-    if strings.Index(param, " ") == -1 {
-      msg += " " + param
-      continue
-    }
-
-    // Only the last parameter is allowed to contain a space.
-    if i != len(m.Params)-1 {
+    if strings.Index(param, " ") != -1 {
       return "", false
     }
-    msg += " :" + param
+    msg += " " + param
   }
+  // Always prefix the last parameter with a ':'
+  msg += " :" + m.Params[len(m.Params)-1]
 
   msg += "\x0d\x0a"
 
