@@ -3,6 +3,7 @@ package irc
 const (
   CmdJoin    = "JOIN"
   CmdMode    = "MODE"
+  CmdNames   = "NAMES"
   CmdNick    = "NICK"
   CmdPart    = "PART"
   CmdPass    = "PASS"
