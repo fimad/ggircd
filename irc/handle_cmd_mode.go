@@ -35,7 +35,9 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   }
 
   if !channel.Ops[client.ID] {
-    msg.Relay.Inbox <- ErrorChanOPrivsNeeded.WithParams(channel.Name, "Not op")
+    msg.Relay.Inbox <- ErrorChanOPrivsNeeded.
+      WithParams(channel.Name).
+      WithTrailing("Not op")
     return
   }
 
@@ -55,7 +57,9 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
       flag == ChannelModeUserLimit || flag == ChannelModeKey {
       numParams++
     } else if !ValidChannelModes[flag] {
-      msg.Relay.Inbox <- ErrorUnknownMode.WithParams(string(f), "unknown mode")
+      msg.Relay.Inbox <- ErrorUnknownMode.
+        WithParams(string(f)).
+        WithTrailing("unknown mode")
       return
     }
   }
@@ -93,7 +97,9 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
 
       limit, err := strconv.Atoi(params[curParam])
       if err != nil {
-        msg.Relay.Inbox <- ErrorUnknownMode.WithParams(params[curParam], "NaN")
+        msg.Relay.Inbox <- ErrorUnknownMode.
+          WithParams(params[curParam]).
+          WithTrailing("Not a number")
       }
       channel.Limit = limit
       curParam++

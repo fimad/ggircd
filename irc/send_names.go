@@ -32,6 +32,7 @@ func (d *Dispatcher) sendNames(client *Client, channels ...*Channel) {
       WithParams(params...)
     client.Relay.Inbox <- ReplyEndOfNames.
       WithPrefix(d.Config.Name).
-      WithParams(client.Nick, channel.Name, "End of NAMES list")
+      WithParams(client.Nick, channel.Name).
+      WithTrailing("End of NAMES list")
   }
 }

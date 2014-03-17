@@ -50,7 +50,7 @@ func (d *Dispatcher) getHandleStateUser(client *Client) func(Message) {
 // getHandleStateUser returns a handler for a Relay state where the Relay is
 // registering as a client and is expected to send the USER command.
 func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
-  if len(msg.Params) < 4 {
+  if len(msg.Params) < 3 || msg.Trailing == "" {
     msg.Relay.Inbox <- ErrorNeedMoreParams
     return
   }
@@ -58,7 +58,7 @@ func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
   user := msg.Params[0]
   host := msg.Params[1]
   server := msg.Params[2]
-  realName := msg.Params[3]
+  realName := msg.Trailing
   ok, errMsg := d.SetUser(client, user, host, server, realName)
   if !ok {
     msg.Relay.Inbox <- errMsg

@@ -15,7 +15,5 @@ func (d *Dispatcher) handleCmdQuit(msg Message, client *Client, server *Server) 
       len(d.relayToClient[msg.Relay.ID])
   if oneEntity {
     d.sendKillingMessage(msg.Relay, Message{})
-    //d.KillRelay(msg.Relay)
-    //msg.Relay.Kill()
   }
 }

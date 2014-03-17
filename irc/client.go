@@ -50,7 +50,9 @@ func (d *Dispatcher) KillClient(client *Client) {
 // indicating success and an error message in the case of failure.
 func (d *Dispatcher) SetNick(client *Client, nick string) (bool, Message) {
   if d.nicks[nick] != 0 {
-    return false, ErrorNicknameInUse.WithParams(nick, "Nickname is in use.")
+    return false, ErrorNicknameInUse.
+      WithParams(nick).
+      WithTrailing("Nickname is in use.")
   }
 
   client.Nick = nick

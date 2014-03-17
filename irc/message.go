@@ -5,9 +5,10 @@ import (
 )
 
 type Message struct {
-  Prefix  string
-  Command string
-  Params  []string
+  Prefix   string
+  Command  string
+  Params   []string
+  Trailing string
 
   // The Relay that this message originated from.
   Relay *Relay
@@ -15,15 +16,17 @@ type Message struct {
   // Only used in Dispatcher to Relay messages. If true, the Relay will shut
   // down after sending this message.
   ShouldKill bool
-
-  // Some commands expect the last parameter to be prefixed by a colon always.
-  // Other's break...
-  ForceColon bool
 }
 
 // WithParams creates a new copy of a message with the given parameters.
 func (m Message) WithParams(params ...string) Message {
   m.Params = params
+  return m
+}
+
+// WithParams creates a new copy of a message with the given parameters.
+func (m Message) WithTrailing(trailing string) Message {
+  m.Trailing = trailing
   return m
 }
 
@@ -46,7 +49,7 @@ func (m Message) ToString() (string, bool) {
 
   msg += m.Command
 
-  for i := 0; i < len(m.Params)-1; i++ {
+  for i := 0; i < len(m.Params); i++ {
     param := m.Params[i]
     if strings.Index(param, " ") != -1 {
       return "", false
@@ -54,11 +57,8 @@ func (m Message) ToString() (string, bool) {
     msg += " " + param
   }
 
-  last := m.Params[len(m.Params)-1]
-  if m.ForceColon || strings.Index(last, " ") != -1 {
-    msg += " :" + last
-  } else {
-    msg += " " + last
+  if m.Trailing != "" {
+    msg += " :" + m.Trailing
   }
 
   msg += "\x0d\x0a"

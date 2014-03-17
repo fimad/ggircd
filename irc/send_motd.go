@@ -22,14 +22,19 @@ var (
 func (d *Dispatcher) sendMOTD(relay *Relay, client *Client) {
   motdOnce.Do(d.loadMOTD)
 
-  relay.Inbox <- ReplyMOTDStart.WithParams(
-    client.Nick, fmt.Sprintf(motdHeader, d.Config.Name))
+  relay.Inbox <- ReplyMOTDStart.
+    WithParams(client.Nick).
+    WithTrailing(fmt.Sprintf(motdHeader, d.Config.Name))
 
   for _, line := range motd {
-    relay.Inbox <- ReplyMOTD.WithParams(client.Nick, "- "+line)
+    relay.Inbox <- ReplyMOTD.
+      WithParams(client.Nick).
+      WithTrailing("- " + line)
   }
 
-  relay.Inbox <- ReplyEndOfMOTD.WithParams(client.Nick, motdFooter)
+  relay.Inbox <- ReplyEndOfMOTD.
+    WithParams(client.Nick).
+    WithTrailing(motdFooter)
 }
 
 func (d *Dispatcher) loadMOTD() {

@@ -17,7 +17,7 @@ func (d *Dispatcher) handleCmdTopic(msg Message, client *Client) {
     return
   }
 
-  if len(msg.Params) == 1 {
+  if msg.Trailing == "" {
     d.sendTopic(client, channel)
     return
   }
@@ -33,7 +33,6 @@ func (d *Dispatcher) handleCmdTopic(msg Message, client *Client) {
   }
 
   msg.Prefix = client.Prefix()
-  msg.ForceColon = true
-  channel.Topic = msg.Params[1]
+  channel.Topic = msg.Trailing
   d.SendToChannel(channel, msg)
 }

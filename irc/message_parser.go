@@ -84,7 +84,7 @@ func parseMessage(line string) (Message, bool) {
     // If the next character is a ':', then the parameter is the value of the
     // remainder of the string.
     if parts[3][i] == ':' {
-      msg.Params = append(msg.Params, parts[3][i+1:])
+      msg.Trailing = parts[3][i+1:]
       break
     }
 
