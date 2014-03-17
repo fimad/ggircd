@@ -59,7 +59,10 @@ var ValidChannelModes = map[ModeFlag]bool{
 // GetChannel will return the Channel for a given name and will create one if
 // the channel is not already present.
 func (d *Dispatcher) GetChannel(name string) *Channel {
+  name = Lowercase(name)
+
   if name[0] != '&' && name[0] != '#' {
+    log.Printf("malformed channel name....")
     return nil
   }
 

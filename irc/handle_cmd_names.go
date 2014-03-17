@@ -33,7 +33,7 @@ func (d *Dispatcher) handleCmdNamesAll(msg Message, client *Client) {
 func (d *Dispatcher) handleCmdNamesChannel(msg Message, client *Client) {
   names := strings.Split(msg.Params[0], ",")
   for _, name := range names {
-    channel := d.channels[name]
+    channel := d.ChannelForName(name)
     if channel == nil {
       break
     }

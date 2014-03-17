@@ -23,10 +23,12 @@ func (d *Dispatcher) handleCmdPart(msg Message, client *Client, server *Server) 
   channels := strings.Split(msg.Params[0], ",")
   for i := 0; i < len(channels); i++ {
     name := channels[i]
-    channel := d.GetChannel(name)
+    channel := d.ChannelForName(name)
 
     if channel == nil {
-      client.Relay.Inbox <- ErrorNoSuchChannel.WithTrailing("No such channel")
+      client.Relay.Inbox <- ErrorNoSuchChannel.
+        WithParams(name).
+        WithTrailing("No such channel")
       continue
     }
 

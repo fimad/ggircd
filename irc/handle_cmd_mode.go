@@ -23,9 +23,11 @@ func (d *Dispatcher) handleCmdMode(msg Message, client *Client) {
 }
 
 func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
-  channel := d.channels[msg.Params[0]]
+  channel := d.ChannelForName(msg.Params[0])
   if channel == nil {
-    msg.Relay.Inbox <- ErrorNoSuchChannel
+    msg.Relay.Inbox <- ErrorNoSuchChannel.
+      WithPrefix(d.Config.Name).
+      WithParams(msg.Params[0])
     return
   }
 
@@ -82,8 +84,8 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
       affinity = false
     case ChannelModeOp:
       nick := params[curParam]
-      if cid, ok := d.nicks[nick]; ok {
-        channel.Ops[cid] = affinity
+      if nickClient, ok := d.ClientForNick(nick); ok {
+        channel.Ops[nickClient.ID] = affinity
       } else {
         msg.Relay.Inbox <- ErrorNoSuchNick.WithParams(nick)
       }
@@ -109,8 +111,8 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
 
     case ChannelModeVoice:
       nick := params[curParam]
-      if cid, ok := d.nicks[nick]; ok {
-        channel.Voice[cid] = affinity
+      if client, ok := d.ClientForNick(nick); ok {
+        channel.Voice[client.ID] = affinity
       } else {
         msg.Relay.Inbox <- ErrorNoSuchNick.WithParams(nick)
       }

@@ -56,6 +56,17 @@ func NewDispatcher(cfg Config) Dispatcher {
   }
 }
 
+// ClientForNick takes a nick and returns the corresponding client.
+func (d *Dispatcher) ClientForNick(nick string) (*Client, bool) {
+  cid, ok := d.nicks[Lowercase(nick)]
+  return d.clients[cid], ok
+}
+
+// ChannelForName takes a channel name and returns the corresponding channel.
+func (d *Dispatcher) ChannelForName(name string) *Channel {
+  return d.channels[Lowercase(name)]
+}
+
 // Loop is the entry point for the local server. This method does not return.
 func (d *Dispatcher) Loop() {
   go d.acceptLoop()

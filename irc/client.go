@@ -38,7 +38,9 @@ func (d *Dispatcher) NewClient(relay *Relay) *Client {
 // method does not send any messages, and does not terminate any Relays.
 func (d *Dispatcher) KillClient(client *Client) {
   for ch := range client.Channels {
-    d.RemoveFromChannel(d.channels[ch], client, "QUIT")
+    if channel := d.ChannelForName(ch); channel != nil {
+      d.RemoveFromChannel(channel, client, "QUIT")
+    }
   }
 
   delete(d.clients, client.ID)
@@ -49,6 +51,8 @@ func (d *Dispatcher) KillClient(client *Client) {
 // SetNick attempts to set the nick name of a given client. Returns a boolean
 // indicating success and an error message in the case of failure.
 func (d *Dispatcher) SetNick(client *Client, nick string) (bool, Message) {
+  nick = Lowercase(nick)
+
   if d.nicks[nick] != 0 {
     return false, ErrorNicknameInUse.
       WithParams(nick).

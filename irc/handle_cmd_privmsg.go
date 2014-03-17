@@ -20,18 +20,18 @@ func (d *Dispatcher) handleCmdPrivMsg(msg Message, client *Client) {
   msg.Prefix = client.Prefix()
 
   if target[0] != '#' && target[0] != '&' {
-    cid, ok := d.nicks[target]
+    nickClient, ok := d.ClientForNick(target)
     if !ok {
       client.Relay.Inbox <- ErrorNoSuchNick.
         WithParams(target).
         WithTrailing("No such nick")
       return
     }
-    d.clients[cid].Relay.Inbox <- msg
+    nickClient.Relay.Inbox <- msg
     return
   }
 
-  channel := d.channels[target]
+  channel := d.ChannelForName(target)
 
   if channel == nil || !channel.CanPrivMsg(client) {
     client.Relay.Inbox <- ErrorCannotSendToChan.
