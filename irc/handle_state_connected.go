@@ -9,6 +9,8 @@ func (d *Dispatcher) getHandleStateConnected(client *Client, server *Server) fun
       d.handleCmdMode(msg, client)
     case CmdNames:
       d.handleCmdNames(msg, client)
+    case CmdNick:
+      d.handleCmdNick(msg, client)
     case CmdPart:
       d.handleCmdPart(msg, client, server)
     case CmdPing:

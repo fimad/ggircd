@@ -23,7 +23,7 @@ func (d *Dispatcher) handleCmdPrivMsg(msg Message, client *Client) {
     nickClient, ok := d.ClientForNick(target)
     if !ok {
       client.Relay.Inbox <- ErrorNoSuchNick.
-        WithParams(target).
+        WithParams(client.Prefix(), target).
         WithTrailing("No such nick")
       return
     }
@@ -35,7 +35,7 @@ func (d *Dispatcher) handleCmdPrivMsg(msg Message, client *Client) {
 
   if channel == nil || !channel.CanPrivMsg(client) {
     client.Relay.Inbox <- ErrorCannotSendToChan.
-      WithParams(target).
+      WithParams(client.Prefix(), target).
       WithTrailing("Not allowed")
     return
   }

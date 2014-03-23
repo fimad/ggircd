@@ -28,21 +28,21 @@ func (d *Dispatcher) handleCmdJoin(msg Message, client *Client, server *Server) 
 
     if channel == nil {
       msg.Relay.Inbox <- ErrorNoSuchChannel.
-        WithParams(name).
+        WithParams(client.Nick, name).
         WithTrailing("No such channel")
       continue
     }
 
     if channel.Mode[ChannelModeInvite] {
       msg.Relay.Inbox <- ErrorInviteOnlyChan.
-        WithParams(name).
+        WithParams(client.Nick, name).
         WithTrailing("Invite only")
       continue
     }
 
     if channel.Mode[ChannelModeKey] && keys[i] != channel.Key {
       msg.Relay.Inbox <- ErrorBadChannelKEY.
-        WithParams(name).
+        WithParams(client.Nick, name).
         WithTrailing("Incorrect key")
       continue
     }
@@ -57,7 +57,7 @@ func (d *Dispatcher) handleCmdJoin(msg Message, client *Client, server *Server) 
 
     if channel.IsBanned(client) {
       msg.Relay.Inbox <- ErrorBannedFromChan.
-        WithParams(name).
+        WithParams(client.Nick, name).
         WithTrailing("Banned")
       continue
     }
