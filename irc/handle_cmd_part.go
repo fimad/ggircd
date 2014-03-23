@@ -11,7 +11,7 @@ func (d *Dispatcher) handleCmdPart(msg Message, client *Client, server *Server) 
   }
 
   if len(msg.Params) == 0 {
-    msg.Relay.Inbox <- ErrorNeedMoreParams
+    d.sendNumeric(client, ErrorNeedMoreParams)
     return
   }
 
@@ -26,16 +26,12 @@ func (d *Dispatcher) handleCmdPart(msg Message, client *Client, server *Server) 
     channel := d.ChannelForName(name)
 
     if channel == nil {
-      client.Relay.Inbox <- ErrorNoSuchChannel.
-        WithParams(name).
-        WithTrailing("No such channel")
+      d.sendNumeric(client, ErrorNoSuchChannel, name)
       continue
     }
 
     if !channel.Clients[client.ID] {
-      client.Relay.Inbox <- ErrorNotOnChannel.
-        WithParams(channel.Name).
-        WithTrailing("Not on channel")
+      d.sendNumeric(client, ErrorNotOnChannel, name)
       continue
     }
 

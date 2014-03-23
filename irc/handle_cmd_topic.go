@@ -6,14 +6,14 @@ func (d *Dispatcher) handleCmdTopic(msg Message, client *Client) {
   }
 
   if len(msg.Params) < 1 {
-    msg.Relay.Inbox <- ErrorNeedMoreParams.WithParams(msg.Command)
+    d.sendNumeric(client, ErrorNeedMoreParams)
     return
   }
 
   name := msg.Params[0]
   channel := d.ChannelForName(name)
   if channel != nil {
-    msg.Relay.Inbox <- ErrorNoSuchChannel.WithParams(name)
+    d.sendNumeric(client, ErrorNoSuchChannel, name)
     return
   }
 
@@ -23,12 +23,12 @@ func (d *Dispatcher) handleCmdTopic(msg Message, client *Client) {
   }
 
   if !channel.Clients[client.ID] {
-    msg.Relay.Inbox <- ErrorNotOnChannel.WithParams(name)
+    d.sendNumeric(client, ErrorNotOnChannel, name)
     return
   }
 
   if channel.Mode[ChannelModeTopicOp] && !channel.Ops[client.ID] {
-    msg.Relay.Inbox <- ErrorChanOPrivsNeeded.WithParams(name)
+    d.sendNumeric(client, ErrorChanOPrivsNeeded, name)
     return
   }
 

@@ -25,9 +25,7 @@ func (d *Dispatcher) handleStateNewCmdNick(msg Message) {
   nick := msg.Params[0]
 
   client := d.NewClient(msg.Relay)
-  ok, errMsg := d.SetNick(client, nick)
-  if !ok {
-    msg.Relay.Inbox <- errMsg
+  if !d.SetNick(client, nick) {
     return
   }
 
@@ -59,9 +57,7 @@ func (d *Dispatcher) handleStateUserCmdUser(msg Message, client *Client) {
   host := msg.Params[1]
   server := msg.Params[2]
   realName := msg.Trailing
-  ok, errMsg := d.SetUser(client, user, host, server, realName)
-  if !ok {
-    msg.Relay.Inbox <- errMsg
+  if !d.SetUser(client, user, host, server, realName) {
     return
   }
 

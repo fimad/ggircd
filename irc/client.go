@@ -49,29 +49,40 @@ func (d *Dispatcher) KillClient(client *Client) {
 }
 
 // SetNick attempts to set the nick name of a given client. Returns a boolean
-// indicating success and an error message in the case of failure.
-func (d *Dispatcher) SetNick(client *Client, nick string) (bool, Message) {
+// indicating success.
+func (d *Dispatcher) SetNick(client *Client, nick string) bool {
   nick = Lowercase(nick)
 
   if d.nicks[nick] != 0 {
-    return false, ErrorNicknameInUse.
-      WithParams(nick).
-      WithTrailing("Nickname is in use.")
+    d.sendNumeric(client, ErrorNicknameInUse, nick)
+    return false
   }
 
+  msg := Message{
+    Command: CmdNick,
+    Prefix:  client.Prefix(),
+    Params:  []string{nick},
+  }
+  for name := range client.Channels {
+    d.SendToChannel(d.ChannelForName(name), msg)
+  }
+
+  oldNick := client.Nick
   client.Nick = nick
   d.nicks[nick] = client.ID
-  return true, Message{}
+  delete(d.nicks, oldNick)
+
+  return true
 }
 
 // SetUser attempts to set the user info of a given client. Returns a boolean
-// indicating success and an error message in the case of failure.
-func (d *Dispatcher) SetUser(client *Client, user, host, server, realName string) (bool, Message) {
+// indicating success.
+func (d *Dispatcher) SetUser(client *Client, user, host, server, realName string) bool {
   client.User = user
   client.Host = host
   client.Server = server
   client.RealName = realName
-  return true, Message{}
+  return true
 }
 
 // Prefix returns the prefix string that should be used in Messages originating

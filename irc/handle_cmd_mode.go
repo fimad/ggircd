@@ -25,9 +25,7 @@ func (d *Dispatcher) handleCmdMode(msg Message, client *Client) {
 func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   channel := d.ChannelForName(msg.Params[0])
   if channel == nil {
-    msg.Relay.Inbox <- ErrorNoSuchChannel.
-      WithPrefix(d.Config.Name).
-      WithParams(msg.Params[0])
+    d.sendNumeric(client, ErrorNoSuchChannel, msg.Params[0])
     return
   }
 
@@ -37,9 +35,7 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
   }
 
   if !channel.Ops[client.ID] {
-    msg.Relay.Inbox <- ErrorChanOPrivsNeeded.
-      WithParams(channel.Name).
-      WithTrailing("Not op")
+    d.sendNumeric(client, ErrorChanOPrivsNeeded, channel.Name)
     return
   }
 
@@ -59,15 +55,13 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
       flag == ChannelModeUserLimit || flag == ChannelModeKey {
       numParams++
     } else if !ValidChannelModes[flag] {
-      msg.Relay.Inbox <- ErrorUnknownMode.
-        WithParams(string(f)).
-        WithTrailing("unknown mode")
+      d.sendNumeric(client, ErrorUnknownMode, string(f))
       return
     }
   }
 
   if len(params) < numParams {
-    msg.Relay.Inbox <- ErrorNeedMoreParams
+    d.sendNumeric(client, ErrorNeedMoreParams)
     return
   }
 
@@ -87,7 +81,7 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
       if nickClient, ok := d.ClientForNick(nick); ok {
         channel.Ops[nickClient.ID] = affinity
       } else {
-        msg.Relay.Inbox <- ErrorNoSuchNick.WithParams(nick)
+        d.sendNumeric(client, ErrorNoSuchNick, nick)
       }
       curParam++
 
@@ -99,9 +93,7 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
 
       limit, err := strconv.Atoi(params[curParam])
       if err != nil {
-        msg.Relay.Inbox <- ErrorUnknownMode.
-          WithParams(params[curParam]).
-          WithTrailing("Not a number")
+        d.sendNumericTrailing(client, ErrorUnknownMode, "NaN", params[curParam])
       }
       channel.Limit = limit
       curParam++
@@ -114,7 +106,7 @@ func (d *Dispatcher) handleCmdModeChannel(msg Message, client *Client) {
       if client, ok := d.ClientForNick(nick); ok {
         channel.Voice[client.ID] = affinity
       } else {
-        msg.Relay.Inbox <- ErrorNoSuchNick.WithParams(nick)
+        d.sendNumeric(client, ErrorNoSuchNick, nick)
       }
       curParam++
 

@@ -11,7 +11,7 @@ func (d *Dispatcher) handleCmdJoin(msg Message, client *Client, server *Server) 
   }
 
   if len(msg.Params) == 0 {
-    msg.Relay.Inbox <- ErrorNeedMoreParams
+    d.sendNumeric(client, ErrorNeedMoreParams)
     return
   }
   channels := strings.Split(msg.Params[0], ",")
@@ -27,38 +27,28 @@ func (d *Dispatcher) handleCmdJoin(msg Message, client *Client, server *Server) 
     channel := d.GetChannel(name)
 
     if channel == nil {
-      msg.Relay.Inbox <- ErrorNoSuchChannel.
-        WithParams(client.Nick, name).
-        WithTrailing("No such channel")
+      d.sendNumeric(client, ErrorNoSuchChannel, name)
       continue
     }
 
     if channel.Mode[ChannelModeInvite] {
-      msg.Relay.Inbox <- ErrorInviteOnlyChan.
-        WithParams(client.Nick, name).
-        WithTrailing("Invite only")
+      d.sendNumeric(client, ErrorInviteOnlyChan, name)
       continue
     }
 
     if channel.Mode[ChannelModeKey] && keys[i] != channel.Key {
-      msg.Relay.Inbox <- ErrorBadChannelKEY.
-        WithParams(client.Nick, name).
-        WithTrailing("Incorrect key")
+      d.sendNumeric(client, ErrorBadChannelKey, name)
       continue
     }
 
     if channel.Mode[ChannelModeUserLimit] &&
       len(channel.Clients) >= channel.Limit {
-      msg.Relay.Inbox <- ErrorChannelIsFull.
-        WithParams(name).
-        WithTrailing("Channel full")
+      d.sendNumeric(client, ErrorChannelIsFull, name)
       continue
     }
 
     if channel.IsBanned(client) {
-      msg.Relay.Inbox <- ErrorBannedFromChan.
-        WithParams(client.Nick, name).
-        WithTrailing("Banned")
+      d.sendNumeric(client, ErrorBannedFromChan, name)
       continue
     }
 
