@@ -18,6 +18,5 @@ func main() {
   log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
   cfg := irc.ConfigFromJSONFile(*configFile)
-  server := irc.NewDispatcher(cfg)
-  server.Loop()
+  irc.RunServer(cfg)
 }

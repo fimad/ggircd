@@ -9,13 +9,6 @@ type Message struct {
   Command  string
   Params   []string
   Trailing string
-
-  // The Relay that this message originated from.
-  Relay *Relay
-
-  // Only used in Dispatcher to Relay messages. If true, the Relay will shut
-  // down after sending this message.
-  ShouldKill bool
 }
 
 // WithParams creates a new copy of a message with the given parameters.
