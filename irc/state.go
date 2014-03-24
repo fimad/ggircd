@@ -107,6 +107,10 @@ func (s *stateImpl) SetNick(user *User, nick string) bool {
 		return false
 	}
 
+	user.ForChannels(func(ch *Channel) {
+		ch.Send(CmdNick.WithPrefix(user.Prefix()).WithParams(nick))
+	})
+
 	delete(s.users, user.Nick)
 	s.users[nick] = user
 	user.Nick = nick
