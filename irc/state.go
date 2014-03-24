@@ -95,6 +95,7 @@ func (s *stateImpl) NewChannel(name string) *Channel {
 
   ch := &Channel{
     Name:   name,
+    Mode:   ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
     Users:  make(map[*User]bool),
     Ops:    make(map[*User]bool),
     Voices: make(map[*User]bool),

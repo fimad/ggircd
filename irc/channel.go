@@ -3,7 +3,7 @@ package irc
 type Channel struct {
   Name string
 
-  //Mode Mode
+  Mode Mode
 
   Topic string
 
