@@ -32,3 +32,10 @@ func (ch Channel) ForUsers(callback func(*User)) {
     callback(u)
   }
 }
+
+// IsBanned takes a user and returns a boolean indicating if that user is banned
+// in this channel.
+func (ch Channel) IsBanned(user *User) bool {
+  // TODO(will): Actually implement banned users.
+  return false
+}

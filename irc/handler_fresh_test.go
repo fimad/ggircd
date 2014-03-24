@@ -24,7 +24,6 @@ func TestFreshHandlerHandle(t *testing.T) {
       desc:  "nick without parameters",
       in:    []Message{CmdNick},
       want:  mockConnection{messages: []Message{ErrorNoNicknameGiven}},
-      fuzzy: true,
       state: newMockState(),
     },
     {
@@ -37,7 +36,6 @@ func TestFreshHandlerHandle(t *testing.T) {
       desc:  "nick using in-use nickname",
       in:    []Message{CmdNick.WithParams("foo")},
       want:  mockConnection{messages: []Message{ErrorNicknameInUse}},
-      fuzzy: true,
       state: newMockState().withUser("foo"),
     },
     {
@@ -47,7 +45,6 @@ func TestFreshHandlerHandle(t *testing.T) {
         CmdUser.WithTrailing("real name"),
       },
       want:  mockConnection{messages: []Message{ErrorNeedMoreParams}},
-      fuzzy: true,
       state: newMockState(),
     },
     {
@@ -62,7 +59,6 @@ func TestFreshHandlerHandle(t *testing.T) {
           ReplyYourHost,
         },
       },
-      fuzzy: true,
       state: newMockState(),
     },
   })

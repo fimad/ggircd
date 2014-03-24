@@ -19,9 +19,10 @@ func newMockState() *mockState {
   }
 }
 
-func (s *mockState) withChannel(name string) *mockState {
+func (s *mockState) withChannel(name string, mode string) *mockState {
   s.channels[name] = &Channel{
     Name:    name,
+    Mode:    ParseMode(ChannelModes, mode),
     Topic:   "",
     Limit:   0,
     Key:     "",
@@ -32,6 +33,16 @@ func (s *mockState) withChannel(name string) *mockState {
     Ops:     make(map[*User]bool),
     Voices:  make(map[*User]bool),
   }
+  return s
+}
+
+func (s *mockState) withChannelKey(name string, key string) *mockState {
+  s.channels[name].Key = key
+  return s
+}
+
+func (s *mockState) withChannelLimit(name string, limit int) *mockState {
+  s.channels[name].Limit = limit
   return s
 }
 
@@ -52,6 +63,7 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
     Server:   nick,
     RealName: nick,
     Channels: chanMap,
+    Sink:     &mockConnection{},
   }
   return s
 }

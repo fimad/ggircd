@@ -6,14 +6,22 @@ import (
 )
 
 type handlerTest struct {
-  desc  string
-  in    []Message
-  state *mockState
-  want  mockConnection
+  desc string
+  in   []Message
 
-  // If true, perform a fuzzy comparison for messages where only the commands
+  // The initial IRC state.
+  state *mockState
+
+  // The desired mock connection state for the connection that is passed to the
+  // hnadler.
+  want mockConnection
+
+  // A map from nick names to desired mock connection states.
+  wantNicks map[string]mockConnection
+
+  // If false, perform a fuzzy comparison for messages where only the commands
   // are compared.
-  fuzzy bool
+  strict bool
 
   // If true, call Handler.Close after the sequence of messages has been
   // processed.
@@ -26,9 +34,18 @@ func testHandler(t *testing.T, name string, state chan State, handler Handler, t
     state <- tt.state
     got := runHandler(tt, handler)
     _ = <-state
-    if !compareMessages(tt.fuzzy, got, tt.want) {
-      t.Errorf("%d. %s: %s\n%+v =>\n\tgot %+v\n\twant %+v",
-        i, name, tt.desc, tt.in, got, tt.want)
+
+    gotNicks := make(map[string]mockConnection)
+    ok := compareMessages(tt.strict, got, tt.want)
+    for nick, want := range tt.wantNicks {
+      user := tt.state.GetUser(nick)
+      gotNicks[nick] = *user.Sink.(*mockConnection)
+      ok = ok && compareMessages(tt.strict, gotNicks[nick], want)
+    }
+
+    if !ok {
+      t.Errorf("%d. %s: %s\n%+v =>\n\tgot %+v\n\twant %+v\n\tgot nicks %+v\n\twant nicks %+v",
+        i, name, tt.desc, tt.in, got, tt.want, gotNicks, tt.wantNicks)
     }
   }
 }
@@ -44,8 +61,8 @@ func runHandler(tt handlerTest, handler Handler) mockConnection {
   return conn
 }
 
-func compareMessages(fuzzy bool, got, want mockConnection) bool {
-  if !fuzzy {
+func compareMessages(strict bool, got, want mockConnection) bool {
+  if strict {
     return reflect.DeepEqual(got, want)
   }
 

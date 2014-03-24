@@ -22,10 +22,6 @@ type State interface {
   // nickname.
   GetUser(string) *User
 
-  // NewChannel creates a new channel with the given name and the appropriate
-  // default values.
-  NewChannel(string) *Channel
-
   // NewUser creates a new user with the given nickname and the appropriate
   // default values.
   NewUser(string) *User
@@ -37,6 +33,13 @@ type State interface {
   // SetNick updates the nickname for the given user. If there is a user with
   // the given nickname then this method does nothing and returns false.
   SetNick(*User, string) bool
+
+  // NewChannel creates a new channel with the given name and the appropriate
+  // default values.
+  NewChannel(string) *Channel
+
+  // RecycleChannel removes a channel if there are no more joined users.
+  RecycleChannel(*Channel)
 
   // JoinChannel adds a user to a channel. It does not perform any permissions
   // checking, it only updates pointers.
@@ -87,23 +90,6 @@ func (s stateImpl) GetUser(nick string) *User {
   return s.users[Lowercase(nick)]
 }
 
-func (s *stateImpl) NewChannel(name string) *Channel {
-  name = Lowercase(name)
-  if s.channels[name] != nil {
-    return nil
-  }
-
-  ch := &Channel{
-    Name:   name,
-    Mode:   ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
-    Users:  make(map[*User]bool),
-    Ops:    make(map[*User]bool),
-    Voices: make(map[*User]bool),
-  }
-  s.channels[name] = ch
-  return ch
-}
-
 func (s *stateImpl) NewUser(nick string) *User {
   nick = Lowercase(nick)
   if s.users[nick] != nil {
@@ -134,9 +120,43 @@ func (s *stateImpl) RemoveUser(user *User) {
   delete(s.users, user.Nick)
 }
 
+func (s *stateImpl) NewChannel(name string) *Channel {
+  name = Lowercase(name)
+  if s.channels[name] != nil {
+    return nil
+  }
+
+  if name[0] != '#' && name[0] != '&' {
+    return nil
+  }
+
+  ch := &Channel{
+    Name:   name,
+    Mode:   ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
+    Users:  make(map[*User]bool),
+    Ops:    make(map[*User]bool),
+    Voices: make(map[*User]bool),
+  }
+  s.channels[name] = ch
+  return ch
+}
+
+func (s *stateImpl) RecycleChannel(channel *Channel) {
+  if channel == nil || len(channel.Users) != 0 {
+    return
+  }
+  delete(s.channels, channel.Name)
+}
+
 func (s *stateImpl) JoinChannel(channel *Channel, user *User) {
+  joinMsg := CmdJoin.WithPrefix(user.Prefix()).WithParams(channel.Name)
+  channel.Send(joinMsg)
+
   channel.Users[user] = true
   user.Channels[channel] = true
+
+  sendTopic(s, user, channel)
+  sendNames(s, user, channel)
 }
 
 func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
@@ -153,4 +173,6 @@ func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
     WithPrefix(user.Prefix()).
     WithParams(ch.Name).
     WithTrailing(reason))
+
+  s.RecycleChannel(ch)
 }
