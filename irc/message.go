@@ -54,7 +54,7 @@ func (m Message) ToString() (string, bool) {
     msg += " :" + m.Trailing
   }
 
-  msg += "\x0d\x0a"
+  msg += "\r\n"
 
   return msg, true
 }

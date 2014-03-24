@@ -75,5 +75,5 @@ func (h *freshUserHandler) handleUser(conn Connection, msg Message) Handler {
 
   sendIntro(state, h.user)
 
-  return NullHandler{}
+  return NewUserHandler(h.state, h.user.Nick)
 }
