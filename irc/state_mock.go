@@ -65,5 +65,10 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
 		Channels: chanMap,
 		Sink:     &mockConnection{},
 	}
+
+	for ch := range chanMap {
+		ch.Users[s.users[nick]] = true
+	}
+
 	return s
 }

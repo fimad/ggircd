@@ -15,9 +15,9 @@ func sendNames(state State, user *User, channels ...*Channel) {
 
 		params[1] = channel.Name
 
-		for user := range channel.Users {
+		for u := range channel.Users {
 			nick := user.Nick
-			if channel.Ops[user] {
+			if channel.Ops[u] {
 				nick = "@" + nick
 			} else if channel.Voices[user] {
 				nick = "+" + nick
