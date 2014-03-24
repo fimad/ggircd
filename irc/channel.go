@@ -17,16 +17,10 @@ type Channel struct {
   Clients map[*User]bool
   Ops     map[*User]bool
   Voice   map[*User]bool
-
-  Sink Sink
 }
 
-type ChannelSink struct {
-  Channel *Channel
-}
-
-func (s *ChannelSink) Send(msg Message) {
-  for user := range s.Channel.Clients {
+func (ch Channel) Send(msg Message) {
+  for user := range ch.Clients {
     user.Sink.Send(msg)
   }
 }

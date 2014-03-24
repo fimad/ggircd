@@ -16,6 +16,10 @@ type User struct {
   Sink Sink
 }
 
+func (u User) Send(msg Message) {
+  u.Sink.Send(msg)
+}
+
 // ForChannels iterates over all of the channels that the user has joined and
 // passes a pointer to each to the supplied callback.
 func (u User) ForChannels(callback func(*Channel)) {

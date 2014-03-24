@@ -1,21 +1,25 @@
 package irc
 
-type MockState stateImpl
-
-func NewMockState() MockState {
-  return MockState(stateImpl{
-    users:    make(map[string]*User),
-    channels: make(map[string]*Channel),
-    config: Config{
-      Name:    "name",
-      Network: "network",
-      Port:    6667,
-      MOTD:    "",
-    },
-  })
+type mockState struct {
+  stateImpl
 }
 
-func (s MockState) WithChannel(name string) MockState {
+func newMockState() *mockState {
+  return &mockState{
+    stateImpl{
+      users:    make(map[string]*User),
+      channels: make(map[string]*Channel),
+      config: Config{
+        Name:    "name",
+        Network: "network",
+        Port:    6667,
+        MOTD:    "",
+      },
+    },
+  }
+}
+
+func (s *mockState) withChannel(name string) *mockState {
   s.channels[name] = &Channel{
     Name:    name,
     Topic:   "",
@@ -27,12 +31,11 @@ func (s MockState) WithChannel(name string) MockState {
     Clients: make(map[*User]bool),
     Ops:     make(map[*User]bool),
     Voice:   make(map[*User]bool),
-    Sink:    &SliceSink{},
   }
   return s
 }
 
-func (s MockState) WithUser(nick string, channels ...string) MockState {
+func (s *mockState) withUser(nick string, channels ...string) *mockState {
   chanMap := make(map[*Channel]bool)
   for _, name := range channels {
     ch := s.channels[name]
@@ -49,7 +52,6 @@ func (s MockState) WithUser(nick string, channels ...string) MockState {
     Server:   nick,
     RealName: nick,
     Channels: chanMap,
-    Sink:     &SliceSink{},
   }
   return s
 }

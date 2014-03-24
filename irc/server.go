@@ -25,7 +25,7 @@ func acceptLoop(listener net.Listener, state chan State) {
       continue
     }
 
-    c := NewConnection(conn, NewFreshHandler())
+    c := NewConnection(conn, NewFreshHandler(state))
     go c.Loop()
   }
 }
