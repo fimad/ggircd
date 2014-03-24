@@ -28,9 +28,9 @@ func (s *mockState) withChannel(name string) *mockState {
     BanNick: "",
     BanUser: "",
     BanHost: "",
-    Clients: make(map[*User]bool),
+    Users:   make(map[*User]bool),
     Ops:     make(map[*User]bool),
-    Voice:   make(map[*User]bool),
+    Voices:  make(map[*User]bool),
   }
   return s
 }

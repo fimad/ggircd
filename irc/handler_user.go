@@ -1,6 +1,6 @@
 package irc
 
-type commandMap map[string]func(State, Connection, Message) Handler
+type commandMap map[string]func(State, *User, Connection, Message) Handler
 
 // UserHandler is a handler that handles messages coming from a user connection
 // that has successfully associated with the client.
@@ -17,6 +17,7 @@ func NewUserHandler(state chan State, nick string) Handler {
   }
   handler.commands = commandMap{
     CmdPing.Command: handler.handleCmdPing,
+    CmdQuit.Command: handler.handleCmdQuit,
   }
   return handler
 }
@@ -33,5 +34,5 @@ func (h *UserHandler) Handle(conn Connection, msg Message) Handler {
   if command == nil {
     return h
   }
-  return command(state, conn, msg)
+  return command(state, state.GetUser(h.nick), conn, msg)
 }
