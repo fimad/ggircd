@@ -6,9 +6,15 @@ import (
   "net"
 )
 
+// Connection corresponds to some end-point that has connected to the IRC
+// server.
 type Connection interface {
   Sink
+
+  // Loop reads messages from the connection and passes them to the handler.
   Loop()
+
+  // Kill stops the execution of the go routine running Loop.
   Kill()
 }
 
@@ -20,6 +26,8 @@ type connectionImpl struct {
   killWrite chan struct{}
 }
 
+// NewConnection creates a new connection with the given network connection and
+// handler.
 func NewConnection(conn net.Conn, handler Handler) Connection {
   return &connectionImpl{
     conn:      conn,
