@@ -4,6 +4,7 @@ package irc
 func sendTopic(state State, user *User, channel *Channel) {
 	if channel.Topic != "" {
 		sendNumericTrailing(state, user, ReplyTopic, channel.Topic, channel.Name)
+	} else {
+		sendNumericTrailing(state, user, ReplyNoTopic, "No topic set", channel.Name)
 	}
-	sendNumericTrailing(state, user, ReplyNoTopic, "No topic set", channel.Name)
 }

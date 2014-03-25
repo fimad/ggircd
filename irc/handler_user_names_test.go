@@ -21,7 +21,7 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#channel", "").
+				withChannel("#channel", "", "").
 				withUser("nick", "#channel").
 				withUser("foo", "#channel").
 				withUser("bar", "#channel"),
@@ -40,8 +40,8 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#foo", "").
-				withChannel("#bar", "").
+				withChannel("#foo", "", "").
+				withChannel("#bar", "", "").
 				withUser("nick").
 				withUser("foo", "#foo").
 				withUser("bar", "#bar"),
@@ -55,7 +55,7 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#foo", "s").
+				withChannel("#foo", "s", "").
 				withUser("nick").
 				withUser("foo", "#foo"),
 		},
@@ -73,7 +73,7 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#channel", "p").
+				withChannel("#channel", "p", "").
 				withUser("nick", "#channel").
 				withUser("foo", "#channel").
 				withUser("bar", "#channel"),
@@ -87,7 +87,7 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#channel", "p").
+				withChannel("#channel", "p", "").
 				withUser("nick").
 				withUser("foo", "#channel").
 				withUser("bar", "#channel"),

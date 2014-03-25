@@ -29,7 +29,7 @@ func TestUserHandlerNicks(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#channel", "").
+				withChannel("#channel", "", "").
 				withUser("nick", "#channel").
 				withUser("bar", "#channel"),
 		},

@@ -19,11 +19,11 @@ func newMockState() *mockState {
 	}
 }
 
-func (s *mockState) withChannel(name string, mode string) *mockState {
+func (s *mockState) withChannel(name, mode, topic string) *mockState {
 	s.channels[name] = &Channel{
 		Name:    name,
 		Mode:    ParseMode(ChannelModes, mode),
-		Topic:   "",
+		Topic:   topic,
 		Limit:   0,
 		Key:     "",
 		BanNick: "",
@@ -36,7 +36,7 @@ func (s *mockState) withChannel(name string, mode string) *mockState {
 	return s
 }
 
-func (s *mockState) withChannelKey(name string, key string) *mockState {
+func (s *mockState) withChannelKey(name, key string) *mockState {
 	s.channels[name].Key = key
 	return s
 }
@@ -70,5 +70,21 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
 		ch.Users[s.users[nick]] = true
 	}
 
+	return s
+}
+
+func (s *mockState) withOps(channel string, nicks ...string) *mockState {
+	ch := s.channels[channel]
+	for _, nick := range nicks {
+		ch.Ops[s.users[nick]] = true
+	}
+	return s
+}
+
+func (s *mockState) withVoices(channel string, nicks ...string) *mockState {
+	ch := s.channels[channel]
+	for _, nick := range nicks {
+		ch.Voices[s.users[nick]] = true
+	}
 	return s
 }

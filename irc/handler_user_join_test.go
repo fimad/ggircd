@@ -35,7 +35,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			},
 			state: newMockState().
 				withUser("nick").
-				withChannel("#channel", "k").
+				withChannel("#channel", "k", "").
 				withChannelKey("#channel", "key"),
 		},
 		{
@@ -52,7 +52,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			},
 			state: newMockState().
 				withUser("nick").
-				withChannel("#channel", "l").
+				withChannel("#channel", "l", "").
 				withChannelLimit("#channel", 1),
 		},
 		{
@@ -100,7 +100,7 @@ func TestUserHandlerJoin(t *testing.T) {
 					messages: []Message{ErrorInviteOnlyChan},
 				},
 			},
-			state: newMockState().withUser("nick").withChannel("#channel", "i"),
+			state: newMockState().withUser("nick").withChannel("#channel", "i", ""),
 		},
 		{
 			desc: "wrong channel key",
@@ -112,7 +112,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			},
 			state: newMockState().
 				withUser("nick").
-				withChannel("#channel", "k").
+				withChannel("#channel", "k", "").
 				withChannelKey("#channel", "key"),
 		},
 		{
@@ -125,7 +125,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			},
 			state: newMockState().
 				withUser("nick").
-				withChannel("#channel", "l").
+				withChannel("#channel", "l", "").
 				withChannelLimit("#channel", 0),
 		},
 	})
