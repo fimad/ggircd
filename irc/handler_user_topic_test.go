@@ -8,7 +8,7 @@ func TestUserHandlerTopic(t *testing.T) {
 	state := make(chan State, 1)
 	testHandler(t, "UserHandler-TOPIC", state, NewUserHandler(state, "nick"), []handlerTest{
 		{
-			desc: "succesful query empty topic",
+			desc: "successful query empty topic",
 			in:   []Message{CmdTopic.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -20,7 +20,7 @@ func TestUserHandlerTopic(t *testing.T) {
 				withUser("nick"),
 		},
 		{
-			desc: "succesful query non-empty topic",
+			desc: "successful query non-empty topic",
 			in:   []Message{CmdTopic.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -32,7 +32,7 @@ func TestUserHandlerTopic(t *testing.T) {
 				withUser("nick"),
 		},
 		{
-			desc: "succesful set topic non-op",
+			desc: "successful set topic non-op",
 			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -44,7 +44,7 @@ func TestUserHandlerTopic(t *testing.T) {
 				withUser("nick", "#channel"),
 		},
 		{
-			desc: "succesful set topic op",
+			desc: "successful set topic op",
 			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{

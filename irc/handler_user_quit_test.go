@@ -8,7 +8,7 @@ func TestUserHandlerQuit(t *testing.T) {
 	state := make(chan State, 1)
 	testHandler(t, "UserHandler-QUIT", state, NewUserHandler(state, "nick"), []handlerTest{
 		{
-			desc:  "succesful quit",
+			desc:  "successful quit",
 			in:    []Message{CmdQuit},
 			want:  mockConnection{killed: true},
 			state: newMockState().withUser("nick"),

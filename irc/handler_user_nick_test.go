@@ -8,7 +8,7 @@ func TestUserHandlerNicks(t *testing.T) {
 	state := make(chan State, 1)
 	testHandler(t, "UserHandler-NAMES", state, NewUserHandler(state, "nick"), []handlerTest{
 		{
-			desc: "nick change succesful",
+			desc: "nick change successful",
 			in:   []Message{CmdNick.WithParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"foo": mockConnection{

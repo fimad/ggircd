@@ -42,7 +42,7 @@ func (h *FreshHandler) handleNick(conn Connection, msg Message) Handler {
 }
 
 // freshUserHandler is a handler for a brand new connection that is in the
-// process of registering and has succesfully set a nickname.
+// process of registering and has successfully set a nickname.
 type freshUserHandler struct {
 	user  *User
 	state chan State

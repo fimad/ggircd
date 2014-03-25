@@ -39,3 +39,17 @@ func (ch Channel) IsBanned(user *User) bool {
 	// TODO(will): Actually implement banned users.
 	return false
 }
+
+// CanPrivMsg returns a boolean indicating whether or not the given user has
+// permission to message the channel.
+func (ch Channel) CanPrivMsg(user *User) bool {
+	if ch.Mode[ChannelModeNoOutside] && !ch.Users[user] {
+		return false
+	}
+
+	if ch.Mode[ChannelModeModerated] && !ch.Voices[user] && !ch.Ops[user] {
+		return false
+	}
+
+	return !ch.IsBanned(user)
+}

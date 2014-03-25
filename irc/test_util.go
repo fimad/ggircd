@@ -6,8 +6,12 @@ import (
 )
 
 type handlerTest struct {
+	// A string describing the behaviour that this particular test is testing.
 	desc string
-	in   []Message
+
+	// A sequence of messages that will be sent from the nick supplied to
+	// testHandler.
+	in []Message
 
 	// The initial IRC state.
 	state *mockState
@@ -28,7 +32,7 @@ type handlerTest struct {
 	hangup bool
 }
 
-// testHandler takes a seque
+// testHandler is a helper method for use in testing handlers.
 func testHandler(t *testing.T, name string, state chan State, handler Handler, tests []handlerTest) {
 	for i, tt := range tests {
 		state <- tt.state
@@ -62,12 +66,19 @@ func runHandler(tt handlerTest, handler Handler) mockConnection {
 }
 
 func compareMessages(strict bool, got, want mockConnection) bool {
-	if strict {
-		return reflect.DeepEqual(got, want)
-	}
-
 	if got.killed != want.killed {
 		return false
+	}
+
+	// Special case to handle 0 length slice. It is possible to have an implicit
+	// empty in want, but an explicit 0 length slice in want. These should
+	// evaluate to equivalent.
+	if len(got.messages) == 0 && len(want.messages) == 0 {
+		return true
+	}
+
+	if strict {
+		return reflect.DeepEqual(got.messages, want.messages)
 	}
 
 	if len(got.messages) != len(want.messages) {

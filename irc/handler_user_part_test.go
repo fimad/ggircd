@@ -8,7 +8,7 @@ func TestUserHandlerPart(t *testing.T) {
 	state := make(chan State, 1)
 	testHandler(t, "UserHandler-PART", state, NewUserHandler(state, "nick"), []handlerTest{
 		{
-			desc: "succesful part channel",
+			desc: "successful part channel",
 			in:   []Message{CmdPart.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{

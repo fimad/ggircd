@@ -8,7 +8,7 @@ func TestUserHandlerJoin(t *testing.T) {
 	state := make(chan State, 1)
 	testHandler(t, "UserHandler-JOIN", state, NewUserHandler(state, "nick"), []handlerTest{
 		{
-			desc: "succesful join",
+			desc: "successful join",
 			in:   []Message{CmdJoin.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -22,7 +22,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			state: newMockState().withUser("nick"),
 		},
 		{
-			desc: "succesful join with key",
+			desc: "successful join with key",
 			in:   []Message{CmdJoin.WithParams("#channel", "key")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -39,7 +39,7 @@ func TestUserHandlerJoin(t *testing.T) {
 				withChannelKey("#channel", "key"),
 		},
 		{
-			desc: "succesful join limited channel",
+			desc: "successful join limited channel",
 			in:   []Message{CmdJoin.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -56,7 +56,7 @@ func TestUserHandlerJoin(t *testing.T) {
 				withChannelLimit("#channel", 1),
 		},
 		{
-			desc: "succesful join multiple",
+			desc: "successful join multiple",
 			in:   []Message{CmdJoin.WithParams("#foo,#bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
