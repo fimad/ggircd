@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerNames(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-NAMES", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-NAMES", state, handler, []handlerTest{
 		{
 			desc: "names successful",
 			in:   []Message{CmdNames.WithParams("#channel")},

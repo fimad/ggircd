@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerMode(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-MODE", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-MODE", state, handler, []handlerTest{
 
 		// General mode tests...
 

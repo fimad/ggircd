@@ -96,7 +96,10 @@ func (s *stateImpl) NewUser(nick string) *User {
 		return nil
 	}
 
-	u := &User{Nick: nick}
+	u := &User{
+		Nick:     nick,
+		Channels: make(map[*Channel]bool),
+	}
 	s.users[nick] = u
 	return u
 }
@@ -159,12 +162,17 @@ func (s *stateImpl) JoinChannel(channel *Channel, user *User) {
 	channel.Users[user] = true
 	user.Channels[channel] = true
 
+	if len(channel.Users) == 1 {
+		channel.Ops[user] = true
+	}
+
 	sendTopic(s, user, channel)
 	sendNames(s, user, channel)
 }
 
 func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
 	delete(user.Channels, ch)
+
 	if !ch.Users[user] {
 		return
 	}

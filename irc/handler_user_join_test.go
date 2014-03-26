@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerJoin(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-JOIN", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-JOIN", state, handler, []handlerTest{
 		{
 			desc: "successful join",
 			in:   []Message{CmdJoin.WithParams("#channel")},

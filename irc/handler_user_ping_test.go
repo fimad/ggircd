@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerPing(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-PING", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-PING", state, handler, []handlerTest{
 		{
 			desc: "successful ping",
 			in:   []Message{CmdPing},

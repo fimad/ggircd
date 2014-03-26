@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerPrivMsg(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-PRIVMSG", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-PRIVMSG", state, handler, []handlerTest{
 		{
 			desc:   "successful privmsg user",
 			in:     []Message{CmdPrivMsg.WithParams("foo").WithTrailing("msg")},
@@ -34,12 +35,7 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 			strict: true,
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdPrivMsg.
-							WithPrefix("nick!nick@nick").
-							WithParams("#channel").
-							WithTrailing("msg"),
-					},
+					messages: []Message{},
 				},
 				"foo": mockConnection{
 					messages: []Message{
@@ -76,7 +72,7 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 			in:   []Message{CmdPrivMsg.WithParams("#channel").WithTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdPrivMsg},
+					messages: []Message{},
 				},
 				"foo": mockConnection{
 					messages: []Message{CmdPrivMsg},
@@ -93,7 +89,7 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 			in:   []Message{CmdPrivMsg.WithParams("#channel").WithTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdPrivMsg},
+					messages: []Message{},
 				},
 				"foo": mockConnection{
 					messages: []Message{CmdPrivMsg},

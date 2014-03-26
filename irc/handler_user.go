@@ -30,6 +30,10 @@ func NewUserHandler(state chan State, nick string) Handler {
 }
 
 func (h *UserHandler) Closed(conn Connection) {
+	state := <-h.state
+	defer func() { h.state <- state }()
+
+	state.RemoveUser(state.GetUser(h.nick))
 	conn.Kill()
 }
 
@@ -41,5 +45,9 @@ func (h *UserHandler) Handle(conn Connection, msg Message) Handler {
 	if command == nil {
 		return h
 	}
-	return command(state, state.GetUser(h.nick), conn, msg)
+
+	user := state.GetUser(h.nick)
+	newHandler := command(state, user, conn, msg)
+	h.nick = user.Nick
+	return newHandler
 }

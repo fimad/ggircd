@@ -55,7 +55,11 @@ func (h *freshUserHandler) Handle(conn Connection, msg Message) Handler {
 	return h.handleUser(conn, msg)
 }
 
-func (_ *freshUserHandler) Closed(c Connection) {
+func (h *freshUserHandler) Closed(c Connection) {
+	state := <-h.state
+	defer func() { h.state <- state }()
+
+	state.RemoveUser(h.user)
 	c.Kill()
 }
 

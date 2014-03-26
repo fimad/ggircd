@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerPart(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-PART", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-PART", state, handler, []handlerTest{
 		{
 			desc: "successful part channel",
 			in:   []Message{CmdPart.WithParams("#channel")},

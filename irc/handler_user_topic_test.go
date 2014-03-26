@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerTopic(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-TOPIC", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-TOPIC", state, handler, []handlerTest{
 		{
 			desc: "successful query empty topic",
 			in:   []Message{CmdTopic.WithParams("#channel")},

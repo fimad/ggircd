@@ -36,23 +36,25 @@ type handlerTest struct {
 }
 
 // testHandler is a helper method for use in testing handlers.
-func testHandler(t *testing.T, name string, state chan State, handler Handler, tests []handlerTest) {
+func testHandler(t *testing.T, name string, state chan State, handler func() Handler, tests []handlerTest) {
 	for i, tt := range tests {
 		state <- tt.state
-		got := runHandler(tt, handler)
+		got := runHandler(tt, handler())
 		_ = <-state
 
 		gotNicks := make(map[string]mockConnection)
-		ok := compareMessages(tt.strict, got, tt.want)
+		if !compareMessages(tt.strict, got, tt.want) {
+			t.Errorf("%d. %s: %s\n%+v =>\n\tgot %+v\n\twant %+v",
+				i, name, tt.desc, tt.in, got, tt.want)
+		}
+
 		for nick, want := range tt.wantNicks {
 			user := tt.state.GetUser(nick)
 			gotNicks[nick] = *user.Sink.(*mockConnection)
-			ok = ok && compareMessages(tt.strict, gotNicks[nick], want)
-		}
-
-		if !ok {
-			t.Errorf("%d. %s: %s\n%+v =>\n\tgot %+v\n\twant %+v\n\tgot nicks %+v\n\twant nicks %+v",
-				i, name, tt.desc, tt.in, got, tt.want, gotNicks, tt.wantNicks)
+			if !compareMessages(tt.strict, gotNicks[nick], want) {
+				t.Errorf("%d. %s: %s\n%+v => nick = %q\n\tgot %+v\n\twant %+v",
+					i, name, tt.desc, tt.in, nick, gotNicks[nick], tt.wantNicks[nick])
+			}
 		}
 
 		for j, assert := range tt.assert {

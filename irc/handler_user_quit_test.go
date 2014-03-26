@@ -6,7 +6,8 @@ import (
 
 func TestUserHandlerQuit(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "UserHandler-QUIT", state, NewUserHandler(state, "nick"), []handlerTest{
+	handler := func() Handler { return NewUserHandler(state, "nick") }
+	testHandler(t, "UserHandler-QUIT", state, handler, []handlerTest{
 		{
 			desc:  "successful quit",
 			in:    []Message{CmdQuit},

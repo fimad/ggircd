@@ -6,7 +6,8 @@ import (
 
 func TestFreshHandlerHandle(t *testing.T) {
 	state := make(chan State, 1)
-	testHandler(t, "FreshHandler", state, NewFreshHandler(state), []handlerTest{
+	handler := func() Handler { return NewFreshHandler(state) }
+	testHandler(t, "FreshHandler", state, handler, []handlerTest{
 		{
 			desc:  "empty",
 			in:    []Message{},
