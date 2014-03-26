@@ -23,6 +23,9 @@ type handlerTest struct {
 	// A map from nick names to desired mock connection states.
 	wantNicks map[string]mockConnection
 
+	// A slice of assertions that will be applied to the resulting state.
+	assert []assert
+
 	// If false, perform a fuzzy comparison for messages where only the commands
 	// are compared.
 	strict bool
@@ -50,6 +53,14 @@ func testHandler(t *testing.T, name string, state chan State, handler Handler, t
 		if !ok {
 			t.Errorf("%d. %s: %s\n%+v =>\n\tgot %+v\n\twant %+v\n\tgot nicks %+v\n\twant nicks %+v",
 				i, name, tt.desc, tt.in, got, tt.want, gotNicks, tt.wantNicks)
+		}
+
+		for j, assert := range tt.assert {
+			err := assert(tt.state)
+			if err != nil {
+				t.Errorf("%d. %s: %s\n%+v =>\n\tfailed assert (%d) %s",
+					i, name, tt.desc, tt.in, j, err)
+			}
 		}
 	}
 }

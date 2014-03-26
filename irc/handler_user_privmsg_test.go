@@ -56,8 +56,8 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 				withUser("foo", "#channel"),
 		},
 		{
-			desc:   "successful privmsg -n channel from outside",
-			in:     []Message{CmdPrivMsg.WithParams("#channel").WithTrailing("msg")},
+			desc: "successful privmsg -n channel from outside",
+			in:   []Message{CmdPrivMsg.WithParams("#channel").WithTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []Message{},
