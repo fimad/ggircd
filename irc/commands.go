@@ -2,6 +2,7 @@ package irc
 
 var (
 	CmdJoin    = Message{Command: "JOIN"}
+	CmdList    = Message{Command: "LIST"}
 	CmdMode    = Message{Command: "MODE"}
 	CmdMotd    = Message{Command: "MOTD"}
 	CmdNames   = Message{Command: "NAMES"}
