@@ -1,18 +1,10 @@
 package irc
 
-// sendTopic sends the topic of a channel to a given client.
-func (d *Dispatcher) sendTopic(client *Client, channel *Channel) {
-  msg := ReplyTopic.
-    WithPrefix(d.Config.Name).
-    WithParams(client.Nick, channel.Name).
-    WithTrailing(channel.Topic)
-
-  if channel.Topic == "" {
-    msg = ReplyNoTopic.
-      WithPrefix(d.Config.Name).
-      WithParams(channel.Name).
-      WithTrailing("Not topic set")
-  }
-
-  client.Relay.Inbox <- msg
+// sendTopic sends the topic of a channel to a given user.
+func sendTopic(state State, user *User, channel *Channel) {
+	if channel.Topic != "" {
+		sendNumericTrailing(state, user, ReplyTopic, channel.Topic, channel.Name)
+	} else {
+		sendNumericTrailing(state, user, ReplyNoTopic, "No topic set", channel.Name)
+	}
 }
