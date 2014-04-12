@@ -33,11 +33,20 @@ type handlerTest struct {
 	// If true, call Handler.Close after the sequence of messages has been
 	// processed.
 	hangup bool
+
+	// Override the message of the day so that it is not loaded from disk.
+	motd []string
 }
 
 // testHandler is a helper method for use in testing handlers.
 func testHandler(t *testing.T, name string, state chan State, handler func() Handler, tests []handlerTest) {
 	for i, tt := range tests {
+		if tt.motd == nil {
+			motd = []string{}
+		} else {
+			motd = tt.motd
+		}
+
 		state <- tt.state
 		got := runHandler(tt, handler())
 		_ = <-state

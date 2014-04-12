@@ -20,6 +20,9 @@ func TestUserHandler(t *testing.T) {
 				messages: []Message{
 					ReplyWelcome,
 					ReplyYourHost,
+					ReplyMOTDStart,
+					ReplyMOTD,
+					ReplyEndOfMOTD,
 					ReplyNoTopic,
 					ReplyNamReply,
 					ReplyEndOfNames,
@@ -30,6 +33,7 @@ func TestUserHandler(t *testing.T) {
 				assertChannelOp("#channel", "nick"),
 			},
 			state: newMockState(),
+			motd:  []string{"foobar"},
 		},
 		{
 			desc: "connect to server, connect to channel, and change nick",
@@ -45,6 +49,8 @@ func TestUserHandler(t *testing.T) {
 				messages: []Message{
 					ReplyWelcome,
 					ReplyYourHost,
+					ReplyMOTDStart,
+					ReplyEndOfMOTD,
 					ReplyNoTopic,
 					ReplyNamReply,
 					ReplyEndOfNames,

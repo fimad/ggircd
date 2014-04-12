@@ -31,7 +31,7 @@ func (h *UserHandler) handleCmdPrivMsg(state State, user *User, conn Connection,
 		return h
 	}
 
-	channel.ForUsers(func (u *User) {
+	channel.ForUsers(func(u *User) {
 		if u != user {
 			u.Send(msg)
 		}

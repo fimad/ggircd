@@ -19,30 +19,26 @@ var (
 )
 
 // sendMOTD will send the message of the day to a relay.
-func (d *Dispatcher) sendMOTD(relay *Relay, client *Client) {
-	motdOnce.Do(d.loadMOTD)
+func sendMOTD(state State, sink Sink) {
+	motdOnce.Do(func() { loadMOTD(state) })
 
-	relay.Inbox <- ReplyMOTDStart.
-		WithParams(client.Nick).
-		WithTrailing(fmt.Sprintf(motdHeader, d.Config.Name))
+	sendNumericTrailing(state, sink, ReplyMOTDStart,
+		fmt.Sprintf(motdHeader, state.GetConfig().Name))
 
 	for _, line := range motd {
-		relay.Inbox <- ReplyMOTD.
-			WithParams(client.Nick).
-			WithTrailing("- " + line)
+		sendNumericTrailing(state, sink, ReplyMOTD, "- "+line)
 	}
 
-	relay.Inbox <- ReplyEndOfMOTD.
-		WithParams(client.Nick).
-		WithTrailing(motdFooter)
+	sendNumericTrailing(state, sink, ReplyEndOfMOTD, motdFooter)
 }
 
-func (d *Dispatcher) loadMOTD() {
-	if d.Config.MOTD == "" {
+func loadMOTD(state State) {
+	motdFile := state.GetConfig().MOTD
+	if motdFile == "" || motd != nil {
 		return
 	}
 
-	file, err := os.Open(d.Config.MOTD)
+	file, err := os.Open(motdFile)
 	if err != nil {
 		log.Printf("Could not open MOTD: %v", err)
 	}

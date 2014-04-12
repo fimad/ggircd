@@ -17,5 +17,5 @@ func sendIntro(state State, sink Sink) {
 		fmt.Sprintf(welcomeMessage, state.GetConfig().Network))
 	sendNumericTrailing(state, sink, ReplyYourHost,
 		fmt.Sprintf(yourHostMessage, state.GetConfig().Name, Version))
-	// d.sendMOTD(relay, client)
+	sendMOTD(state, sink)
 }

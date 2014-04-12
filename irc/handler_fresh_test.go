@@ -58,6 +58,8 @@ func TestFreshHandlerHandle(t *testing.T) {
 				messages: []Message{
 					ReplyWelcome,
 					ReplyYourHost,
+					ReplyMOTDStart,
+					ReplyEndOfMOTD,
 				},
 			},
 			state: newMockState(),
