@@ -29,7 +29,7 @@ func (h *UserHandler) handleCmdJoin(state State, user *User, conn Connection, ms
 			continue
 		}
 
-		if channel.Mode[ChannelModeInvite] {
+		if channel.Mode[ChannelModeInvite] && !channel.Invited[user] {
 			sendNumeric(state, user, ErrorInviteOnlyChan, name)
 			continue
 		}

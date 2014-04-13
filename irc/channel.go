@@ -17,12 +17,23 @@ type Channel struct {
 	Users  map[*User]bool
 	Ops    map[*User]bool
 	Voices map[*User]bool
+
+	Invited map[*User]bool
 }
 
 func (ch Channel) Send(msg Message) {
 	for user := range ch.Users {
 		user.Sink.Send(msg)
 	}
+}
+
+// Invite marks a user as invited to the channel. This only has an effect if the
+// channel is invite only.
+func (ch Channel) Invite(user *User) {
+	if !ch.Mode[ChannelModeInvite] {
+		return
+	}
+	ch.Invited[user] = true
 }
 
 // ForUsers iterates over all of the users in the channel and passes a pointer

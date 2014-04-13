@@ -138,11 +138,12 @@ func (s *stateImpl) NewChannel(name string) *Channel {
 	}
 
 	ch := &Channel{
-		Name:   name,
-		Mode:   ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
-		Users:  make(map[*User]bool),
-		Ops:    make(map[*User]bool),
-		Voices: make(map[*User]bool),
+		Name:    name,
+		Mode:    ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
+		Users:   make(map[*User]bool),
+		Ops:     make(map[*User]bool),
+		Voices:  make(map[*User]bool),
+		Invited: make(map[*User]bool),
 	}
 	s.channels[name] = ch
 	return ch
@@ -180,6 +181,7 @@ func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
 	delete(ch.Users, user)
 	delete(ch.Voices, user)
 	delete(ch.Ops, user)
+	delete(ch.Invited, user)
 
 	ch.Send(CmdPart.
 		WithPrefix(user.Prefix()).

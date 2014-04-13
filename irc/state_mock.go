@@ -32,6 +32,7 @@ func (s *mockState) withChannel(name, mode, topic string) *mockState {
 		Users:   make(map[*User]bool),
 		Ops:     make(map[*User]bool),
 		Voices:  make(map[*User]bool),
+		Invited: make(map[*User]bool),
 	}
 	return s
 }
