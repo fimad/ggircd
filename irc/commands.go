@@ -9,6 +9,7 @@ var (
 	CmdMotd    = Message{Command: "MOTD"}
 	CmdNames   = Message{Command: "NAMES"}
 	CmdNick    = Message{Command: "NICK"}
+	CmdNotice  = Message{Command: "NOTICE"}
 	CmdPart    = Message{Command: "PART"}
 	CmdPass    = Message{Command: "PASS"}
 	CmdPing    = Message{Command: "PING"}
