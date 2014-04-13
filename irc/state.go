@@ -49,6 +49,11 @@ type State interface {
 	// all remaining members of the channel, and removes the channel if there are
 	// no remaining users.
 	PartChannel(*Channel, *User, string)
+
+	// RemoveFromChannel silently removes a user from the given channel. It does
+	// not send any messages to the channel or user. The channel will also be
+	// reaped if there are no active users left.
+	RemoveFromChannel(*Channel, *User)
 }
 
 // stateImpl is a concrete implementation of the State interface.
@@ -172,6 +177,14 @@ func (s *stateImpl) JoinChannel(channel *Channel, user *User) {
 }
 
 func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
+	s.RemoveFromChannel(ch, user)
+	ch.Send(CmdPart.
+		WithPrefix(user.Prefix()).
+		WithParams(ch.Name).
+		WithTrailing(reason))
+}
+
+func (s *stateImpl) RemoveFromChannel(ch *Channel, user *User) {
 	delete(user.Channels, ch)
 
 	if !ch.Users[user] {
@@ -182,11 +195,6 @@ func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
 	delete(ch.Voices, user)
 	delete(ch.Ops, user)
 	delete(ch.Invited, user)
-
-	ch.Send(CmdPart.
-		WithPrefix(user.Prefix()).
-		WithParams(ch.Name).
-		WithTrailing(reason))
 
 	s.RecycleChannel(ch)
 }

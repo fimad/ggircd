@@ -12,7 +12,12 @@ type assert func(*mockState) error
 func assertChannelMode(channel, modeLine string) assert {
 	want := ParseMode(ChannelModes, modeLine)
 	return func(state *mockState) error {
-		got := state.GetChannel(channel).Mode
+		ch := state.GetChannel(channel)
+		if ch == nil {
+			return fmt.Errorf("expected channel %q to exist, but does not", channel)
+		}
+
+		got := ch.Mode
 		// delete all keys with false values from got
 		for k, v := range got {
 			if !v {
@@ -30,7 +35,17 @@ func assertChannelMode(channel, modeLine string) assert {
 
 func assertChannelOp(channel, nick string) assert {
 	return func(state *mockState) error {
-		if !state.GetChannel(channel).Ops[state.GetUser(nick)] {
+		ch := state.GetChannel(channel)
+		if ch == nil {
+			return fmt.Errorf("expected channel %q to exist, but does not", channel)
+		}
+
+		user := state.GetUser(nick)
+		if user == nil {
+			return fmt.Errorf("expected user %q to exist, but does not", nick)
+		}
+
+		if !ch.Ops[user] {
 			return fmt.Errorf("user %q should be op on %q but isn't", nick, channel)
 		}
 		return nil
@@ -39,8 +54,56 @@ func assertChannelOp(channel, nick string) assert {
 
 func assertChannelVoice(channel, nick string) assert {
 	return func(state *mockState) error {
-		if !state.GetChannel(channel).Voices[state.GetUser(nick)] {
+		ch := state.GetChannel(channel)
+		if ch == nil {
+			return fmt.Errorf("expected channel %q to exist, but does not", channel)
+		}
+
+		user := state.GetUser(nick)
+		if user == nil {
+			return fmt.Errorf("expected user %q to exist, but does not", nick)
+		}
+
+		if !ch.Voices[user] {
 			return fmt.Errorf("user %q should be voice on %q but doesn't", nick, channel)
+		}
+		return nil
+	}
+}
+
+func assertUserOnChannel(nick, channel string) assert {
+	return func(state *mockState) error {
+		ch := state.GetChannel(channel)
+		if ch == nil {
+			return fmt.Errorf("expected channel %q to exist, but does not", channel)
+		}
+
+		user := state.GetUser(nick)
+		if user == nil {
+			return fmt.Errorf("expected user %q to exist, but does not", nick)
+		}
+
+		if !ch.Users[user] {
+			return fmt.Errorf("user %q should be on %q but isn't", nick, channel)
+		}
+		return nil
+	}
+}
+
+func assertUserNotOnChannel(nick, channel string) assert {
+	return func(state *mockState) error {
+		ch := state.GetChannel(channel)
+		if ch == nil {
+			return fmt.Errorf("expected channel %q to exist, but does not", channel)
+		}
+
+		user := state.GetUser(nick)
+		if user == nil {
+			return fmt.Errorf("expected user %q to exist, but does not", nick)
+		}
+
+		if ch.Users[user] {
+			return fmt.Errorf("user %q should not be on %q but is", nick, channel)
 		}
 		return nil
 	}
