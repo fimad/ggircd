@@ -30,6 +30,7 @@ func NewUserHandler(state chan State, nick string) Handler {
 		CmdPrivMsg.Command: handler.handleCmdPrivMsg,
 		CmdQuit.Command:    handler.handleCmdQuit,
 		CmdTopic.Command:   handler.handleCmdTopic,
+		CmdWho.Command:     handler.handleCmdWho,
 	}
 	return handler
 }

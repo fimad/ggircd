@@ -19,4 +19,5 @@ var (
 	CmdServer  = Message{Command: "SERVER"}
 	CmdTopic   = Message{Command: "TOPIC"}
 	CmdUser    = Message{Command: "USER"}
+	CmdWho     = Message{Command: "WHO"}
 )
