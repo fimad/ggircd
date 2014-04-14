@@ -58,6 +58,7 @@ func (c *connectionImpl) readLoop() {
 	var msg Message
 	parser := NewMessageParser(c.conn)
 
+	didQuit := false
 	alive, hasMore := true, true
 	for hasMore && alive {
 		select {
@@ -65,8 +66,15 @@ func (c *connectionImpl) readLoop() {
 			alive = false
 		default:
 			msg, hasMore = parser()
+			didQuit = didQuit || msg.Command == CmdQuit.Command
 			c.handler = c.handler.Handle(c, msg)
 		}
+	}
+
+	// If there was never a QUIT message then this is a premature termination and
+	// a quit message should be faked.
+	if !didQuit {
+		c.handler = c.handler.Handle(c, CmdQuit.WithTrailing("QUITing"))
 	}
 
 	if alive {
