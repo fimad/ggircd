@@ -177,11 +177,11 @@ func (s *stateImpl) JoinChannel(channel *Channel, user *User) {
 }
 
 func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
-	s.RemoveFromChannel(ch, user)
 	ch.Send(CmdPart.
 		WithPrefix(user.Prefix()).
 		WithParams(ch.Name).
 		WithTrailing(reason))
+	s.RemoveFromChannel(ch, user)
 }
 
 func (s *stateImpl) RemoveFromChannel(ch *Channel, user *User) {
