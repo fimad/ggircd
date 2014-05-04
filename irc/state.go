@@ -96,8 +96,8 @@ func (s stateImpl) GetUser(nick string) *User {
 }
 
 func (s *stateImpl) NewUser(nick string) *User {
-	nick = Lowercase(nick)
-	if s.users[nick] != nil {
+	nickLower := Lowercase(nick)
+	if s.users[nickLower] != nil {
 		return nil
 	}
 
@@ -105,7 +105,7 @@ func (s *stateImpl) NewUser(nick string) *User {
 		Nick:     nick,
 		Channels: make(map[*Channel]bool),
 	}
-	s.users[nick] = u
+	s.users[nickLower] = u
 	return u
 }
 

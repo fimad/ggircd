@@ -13,7 +13,7 @@ func TestUserHandlerPart(t *testing.T) {
 			in:   []Message{CmdPart.WithParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []Message{CmdPart},
 				},
 				"foo": mockConnection{
 					messages: []Message{CmdPart},
@@ -29,7 +29,7 @@ func TestUserHandlerPart(t *testing.T) {
 			in:   []Message{CmdPart.WithParams("#foo,#bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []Message{CmdPart, CmdPart},
 				},
 				"foo": mockConnection{
 					messages: []Message{CmdPart},
