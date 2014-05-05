@@ -111,8 +111,8 @@ func (s *stateImpl) NewUser(nick string) *User {
 }
 
 func (s *stateImpl) SetNick(user *User, nick string) bool {
-	nick = Lowercase(nick)
-	if s.users[nick] != nil {
+	lowerNick := Lowercase(nick)
+	if n := s.users[lowerNick]; n != nil && n != user {
 		return false
 	}
 
@@ -121,7 +121,7 @@ func (s *stateImpl) SetNick(user *User, nick string) bool {
 	})
 
 	delete(s.users, user.Nick)
-	s.users[nick] = user
+	s.users[lowerNick] = user
 	user.Nick = nick
 	return true
 }

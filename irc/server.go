@@ -2,14 +2,13 @@ package irc
 
 import (
 	"fmt"
-	"log"
 	"net"
 )
 
 func RunServer(cfg Config) {
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
-		log.Fatalf("Could not create server: %v", err)
+		logf(Fatal, "Could not create server: %v", err)
 	}
 
 	state := make(chan State, 1)
@@ -21,7 +20,7 @@ func acceptLoop(listener net.Listener, state chan State) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Printf("Could not accept new connection: ", err)
+			logf(Warn, "Could not accept new connection: ", err)
 			continue
 		}
 

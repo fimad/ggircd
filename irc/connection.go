@@ -2,7 +2,6 @@ package irc
 
 import (
 	"io"
-	"log"
 	"net"
 )
 
@@ -66,6 +65,7 @@ func (c *connectionImpl) readLoop() {
 			alive = false
 		default:
 			msg, hasMore = parser()
+			logf(Debug, "< %+v", msg)
 			didQuit = didQuit || msg.Command == CmdQuit.Command
 			c.handler = c.handler.Handle(c, msg)
 		}
@@ -90,6 +90,8 @@ func (c *connectionImpl) writeLoop() {
 		case _ = <-c.killWrite:
 			alive = false
 		case msg := <-c.inbox:
+			logf(Debug, "> %+v", msg)
+
 			line, ok := msg.ToString()
 			if !ok {
 				break
@@ -97,7 +99,7 @@ func (c *connectionImpl) writeLoop() {
 
 			_, err := io.WriteString(c.conn, line)
 			if err != nil {
-				log.Printf("Error encountered sending message to client: %v", err)
+				logf(Error, "Error encountered sending message to client: %v", err)
 				break
 			}
 		}

@@ -1,9 +1,5 @@
 package irc
 
-import (
-	"log"
-)
-
 const (
 	ChannelModeOp        = "o"
 	ChannelModePrivate   = "p"
@@ -73,7 +69,7 @@ func ParseMode(valid Mode, line string) Mode {
 		if valid[f] {
 			mode[f] = true
 		} else {
-			log.Printf("Unknown flag: %s", f)
+			logf(Debug, "Unknown flag: %s", f)
 		}
 	}
 	return mode

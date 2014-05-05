@@ -3,7 +3,6 @@ package irc
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"sync"
 )
@@ -40,7 +39,7 @@ func loadMOTD(state State) {
 
 	file, err := os.Open(motdFile)
 	if err != nil {
-		log.Printf("Could not open MOTD: %v", err)
+		logf(Error, "Could not open MOTD: %v", err)
 	}
 
 	scanner := bufio.NewScanner(file)

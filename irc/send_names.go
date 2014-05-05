@@ -10,7 +10,7 @@ func sendNames(state State, user *User, channels ...*Channel) {
 				return
 			}
 
-			params := make([]string, 3)
+			params := make([]string, 2)
 
 			if channel.Mode[ChannelModeSecret] {
 				params[0] = "@"
@@ -28,8 +28,7 @@ func sendNames(state State, user *User, channels ...*Channel) {
 			} else if channel.Voices[user] {
 				nick = "+" + nick
 			}
-			params[2] = nick
-			sendNumeric(state, user, ReplyNamReply, params...)
+			sendNumericTrailing(state, user, ReplyNamReply, nick, params...)
 		})
 		sendNumericTrailing(state, user, ReplyEndOfNames, "End NAMES", channel.Name)
 	}
