@@ -104,7 +104,7 @@ func (s *stateImpl) NewUser(nick string) *User {
 	u := &User{
 		Nick:     nick,
 		Channels: make(map[*Channel]bool),
-		Mode:     make(Mode),
+		Mode:			ParseMode(UserModes, s.GetConfig().DefaultUserMode),
 	}
 	s.users[nickLower] = u
 	return u

@@ -14,6 +14,7 @@ type Config struct {
 	MOTD    string
 
 	DefaultChannelMode string
+	DefaultUserMode    string
 }
 
 // ConfigFromJSONFile reads a Config struct from a file containing a JSON
