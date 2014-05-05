@@ -187,5 +187,86 @@ func TestUserHandlerMode(t *testing.T) {
 
 		// User mode specific tests...
 
+		{
+			desc: "success - make invisible",
+			in:   []Message{CmdMode.WithParams("nick", "+i")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{ReplyUModeIs},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", "i"),
+			},
+		},
+		{
+			desc: "success - make invisible",
+			in: []Message{
+				CmdMode.WithParams("nick", "+i"),
+				CmdMode.WithParams("nick", "-i"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{
+						ReplyUModeIs,
+						ReplyUModeIs,
+					},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", ""),
+			},
+		},
+		{
+			desc: "failure - need more params",
+			in:   []Message{CmdMode.WithParams("nick")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{ErrorNeedMoreParams},
+				},
+			},
+			state: newMockState().withUser("nick"),
+		},
+		{
+			desc: "failure - unknown mode",
+			in:   []Message{CmdMode.WithParams("nick", "+v")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{ErrorUModeUnknownFlag},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", ""),
+			},
+		},
+		{
+			desc: "failure - nick mismatch",
+			in:   []Message{CmdMode.WithParams("foo", "+i")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{ErrorUsersDontMatch},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", ""),
+			},
+		},
+		{
+			desc: "failure - cannot set away with mode",
+			in:   []Message{CmdMode.WithParams("nick", "+a")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []Message{ErrorUModeUnknownFlag},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", ""),
+			},
+		},
 	})
 }

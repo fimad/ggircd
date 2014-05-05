@@ -3,7 +3,13 @@ package irc
 // sendNames sends the messages associated with a NAMES request.
 func sendNames(state State, user *User, channels ...*Channel) {
 	for _, channel := range channels {
-		channel.ForUsers(func (u *User) {
+		channel.ForUsers(func(u *User) {
+			// Don't display this user if they are invisible and the querying user is
+			// not in the same channel as them.
+			if u.Mode[UserModeInvisible] && !channel.Users[user] {
+				return
+			}
+
 			params := make([]string, 3)
 
 			if channel.Mode[ChannelModeSecret] {

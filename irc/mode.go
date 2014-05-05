@@ -16,6 +16,9 @@ const (
 	ChannelModeBanMask   = "b"
 	ChannelModeVoice     = "v"
 	ChannelModeKey       = "k"
+
+	UserModeAway      = "a"
+	UserModeInvisible = "i"
 )
 
 type Mode map[string]bool
@@ -48,6 +51,18 @@ var ChannelNegParamModes = Mode{
 	ChannelModeVoice:   true,
 }
 
+var UserModes = Mode{
+	UserModeAway:      true,
+	UserModeInvisible: true,
+}
+
+var UserModesSettable = Mode{
+	UserModeInvisible: true,
+}
+
+var UserPosParamModes = Mode{}
+var UserNegParamModes = Mode{}
+
 // ParseMode takes a mode map containing all of the valid modes and a string
 // where each character is a mode flag. It returns a mode map of containing all
 // of the valid modes that were present in the given line.
@@ -69,7 +84,7 @@ func ParseMode(valid Mode, line string) Mode {
 // mode line to their parameters.
 //
 // NOTE: Modes that do not take parameters will map to the empty string.
-func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, line []string) (pos map[string][]string, neg map[string][]string, errs []Message) {
+func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, unknownModeMessage Message, line []string) (pos map[string][]string, neg map[string][]string, errs []Message) {
 	pos = make(map[string][]string)
 	neg = make(map[string][]string)
 
@@ -100,7 +115,7 @@ func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, line []st
 		}
 
 		if !valid[mode] {
-			errs = append(errs, ErrorUnknownMode.WithParams(mode))
+			errs = append(errs, unknownModeMessage.WithParams(mode))
 			continue
 		}
 

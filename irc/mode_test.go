@@ -56,6 +56,7 @@ func TestParseModeDiff(t *testing.T) {
 	tests := []struct {
 		line       []string
 		valid      Mode
+		errMessage Message
 		posParams  Mode
 		negParams  Mode
 		wantPos    map[string][]string
@@ -68,8 +69,9 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
-			posParams: Mode{},
-			negParams: Mode{},
+			errMessage: ErrorUnknownMode,
+			posParams:  Mode{},
+			negParams:  Mode{},
 			line: []string{
 				"abc",
 			},
@@ -87,8 +89,9 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
-			posParams: Mode{},
-			negParams: Mode{},
+			errMessage: ErrorUnknownMode,
+			posParams:  Mode{},
+			negParams:  Mode{},
 			line: []string{
 				"-abc",
 			},
@@ -106,8 +109,9 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
-			posParams: Mode{},
-			negParams: Mode{},
+			errMessage: ErrorUnknownMode,
+			posParams:  Mode{},
+			negParams:  Mode{},
 			line: []string{
 				"-a+b-c",
 			},
@@ -126,8 +130,9 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
-			posParams: Mode{},
-			negParams: Mode{},
+			errMessage: ErrorUnknownMode,
+			posParams:  Mode{},
+			negParams:  Mode{},
 			line: []string{
 				"-a+b-c+c-c",
 			},
@@ -146,6 +151,7 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
+			errMessage: ErrorUnknownMode,
 			posParams: Mode{
 				"a": true,
 				"b": true,
@@ -177,6 +183,7 @@ func TestParseModeDiff(t *testing.T) {
 				"b": true,
 				"c": true,
 			},
+			errMessage: ErrorUnknownMode,
 			posParams: Mode{
 				"a": true,
 				"b": true,
@@ -209,6 +216,7 @@ func TestParseModeDiff(t *testing.T) {
 			valid: Mode{
 				"a": true,
 			},
+			errMessage: ErrorUnknownMode,
 			posParams: Mode{
 				"a": true,
 			},
@@ -221,9 +229,10 @@ func TestParseModeDiff(t *testing.T) {
 			wantErrors: []Message{ErrorNeedMoreParams},
 		},
 		{
-			valid:     Mode{},
-			posParams: Mode{},
-			negParams: Mode{},
+			valid:      Mode{},
+			errMessage: ErrorUnknownMode,
+			posParams:  Mode{},
+			negParams:  Mode{},
 			line: []string{
 				"ab",
 			},
@@ -238,7 +247,7 @@ func TestParseModeDiff(t *testing.T) {
 
 	for i, tt := range tests {
 		gotPos, gotNeg, gotErrors := ParseModeDiff(
-			tt.valid, tt.posParams, tt.negParams, tt.line)
+			tt.valid, tt.posParams, tt.negParams, tt.errMessage, tt.line)
 
 		if !reflect.DeepEqual(tt.wantPos, gotPos) ||
 			!reflect.DeepEqual(tt.wantNeg, gotNeg) ||

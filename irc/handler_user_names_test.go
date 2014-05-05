@@ -17,6 +17,7 @@ func TestUserHandlerNames(t *testing.T) {
 						ReplyNamReply,
 						ReplyNamReply,
 						ReplyNamReply,
+						ReplyNamReply,
 						ReplyEndOfNames,
 					},
 				},
@@ -25,7 +26,11 @@ func TestUserHandlerNames(t *testing.T) {
 				withChannel("#channel", "", "").
 				withUser("nick", "#channel").
 				withUser("foo", "#channel").
-				withUser("bar", "#channel"),
+				withUser("bar", "#channel").
+				// User baz should be listed even though they are invisible because
+				// they share a channel with the user that is requesting names.
+				withUser("baz", "#channel").
+				withUserMode("baz", "i"),
 		},
 		{
 			desc: "names all",
@@ -45,7 +50,10 @@ func TestUserHandlerNames(t *testing.T) {
 				withChannel("#bar", "", "").
 				withUser("nick").
 				withUser("foo", "#foo").
-				withUser("bar", "#bar"),
+				withUser("bar", "#bar").
+				// User baz should not be listed because their are invisible.
+				withUser("baz", "#bar").
+				withUserMode("baz", "i"),
 		},
 		{
 			desc: "names all secret",

@@ -108,6 +108,7 @@ func TestUserHandlerWho(t *testing.T) {
 					messages: []Message{
 						ReplyWhoReply,
 						ReplyWhoReply,
+						ReplyWhoReply,
 						ReplyEndOfWho,
 					},
 				},
@@ -115,6 +116,8 @@ func TestUserHandlerWho(t *testing.T) {
 			state: newMockState().
 				withChannel("#channel", "", "").
 				withUser("nick", "#channel").
+				withUser("bar", "#channel").
+				withUserMode("bar", "i").
 				withUser("foo", "#channel"),
 		},
 		{

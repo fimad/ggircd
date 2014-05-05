@@ -108,3 +108,27 @@ func assertUserNotOnChannel(nick, channel string) assert {
 		return nil
 	}
 }
+
+func assertUserMode(nick, modeLine string) assert {
+	want := ParseMode(UserModes, modeLine)
+	return func(state *mockState) error {
+		user := state.GetUser(nick)
+		if user == nil {
+			return fmt.Errorf("expected user %q to exist, but does not", nick)
+		}
+
+		got := user.Mode
+		// delete all keys with false values from got
+		for k, v := range got {
+			if !v {
+				delete(got, k)
+			}
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			return fmt.Errorf("unexpected mode on %s =>\n\t\tgot %+v\n\t\twant %+v",
+				nick, got, want)
+		}
+		return nil
+	}
+}

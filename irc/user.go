@@ -13,6 +13,8 @@ type User struct {
 
 	Channels map[*Channel]bool
 
+	Mode Mode
+
 	Sink Sink
 }
 

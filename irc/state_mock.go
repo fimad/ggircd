@@ -64,6 +64,7 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
 		Server:   nick,
 		RealName: nick,
 		Channels: chanMap,
+		Mode:     make(Mode),
 		Sink:     &mockConnection{},
 	}
 
@@ -71,6 +72,11 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
 		ch.Users[s.users[nick]] = true
 	}
 
+	return s
+}
+
+func (s *mockState) withUserMode(nick, modeLine string) *mockState {
+	s.users[nick].Mode = ParseMode(ChannelModes, modeLine)
 	return s
 }
 

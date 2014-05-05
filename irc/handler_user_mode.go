@@ -36,7 +36,11 @@ func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message)
 	}
 
 	pos, neg, errs := ParseModeDiff(
-		ChannelModes, ChannelPosParamModes, ChannelNegParamModes, msg.Params[1:])
+		ChannelModes,
+		ChannelPosParamModes,
+		ChannelNegParamModes,
+		ErrorUnknownMode,
+		msg.Params[1:])
 
 	if errs != nil {
 		for _, err := range errs {
@@ -118,5 +122,43 @@ func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message)
 }
 
 func (h *UserHandler) handleCmdModeUser(state State, user *User, msg Message) {
-	// TODO(will): implement user modes
+	if len(msg.Params) < 2 {
+		sendNumeric(state, user, ErrorNeedMoreParams)
+		return
+	}
+
+	if Lowercase(msg.Params[0]) != Lowercase(user.Nick) {
+		sendNumeric(state, user, ErrorUsersDontMatch)
+		return
+	}
+
+	pos, neg, errs := ParseModeDiff(
+		UserModesSettable,
+		UserPosParamModes,
+		UserNegParamModes,
+		ErrorUModeUnknownFlag,
+		msg.Params[1:])
+
+	if errs != nil {
+		for _, err := range errs {
+			sendNumeric(state, user, err, err.Params...)
+		}
+		return
+	}
+
+	wetRun := func(diff map[string][]string, affinity bool) {
+		for mode := range diff {
+			user.Mode[mode] = affinity
+		}
+	}
+	wetRun(pos, true)
+	wetRun(neg, false)
+
+	modeLine := ""
+	for mode, isSet := range user.Mode {
+		if isSet {
+			modeLine = modeLine + mode
+		}
+	}
+	sendNumeric(state, user, ReplyUModeIs, modeLine)
 }
