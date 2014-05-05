@@ -40,6 +40,7 @@ func loadMOTD(state state) {
 	file, err := os.Open(motdFile)
 	if err != nil {
 		logf(warn, "Could not open MOTD: %v", err)
+		return
 	}
 
 	scanner := bufio.NewScanner(file)
