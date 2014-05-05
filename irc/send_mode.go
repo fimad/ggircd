@@ -1,11 +1,11 @@
 package irc
 
-func sendChannelMode(state State, user *User, channel *Channel) {
+func sendChannelMode(state state, user *user, channel *channel) {
 	var mode string
-	for flag, set := range channel.Mode {
+	for flag, set := range channel.mode {
 		if set {
 			mode += string(flag)
 		}
 	}
-	sendNumeric(state, user, ReplyChannelModeIs, channel.Name, mode)
+	sendNumeric(state, user, replyChannelModeIs, channel.name, mode)
 }

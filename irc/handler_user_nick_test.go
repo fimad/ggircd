@@ -5,28 +5,28 @@ import (
 )
 
 func TestUserHandlerNicks(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-NAMES", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-NAMES", state, handler, []handlerTest{
 		{
 			desc: "nick change successful",
-			in:   []Message{CmdNick.WithParams("foo")},
+			in:   []message{cmdNick.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc: "nick change broadcasts to channels",
-			in:   []Message{CmdNick.WithParams("foo")},
+			in:   []message{cmdNick.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"foo": mockConnection{
-					messages: []Message{CmdNick},
+					messages: []message{cmdNick},
 				},
 				"bar": mockConnection{
-					messages: []Message{CmdNick},
+					messages: []message{cmdNick},
 				},
 			},
 			state: newMockState().
@@ -36,20 +36,20 @@ func TestUserHandlerNicks(t *testing.T) {
 		},
 		{
 			desc: "nick fails not given",
-			in:   []Message{CmdNick},
+			in:   []message{cmdNick},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoNicknameGiven},
+					messages: []message{errorNoNicknameGiven},
 				},
 			},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc: "nick fails taken",
-			in:   []Message{CmdNick.WithParams("foo")},
+			in:   []message{cmdNick.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNicknameInUse},
+					messages: []message{errorNicknameInUse},
 				},
 			},
 			state: newMockState().withUser("nick").withUser("foo"),

@@ -5,18 +5,18 @@ import (
 )
 
 func TestUserHandlerPart(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-PART", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-PART", state, handler, []handlerTest{
 		{
 			desc: "successful part channel",
-			in:   []Message{CmdPart.WithParams("#channel")},
+			in:   []message{cmdPart.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdPart},
+					messages: []message{cmdPart},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdPart},
+					messages: []message{cmdPart},
 				},
 			},
 			state: newMockState().
@@ -26,16 +26,16 @@ func TestUserHandlerPart(t *testing.T) {
 		},
 		{
 			desc: "successful part multiple channels",
-			in:   []Message{CmdPart.WithParams("#foo,#bar")},
+			in:   []message{cmdPart.withParams("#foo,#bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdPart, CmdPart},
+					messages: []message{cmdPart, cmdPart},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdPart},
+					messages: []message{cmdPart},
 				},
 				"bar": mockConnection{
-					messages: []Message{CmdPart},
+					messages: []message{cmdPart},
 				},
 			},
 			state: newMockState().
@@ -47,13 +47,13 @@ func TestUserHandlerPart(t *testing.T) {
 		},
 		{
 			desc: "failure - not on channel",
-			in:   []Message{CmdPart.WithParams("#channel")},
+			in:   []message{cmdPart.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNotOnChannel},
+					messages: []message{errorNotOnChannel},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -63,10 +63,10 @@ func TestUserHandlerPart(t *testing.T) {
 		},
 		{
 			desc: "failure - part from bad channel",
-			in:   []Message{CmdPart.WithParams("#channel")},
+			in:   []message{cmdPart.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoSuchChannel},
+					messages: []message{errorNoSuchChannel},
 				},
 			},
 			state: newMockState().withUser("nick"),

@@ -5,15 +5,15 @@ import (
 )
 
 func TestUserHandlerPing(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-PING", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-PING", state, handler, []handlerTest{
 		{
 			desc: "successful ping",
-			in:   []Message{CmdPing},
+			in:   []message{cmdPing},
 			want: mockConnection{
-				messages: []Message{
-					CmdPong.WithPrefix("name").WithParams("name").WithTrailing("name"),
+				messages: []message{
+					cmdPong.withPrefix("name").withParams("name").withTrailing("name"),
 				},
 			},
 			state: newMockState().withUser("nick"),

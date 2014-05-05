@@ -5,18 +5,18 @@ import (
 )
 
 func TestUserHandlerMode(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-MODE", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-MODE", state, handler, []handlerTest{
 
 		// General mode tests...
 
 		{
 			desc: "failure - no target given",
-			in:   []Message{CmdMode},
+			in:   []message{cmdMode},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -26,10 +26,10 @@ func TestUserHandlerMode(t *testing.T) {
 
 		{
 			desc: "successful query channel mode",
-			in:   []Message{CmdMode.WithParams("#foo")},
+			in:   []message{cmdMode.withParams("#foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ReplyChannelModeIs},
+					messages: []message{replyChannelModeIs},
 				},
 			},
 			state: newMockState().
@@ -38,10 +38,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "successful parse mode positive",
-			in:   []Message{CmdMode.WithParams("#foo", "+vno", "nick", "nick")},
+			in:   []message{cmdMode.withParams("#foo", "+vno", "nick", "nick")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdMode},
+					messages: []message{cmdMode},
 				},
 			},
 			assert: []assert{
@@ -56,10 +56,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "successful parse mode negative",
-			in:   []Message{CmdMode.WithParams("#foo", "-stn")},
+			in:   []message{cmdMode.withParams("#foo", "-stn")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdMode},
+					messages: []message{cmdMode},
 				},
 			},
 			assert: []assert{
@@ -72,10 +72,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - non-existent channel",
-			in:   []Message{CmdMode.WithParams("#foo", "+n")},
+			in:   []message{cmdMode.withParams("#foo", "+n")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoSuchChannel},
+					messages: []message{errorNoSuchChannel},
 				},
 			},
 			state: newMockState().
@@ -83,10 +83,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - non-op attempting to change mode",
-			in:   []Message{CmdMode.WithParams("#foo", "+n")},
+			in:   []message{cmdMode.withParams("#foo", "+n")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorChanOPrivsNeeded},
+					messages: []message{errorChanOPrivsNeeded},
 				},
 			},
 			state: newMockState().
@@ -95,10 +95,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - attempt to set invalid mode",
-			in:   []Message{CmdMode.WithParams("#foo", "+w")},
+			in:   []message{cmdMode.withParams("#foo", "+w")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorUnknownMode},
+					messages: []message{errorUnknownMode},
 				},
 			},
 			state: newMockState().
@@ -108,10 +108,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - not enough parameters for op",
-			in:   []Message{CmdMode.WithParams("#foo", "+o")},
+			in:   []message{cmdMode.withParams("#foo", "+o")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -121,10 +121,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - not enough parameters for voice",
-			in:   []Message{CmdMode.WithParams("#foo", "+v")},
+			in:   []message{cmdMode.withParams("#foo", "+v")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -134,10 +134,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - not enough parameters for key",
-			in:   []Message{CmdMode.WithParams("#foo", "+k")},
+			in:   []message{cmdMode.withParams("#foo", "+k")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -147,10 +147,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - not enough parameters for limit",
-			in:   []Message{CmdMode.WithParams("#foo", "+l")},
+			in:   []message{cmdMode.withParams("#foo", "+l")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -160,10 +160,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - not enough parameters for ban",
-			in:   []Message{CmdMode.WithParams("#foo", "+b")},
+			in:   []message{cmdMode.withParams("#foo", "+b")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -173,10 +173,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - invalid number for limit",
-			in:   []Message{CmdMode.WithParams("#foo", "+l", "nan")},
+			in:   []message{cmdMode.withParams("#foo", "+l", "nan")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorUnknownMode},
+					messages: []message{errorUnknownMode},
 				},
 			},
 			state: newMockState().
@@ -189,10 +189,10 @@ func TestUserHandlerMode(t *testing.T) {
 
 		{
 			desc: "success - make invisible",
-			in:   []Message{CmdMode.WithParams("nick", "+i")},
+			in:   []message{cmdMode.withParams("nick", "+i")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ReplyUModeIs},
+					messages: []message{replyUModeIs},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -202,15 +202,15 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "success - make invisible",
-			in: []Message{
-				CmdMode.WithParams("nick", "+i"),
-				CmdMode.WithParams("nick", "-i"),
+			in: []message{
+				cmdMode.withParams("nick", "+i"),
+				cmdMode.withParams("nick", "-i"),
 			},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyUModeIs,
-						ReplyUModeIs,
+					messages: []message{
+						replyUModeIs,
+						replyUModeIs,
 					},
 				},
 			},
@@ -221,20 +221,20 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - need more params",
-			in:   []Message{CmdMode.WithParams("nick")},
+			in:   []message{cmdMode.withParams("nick")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc: "failure - unknown mode",
-			in:   []Message{CmdMode.WithParams("nick", "+v")},
+			in:   []message{cmdMode.withParams("nick", "+v")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorUModeUnknownFlag},
+					messages: []message{errorUModeUnknownFlag},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -244,10 +244,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - nick mismatch",
-			in:   []Message{CmdMode.WithParams("foo", "+i")},
+			in:   []message{cmdMode.withParams("foo", "+i")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorUsersDontMatch},
+					messages: []message{errorUsersDontMatch},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -257,10 +257,10 @@ func TestUserHandlerMode(t *testing.T) {
 		},
 		{
 			desc: "failure - cannot set away with mode",
-			in:   []Message{CmdMode.WithParams("nick", "+a")},
+			in:   []message{cmdMode.withParams("nick", "+a")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorUModeUnknownFlag},
+					messages: []message{errorUModeUnknownFlag},
 				},
 			},
 			state: newMockState().withUser("nick"),

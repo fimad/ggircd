@@ -9,82 +9,82 @@ import (
 func TestMessageParser(t *testing.T) {
 	tests := []struct {
 		raw  string
-		want []Message
+		want []message
 	}{
 		{
 			raw:  "",
-			want: []Message{},
+			want: []message{},
 		},
 		{
 			raw: "foobar\r\n",
-			want: []Message{
+			want: []message{
 				{
-					Command: "foobar",
-					Params:  []string{},
+					command: "foobar",
+					params:  []string{},
 				},
 			},
 		},
 		{
 			raw: ":test foobar\r\n",
-			want: []Message{
+			want: []message{
 				{
-					Prefix:  "test",
-					Command: "foobar",
-					Params:  []string{},
+					prefix:  "test",
+					command: "foobar",
+					params:  []string{},
 				},
 			},
 		},
 		{
 			raw: ":test foobar test\r\n",
-			want: []Message{
+			want: []message{
 				{
-					Prefix:  "test",
-					Command: "foobar",
-					Params:  []string{"test"},
+					prefix:  "test",
+					command: "foobar",
+					params:  []string{"test"},
 				},
 			},
 		},
 		{
 			raw: ":test foobar 1 2 3 4\r\n",
-			want: []Message{
+			want: []message{
 				{
-					Prefix:  "test",
-					Command: "foobar",
-					Params:  []string{"1", "2", "3", "4"},
+					prefix:  "test",
+					command: "foobar",
+					params:  []string{"1", "2", "3", "4"},
 				},
 			},
 		},
 		{
 			raw: ":test foobar 1 2 3 4 :hello world\r\n",
-			want: []Message{
+			want: []message{
 				{
-					Prefix:   "test",
-					Command:  "foobar",
-					Params:   []string{"1", "2", "3", "4"},
-					Trailing: "hello world",
+					prefix:   "test",
+					command:  "foobar",
+					params:   []string{"1", "2", "3", "4"},
+					trailing: "hello world",
 				},
 			},
 		},
 		{
 			raw: "a\r\nb\r\nc\r\n",
-			want: []Message{
-				{Command: "a", Params: []string{}},
-				{Command: "b", Params: []string{}},
-				{Command: "c", Params: []string{}},
+			want: []message{
+				{command: "a", params: []string{}},
+				{command: "b", params: []string{}},
+				{command: "c", params: []string{}},
 			},
 		},
 	}
 
 	for i, tt := range tests {
 		reader := bytes.NewReader([]byte(tt.raw))
-		parser := NewMessageParser(reader)
-		got := make([]Message, 0)
+		parser := newMessageParser(reader)
+		got := make([]message, 0)
 		for msg, hasMore := parser(); hasMore; msg, hasMore = parser() {
 			got = append(got, msg)
 		}
 
 		if (len(tt.want) > 0 || len(got) > 0) && !reflect.DeepEqual(tt.want, got) {
-			t.Errorf("%d.\nMessageParser(%q) =>\n\tgot %+v\n\twant %+v",
+			t.Errorf("%d.\nmessageParser(%q) =>\n\tgot %+v\n\twant %+v",
 				i, tt.raw, got, tt.want)
 		}
 	}

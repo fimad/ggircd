@@ -5,26 +5,27 @@ import (
 	"net"
 )
 
+// RunServer starts the GGircd IRC server. This method will not return.
 func RunServer(cfg Config) {
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
-		logf(Fatal, "Could not create server: %v", err)
+		logf(fatal, "Could not create server: %v", err)
 	}
 
-	state := make(chan State, 1)
-	state <- NewState(cfg)
+	state := make(chan state, 1)
+	state <- newState(cfg)
 	acceptLoop(ln, state)
 }
 
-func acceptLoop(listener net.Listener, state chan State) {
+func acceptLoop(listener net.Listener, state chan state) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			logf(Warn, "Could not accept new connection: ", err)
+			logf(warn, "Could not accept new connection: ", err)
 			continue
 		}
 
-		c := NewConnection(conn, NewFreshHandler(state))
-		go c.Loop()
+		c := newConnection(conn, newFreshHandler(state))
+		go c.loop()
 	}
 }

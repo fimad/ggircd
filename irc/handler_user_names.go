@@ -4,8 +4,8 @@ import (
 	"strings"
 )
 
-func (h *UserHandler) handleCmdNames(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) == 0 {
+func (h *userHandler) handleCmdNames(state state, user *user, conn connection, msg message) handler {
+	if len(msg.params) == 0 {
 		h.handleCmdNamesAll(state, user, msg)
 		return h
 	}
@@ -13,13 +13,13 @@ func (h *UserHandler) handleCmdNames(state State, user *User, conn Connection, m
 	return h
 }
 
-func (h *UserHandler) handleCmdNamesAll(state State, user *User, msg Message) {
-	state.ForChannels(func(ch *Channel) {
-		if ch.Mode[ChannelModePrivate] && ch.Users[user] {
+func (h *userHandler) handleCmdNamesAll(state state, user *user, msg message) {
+	state.forChannels(func(ch *channel) {
+		if ch.mode[channelModePrivate] && ch.users[user] {
 			return
 		}
 
-		if ch.Mode[ChannelModeSecret] && !ch.Users[user] {
+		if ch.mode[channelModeSecret] && !ch.users[user] {
 			return
 		}
 
@@ -27,15 +27,15 @@ func (h *UserHandler) handleCmdNamesAll(state State, user *User, msg Message) {
 	})
 }
 
-func (h *UserHandler) handleCmdNamesChannel(state State, user *User, msg Message) {
-	names := strings.Split(msg.Params[0], ",")
+func (h *userHandler) handleCmdNamesChannel(state state, user *user, msg message) {
+	names := strings.Split(msg.params[0], ",")
 	for _, name := range names {
-		channel := state.GetChannel(name)
+		channel := state.getChannel(name)
 		if channel == nil {
 			break
 		}
 
-		if channel.Mode[ChannelModePrivate] && !channel.Users[user] {
+		if channel.mode[channelModePrivate] && !channel.users[user] {
 			break
 		}
 

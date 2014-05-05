@@ -1,6 +1,6 @@
 package irc
 
-func (h *UserHandler) handleCmdMotd(state State, user *User, conn Connection, msg Message) Handler {
+func (h *userHandler) handleCmdMotd(state state, user *user, conn connection, msg message) handler {
 	sendMOTD(state, user)
 	return h
 }

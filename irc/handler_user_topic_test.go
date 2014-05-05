@@ -5,15 +5,15 @@ import (
 )
 
 func TestUserHandlerTopic(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-TOPIC", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-TOPIC", state, handler, []handlerTest{
 		{
 			desc: "successful query empty topic",
-			in:   []Message{CmdTopic.WithParams("#channel")},
+			in:   []message{cmdTopic.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ReplyNoTopic},
+					messages: []message{replyNoTopic},
 				},
 			},
 			state: newMockState().
@@ -22,10 +22,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "successful query non-empty topic",
-			in:   []Message{CmdTopic.WithParams("#channel")},
+			in:   []message{cmdTopic.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ReplyTopic},
+					messages: []message{replyTopic},
 				},
 			},
 			state: newMockState().
@@ -34,10 +34,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "successful set topic non-op",
-			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
+			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdTopic},
+					messages: []message{cmdTopic},
 				},
 			},
 			state: newMockState().
@@ -46,10 +46,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "successful set topic op",
-			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
+			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdTopic},
+					messages: []message{cmdTopic},
 				},
 			},
 			state: newMockState().
@@ -59,13 +59,13 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "setting topic broad casts to channel",
-			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
+			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{CmdTopic},
+					messages: []message{cmdTopic},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdTopic},
+					messages: []message{cmdTopic},
 				},
 			},
 			state: newMockState().
@@ -75,10 +75,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "failure - no channel given",
-			in:   []Message{CmdTopic},
+			in:   []message{cmdTopic},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().
@@ -87,10 +87,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "failure - no such channel",
-			in:   []Message{CmdTopic.WithParams("#channel")},
+			in:   []message{cmdTopic.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoSuchChannel},
+					messages: []message{errorNoSuchChannel},
 				},
 			},
 			state: newMockState().
@@ -98,10 +98,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "failure - set from outside channel",
-			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
+			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNotOnChannel},
+					messages: []message{errorNotOnChannel},
 				},
 			},
 			state: newMockState().
@@ -110,10 +110,10 @@ func TestUserHandlerTopic(t *testing.T) {
 		},
 		{
 			desc: "failure - non-op set on +t channel",
-			in:   []Message{CmdTopic.WithParams("#channel").WithTrailing("topic")},
+			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorChanOPrivsNeeded},
+					messages: []message{errorChanOPrivsNeeded},
 				},
 			},
 			state: newMockState().

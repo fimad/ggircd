@@ -12,10 +12,12 @@ const (
 
 // sendIntro sends all of the welcome messages that clients expect to receive
 // after joining the server.
-func sendIntro(state State, sink Sink) {
-	sendNumericTrailing(state, sink, ReplyWelcome,
-		fmt.Sprintf(welcomeMessage, state.GetConfig().Network))
-	sendNumericTrailing(state, sink, ReplyYourHost,
-		fmt.Sprintf(yourHostMessage, state.GetConfig().Name, Version))
+func sendIntro(state state, sink sink) {
+	sendNumericTrailing(state, sink, replyWelcome,
+		fmt.Sprintf(welcomeMessage, state.getConfig().Network))
+
+	sendNumericTrailing(state, sink, replyYourHost,
+		fmt.Sprintf(yourHostMessage, state.getConfig().Name, version))
+
 	sendMOTD(state, sink)
 }

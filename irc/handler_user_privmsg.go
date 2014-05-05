@@ -1,46 +1,46 @@
 package irc
 
-func (h *UserHandler) handleCmdPrivMsg(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) < 1 {
-		sendNumeric(state, user, ErrorNoRecipient)
+func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, msg message) handler {
+	if len(msg.params) < 1 {
+		sendNumeric(state, u, errorNoRecipient)
 		return h
 	}
 
-	if msg.Trailing == "" {
-		sendNumeric(state, user, ErrorNoTextToSend)
+	if msg.trailing == "" {
+		sendNumeric(state, u, errorNoTextToSend)
 		return h
 	}
 
-	target := msg.Params[0]
-	msg.Prefix = user.Prefix()
+	target := msg.params[0]
+	msg.prefix = u.prefix()
 
 	if target[0] != '#' && target[0] != '&' {
-		targetUser := state.GetUser(target)
+		targetUser := state.getUser(target)
 		if targetUser == nil {
-			sendNumeric(state, user, ErrorNoSuchNick, target)
+			sendNumeric(state, u, errorNoSuchNick, target)
 			return h
 		}
-		targetUser.Send(msg)
+		targetUser.send(msg)
 
-		if targetUser.Mode[UserModeAway] {
-			user.Send(CmdPrivMsg.
-				WithPrefix(targetUser.Prefix()).
-				WithParams(user.Nick).
-				WithTrailing(targetUser.AwayMessage))
+		if targetUser.mode[userModeAway] {
+			u.send(cmdPrivMsg.
+				withPrefix(targetUser.prefix()).
+				withParams(u.nick).
+				withTrailing(targetUser.awayMessage))
 		}
 		return h
 	}
 
-	channel := state.GetChannel(target)
+	channel := state.getChannel(target)
 
-	if channel == nil || !channel.CanPrivMsg(user) {
-		sendNumeric(state, user, ErrorCannotSendToChan, target)
+	if channel == nil || !channel.canPrivMsg(u) {
+		sendNumeric(state, u, errorCannotSendToChan, target)
 		return h
 	}
 
-	channel.ForUsers(func(u *User) {
-		if u != user {
-			u.Send(msg)
+	channel.forUsers(func(n *user) {
+		if n != u {
+			n.send(msg)
 		}
 	})
 	return h

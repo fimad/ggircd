@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-// Lowercase takes a string and returns the IRC lower case version. The IRC spec
+// lowercase takes a string and returns the IRC lower case version. The IRC spec
 // defines {}|^ to be the lower case equivalents of []\~.
-func Lowercase(in string) string {
+func lowercase(in string) string {
 	var out bytes.Buffer
 	for i := 0; i < len(in); i++ {
 		switch in[i] {

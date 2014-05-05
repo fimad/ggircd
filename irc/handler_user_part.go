@@ -4,33 +4,33 @@ import (
 	"strings"
 )
 
-func (h *UserHandler) handleCmdPart(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) == 0 {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+func (h *userHandler) handleCmdPart(state state, user *user, conn connection, msg message) handler {
+	if len(msg.params) == 0 {
+		sendNumeric(state, user, errorNeedMoreParams)
 		return h
 	}
 
 	reason := "PARTing"
-	if len(msg.Params) > 1 {
-		reason = msg.Params[1]
+	if len(msg.params) > 1 {
+		reason = msg.params[1]
 	}
 
-	channels := strings.Split(msg.Params[0], ",")
+	channels := strings.Split(msg.params[0], ",")
 	for i := 0; i < len(channels); i++ {
 		name := channels[i]
-		channel := state.GetChannel(name)
+		channel := state.getChannel(name)
 
 		if channel == nil {
-			sendNumeric(state, user, ErrorNoSuchChannel, name)
+			sendNumeric(state, user, errorNoSuchChannel, name)
 			continue
 		}
 
-		if !channel.Users[user] {
-			sendNumeric(state, user, ErrorNotOnChannel, name)
+		if !channel.users[user] {
+			sendNumeric(state, user, errorNotOnChannel, name)
 			continue
 		}
 
-		state.PartChannel(channel, user, reason)
+		state.partChannel(channel, user, reason)
 	}
 	return h
 }

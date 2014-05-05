@@ -11,7 +11,7 @@ type handlerTest struct {
 
 	// A sequence of messages that will be sent from the nick supplied to
 	// testHandler.
-	in []Message
+	in []message
 
 	// The initial IRC state.
 	state *mockState
@@ -39,7 +39,7 @@ type handlerTest struct {
 }
 
 // testHandler is a helper method for use in testing handlers.
-func testHandler(t *testing.T, name string, state chan State, handler func() Handler, tests []handlerTest) {
+func testHandler(t *testing.T, name string, state chan state, handler func() handler, tests []handlerTest) {
 	for i, tt := range tests {
 		if tt.motd == nil {
 			motd = []string{}
@@ -58,8 +58,8 @@ func testHandler(t *testing.T, name string, state chan State, handler func() Han
 		}
 
 		for nick, want := range tt.wantNicks {
-			user := tt.state.GetUser(nick)
-			gotNicks[nick] = *user.Sink.(*mockConnection)
+			user := tt.state.getUser(nick)
+			gotNicks[nick] = *user.sink.(*mockConnection)
 			if !compareMessages(tt.strict, gotNicks[nick], want) {
 				t.Errorf("%d. %s: %s\n%+v => nick = %q\n\tgot %+v\n\twant %+v",
 					i, name, tt.desc, tt.in, nick, gotNicks[nick], tt.wantNicks[nick])
@@ -76,13 +76,13 @@ func testHandler(t *testing.T, name string, state chan State, handler func() Han
 	}
 }
 
-func runHandler(tt handlerTest, handler Handler) mockConnection {
+func runHandler(tt handlerTest, handler handler) mockConnection {
 	conn := mockConnection{}
 	for _, message := range tt.in {
-		handler = handler.Handle(&conn, message)
+		handler = handler.handle(&conn, message)
 	}
 	if tt.hangup {
-		handler.Closed(&conn)
+		handler.closed(&conn)
 	}
 	return conn
 }
@@ -108,7 +108,7 @@ func compareMessages(strict bool, got, want mockConnection) bool {
 	}
 
 	for i := 0; i < len(got.messages); i++ {
-		if got.messages[i].Command != want.messages[i].Command {
+		if got.messages[i].command != want.messages[i].command {
 			return false
 		}
 	}

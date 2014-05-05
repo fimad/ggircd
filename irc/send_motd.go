@@ -18,28 +18,28 @@ var (
 )
 
 // sendMOTD will send the message of the day to a relay.
-func sendMOTD(state State, sink Sink) {
+func sendMOTD(state state, sink sink) {
 	motdOnce.Do(func() { loadMOTD(state) })
 
-	sendNumericTrailing(state, sink, ReplyMOTDStart,
-		fmt.Sprintf(motdHeader, state.GetConfig().Name))
+	sendNumericTrailing(state, sink, replyMOTDStart,
+		fmt.Sprintf(motdHeader, state.getConfig().Name))
 
 	for _, line := range motd {
-		sendNumericTrailing(state, sink, ReplyMOTD, "- "+line)
+		sendNumericTrailing(state, sink, replyMOTD, "- "+line)
 	}
 
-	sendNumericTrailing(state, sink, ReplyEndOfMOTD, motdFooter)
+	sendNumericTrailing(state, sink, replyEndOfMOTD, motdFooter)
 }
 
-func loadMOTD(state State) {
-	motdFile := state.GetConfig().MOTD
+func loadMOTD(state state) {
+	motdFile := state.getConfig().MOTD
 	if motdFile == "" || motd != nil {
 		return
 	}
 
 	file, err := os.Open(motdFile)
 	if err != nil {
-		logf(Error, "Could not open MOTD: %v", err)
+		logf(warn, "Could not open MOTD: %v", err)
 	}
 
 	scanner := bufio.NewScanner(file)

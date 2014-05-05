@@ -1,60 +1,60 @@
 package irc
 
-type commandMap map[string]func(State, *User, Connection, Message) Handler
+type commandMap map[string]func(state, *user, connection, message) handler
 
-// UserHandler is a handler that handles messages coming from a user connection
+// userHandler is a handler that handles messages coming from a user connection
 // that has successfully associated with the client.
-type UserHandler struct {
-	state    chan State
+type userHandler struct {
+	state    chan state
 	nick     string
 	commands commandMap
 }
 
-func NewUserHandler(state chan State, nick string) Handler {
-	handler := &UserHandler{
+func newUserHandler(state chan state, nick string) handler {
+	handler := &userHandler{
 		state: state,
 		nick:  nick,
 	}
 	handler.commands = commandMap{
-		CmdAway.Command:    handler.handleCmdAway,
-		CmdInvite.Command:  handler.handleCmdInvite,
-		CmdJoin.Command:    handler.handleCmdJoin,
-		CmdKick.Command:    handler.handleCmdKick,
-		CmdList.Command:    handler.handleCmdList,
-		CmdMode.Command:    handler.handleCmdMode,
-		CmdMotd.Command:    handler.handleCmdMotd,
-		CmdNames.Command:   handler.handleCmdNames,
-		CmdNick.Command:    handler.handleCmdNick,
-		CmdNotice.Command:  handler.handleCmdNotice,
-		CmdPart.Command:    handler.handleCmdPart,
-		CmdPing.Command:    handler.handleCmdPing,
-		CmdPrivMsg.Command: handler.handleCmdPrivMsg,
-		CmdQuit.Command:    handler.handleCmdQuit,
-		CmdTopic.Command:   handler.handleCmdTopic,
-		CmdWho.Command:     handler.handleCmdWho,
+		cmdAway.command:    handler.handleCmdAway,
+		cmdInvite.command:  handler.handleCmdInvite,
+		cmdJoin.command:    handler.handleCmdJoin,
+		cmdKick.command:    handler.handleCmdKick,
+		cmdList.command:    handler.handleCmdList,
+		cmdMode.command:    handler.handleCmdMode,
+		cmdMotd.command:    handler.handleCmdMotd,
+		cmdNames.command:   handler.handleCmdNames,
+		cmdNick.command:    handler.handleCmdNick,
+		cmdNotice.command:  handler.handleCmdNotice,
+		cmdPart.command:    handler.handleCmdPart,
+		cmdPing.command:    handler.handleCmdPing,
+		cmdPrivMsg.command: handler.handleCmdPrivMsg,
+		cmdQuit.command:    handler.handleCmdQuit,
+		cmdTopic.command:   handler.handleCmdTopic,
+		cmdWho.command:     handler.handleCmdWho,
 	}
 	return handler
 }
 
-func (h *UserHandler) Closed(conn Connection) {
+func (h *userHandler) closed(conn connection) {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	state.RemoveUser(state.GetUser(h.nick))
-	conn.Kill()
+	state.removeUser(state.getUser(h.nick))
+	conn.kill()
 }
 
-func (h *UserHandler) Handle(conn Connection, msg Message) Handler {
+func (h *userHandler) handle(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	command := h.commands[msg.Command]
+	command := h.commands[msg.command]
 	if command == nil {
 		return h
 	}
 
-	user := state.GetUser(h.nick)
+	user := state.getUser(h.nick)
 	newHandler := command(state, user, conn, msg)
-	h.nick = user.Nick
+	h.nick = user.nick
 	return newHandler
 }

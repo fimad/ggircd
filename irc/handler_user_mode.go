@@ -4,13 +4,13 @@ import (
 	"strconv"
 )
 
-func (h *UserHandler) handleCmdMode(state State, user *User, _ Connection, msg Message) Handler {
-	if len(msg.Params) < 1 {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+func (h *userHandler) handleCmdMode(state state, user *user, _ connection, msg message) handler {
+	if len(msg.params) < 1 {
+		sendNumeric(state, user, errorNeedMoreParams)
 		return h
 	}
 
-	if msg.Params[0][0] == '#' || msg.Params[0][0] == '&' {
+	if msg.params[0][0] == '#' || msg.params[0][0] == '&' {
 		h.handleCmdModeChannel(state, user, msg)
 	} else {
 		h.handleCmdModeUser(state, user, msg)
@@ -18,33 +18,33 @@ func (h *UserHandler) handleCmdMode(state State, user *User, _ Connection, msg M
 	return h
 }
 
-func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message) {
-	channel := state.GetChannel(msg.Params[0])
+func (h *userHandler) handleCmdModeChannel(state state, user *user, msg message) {
+	channel := state.getChannel(msg.params[0])
 	if channel == nil {
-		sendNumeric(state, user, ErrorNoSuchChannel, msg.Params[0])
+		sendNumeric(state, user, errorNoSuchChannel, msg.params[0])
 		return
 	}
 
-	if len(msg.Params) == 1 {
+	if len(msg.params) == 1 {
 		sendChannelMode(state, user, channel)
 		return
 	}
 
-	if !channel.Ops[user] {
-		sendNumeric(state, user, ErrorChanOPrivsNeeded, channel.Name)
+	if !channel.ops[user] {
+		sendNumeric(state, user, errorChanOPrivsNeeded, channel.name)
 		return
 	}
 
-	pos, neg, errs := ParseModeDiff(
-		ChannelModes,
-		ChannelPosParamModes,
-		ChannelNegParamModes,
-		ErrorUnknownMode,
-		msg.Params[1:])
+	pos, neg, errs := parseModeDiff(
+		channelModes,
+		channelPosParamModes,
+		channelNegParamModes,
+		errorUnknownMode,
+		msg.params[1:])
 
 	if errs != nil {
 		for _, err := range errs {
-			sendNumeric(state, user, err, err.Params...)
+			sendNumeric(state, user, err, err.params...)
 		}
 		return
 	}
@@ -55,17 +55,18 @@ func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message)
 		for mode, values := range curr {
 			for _, value := range values {
 				switch mode {
-				case ChannelModeOp:
+				case channelModeOp:
 					fallthrough
-				case ChannelModeVoice:
-					if state.GetUser(value) == nil {
-						sendNumeric(state, user, ErrorNoSuchNick, value)
+				case channelModeVoice:
+					if state.getUser(value) == nil {
+						sendNumeric(state, user, errorNoSuchNick, value)
 						ok = false
 					}
-				case ChannelModeUserLimit:
+				case channelModeUserLimit:
 					_, err := strconv.Atoi(value)
 					if err != nil {
-						sendNumericTrailing(state, user, ErrorUnknownMode, "Not a number", value)
+						sendNumericTrailing(
+							state, user, errorUnknownMode, "Not a number", value)
 						ok = false
 					}
 					// TODO(will): Handle ban masks...
@@ -84,32 +85,32 @@ func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message)
 		for mode, values := range curr {
 			for _, value := range values {
 				switch mode {
-				case ChannelModeOp:
-					channel.Ops[state.GetUser(value)] = affinity
+				case channelModeOp:
+					channel.ops[state.getUser(value)] = affinity
 
-				case ChannelModeUserLimit:
-					channel.Mode[mode] = affinity
+				case channelModeUserLimit:
+					channel.mode[mode] = affinity
 					if !affinity {
 						break
 					}
 					limit, _ := strconv.Atoi(value)
-					channel.Limit = limit
+					channel.limit = limit
 
-				case ChannelModeBanMask:
+				case channelModeBanMask:
 					// TODO(will): Handle ban masks.
 
-				case ChannelModeVoice:
-					channel.Voices[state.GetUser(value)] = affinity
+				case channelModeVoice:
+					channel.voices[state.getUser(value)] = affinity
 
-				case ChannelModeKey:
-					channel.Mode[mode] = affinity
+				case channelModeKey:
+					channel.mode[mode] = affinity
 					if !affinity {
 						break
 					}
-					channel.Key = value
+					channel.key = value
 
 				default:
-					channel.Mode[mode] = affinity
+					channel.mode[mode] = affinity
 				}
 			}
 		}
@@ -117,48 +118,48 @@ func (h *UserHandler) handleCmdModeChannel(state State, user *User, msg Message)
 	wetRun(pos, true)
 	wetRun(neg, false)
 
-	msg.Prefix = user.Prefix()
-	channel.Send(msg)
+	msg.prefix = user.prefix()
+	channel.send(msg)
 }
 
-func (h *UserHandler) handleCmdModeUser(state State, user *User, msg Message) {
-	if len(msg.Params) < 2 {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+func (h *userHandler) handleCmdModeUser(state state, user *user, msg message) {
+	if len(msg.params) < 2 {
+		sendNumeric(state, user, errorNeedMoreParams)
 		return
 	}
 
-	if Lowercase(msg.Params[0]) != Lowercase(user.Nick) {
-		sendNumeric(state, user, ErrorUsersDontMatch)
+	if lowercase(msg.params[0]) != lowercase(user.nick) {
+		sendNumeric(state, user, errorUsersDontMatch)
 		return
 	}
 
-	pos, neg, errs := ParseModeDiff(
-		UserModesSettable,
-		UserPosParamModes,
-		UserNegParamModes,
-		ErrorUModeUnknownFlag,
-		msg.Params[1:])
+	pos, neg, errs := parseModeDiff(
+		userModesSettable,
+		userPosParamModes,
+		userNegParamModes,
+		errorUModeUnknownFlag,
+		msg.params[1:])
 
 	if errs != nil {
 		for _, err := range errs {
-			sendNumeric(state, user, err, err.Params...)
+			sendNumeric(state, user, err, err.params...)
 		}
 		return
 	}
 
 	wetRun := func(diff map[string][]string, affinity bool) {
 		for mode := range diff {
-			user.Mode[mode] = affinity
+			user.mode[mode] = affinity
 		}
 	}
 	wetRun(pos, true)
 	wetRun(neg, false)
 
 	modeLine := ""
-	for mode, isSet := range user.Mode {
+	for mode, isSet := range user.mode {
 		if isSet {
 			modeLine = modeLine + mode
 		}
 	}
-	sendNumeric(state, user, ReplyUModeIs, modeLine)
+	sendNumeric(state, user, replyUModeIs, modeLine)
 }

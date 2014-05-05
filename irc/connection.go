@@ -5,48 +5,48 @@ import (
 	"net"
 )
 
-// Connection corresponds to some end-point that has connected to the IRC
+// connection corresponds to some end-point that has connected to the IRC
 // server.
-type Connection interface {
-	Sink
+type connection interface {
+	sink
 
-	// Loop reads messages from the connection and passes them to the handler.
-	Loop()
+	// loop reads messages from the connection and passes them to the handler.
+	loop()
 
-	// Kill stops the execution of the go routine running Loop.
-	Kill()
+	// kill stops the execution of the go routine running Loop.
+	kill()
 }
 
 type connectionImpl struct {
 	conn      net.Conn
-	handler   Handler
-	inbox     chan Message
+	handler   handler
+	inbox     chan message
 	killRead  chan struct{}
 	killWrite chan struct{}
 }
 
-// NewConnection creates a new connection with the given network connection and
+// newConnection creates a new connection with the given network connection and
 // handler.
-func NewConnection(conn net.Conn, handler Handler) Connection {
+func newConnection(conn net.Conn, handler handler) connection {
 	return &connectionImpl{
 		conn:      conn,
 		handler:   handler,
-		inbox:     make(chan Message),
+		inbox:     make(chan message),
 		killRead:  make(chan struct{}),
 		killWrite: make(chan struct{}),
 	}
 }
 
-func (c *connectionImpl) Send(msg Message) {
+func (c *connectionImpl) send(msg message) {
 	c.inbox <- msg
 }
 
-func (c *connectionImpl) Loop() {
+func (c *connectionImpl) loop() {
 	go c.writeLoop()
 	c.readLoop()
 }
 
-func (c *connectionImpl) Kill() {
+func (c *connectionImpl) kill() {
 	go func() {
 		c.killRead <- struct{}{}
 		c.killWrite <- struct{}{}
@@ -54,8 +54,8 @@ func (c *connectionImpl) Kill() {
 }
 
 func (c *connectionImpl) readLoop() {
-	var msg Message
-	parser := NewMessageParser(c.conn)
+	var msg message
+	parser := newMessageParser(c.conn)
 
 	didQuit := false
 	alive, hasMore := true, true
@@ -65,16 +65,16 @@ func (c *connectionImpl) readLoop() {
 			alive = false
 		default:
 			msg, hasMore = parser()
-			logf(Debug, "< %+v", msg)
-			didQuit = didQuit || msg.Command == CmdQuit.Command
-			c.handler = c.handler.Handle(c, msg)
+			logf(debug, "< %+v", msg)
+			didQuit = didQuit || msg.command == cmdQuit.command
+			c.handler = c.handler.handle(c, msg)
 		}
 	}
 
 	// If there was never a QUIT message then this is a premature termination and
 	// a quit message should be faked.
 	if !didQuit {
-		c.handler = c.handler.Handle(c, CmdQuit.WithTrailing("QUITing"))
+		c.handler = c.handler.handle(c, cmdQuit.withTrailing("QUITing"))
 	}
 
 	if alive {
@@ -90,16 +90,16 @@ func (c *connectionImpl) writeLoop() {
 		case _ = <-c.killWrite:
 			alive = false
 		case msg := <-c.inbox:
-			logf(Debug, "> %+v", msg)
+			logf(debug, "> %+v", msg)
 
-			line, ok := msg.ToString()
+			line, ok := msg.toString()
 			if !ok {
 				break
 			}
 
 			_, err := io.WriteString(c.conn, line)
 			if err != nil {
-				logf(Error, "Error encountered sending message to client: %v", err)
+				logf(warn, "Error encountered sending message to client: %v", err)
 				break
 			}
 		}

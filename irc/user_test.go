@@ -6,27 +6,27 @@ import (
 
 func TestUserPrefix(t *testing.T) {
 	tests := []struct {
-		in   User
+		in   user
 		want string
 	}{
 		{
-			in:   User{Nick: "Nick", User: "User", Host: "Host"},
+			in:   user{nick: "Nick", user: "User", host: "Host"},
 			want: "Nick!User@Host",
 		},
 		{
-			in:   User{Nick: "nick"},
+			in:   user{nick: "nick"},
 			want: "nick!@",
 		},
 		{
-			in:   User{},
+			in:   user{},
 			want: "!@",
 		},
 	}
 
 	for i, tt := range tests {
-		got := tt.in.Prefix()
+		got := tt.in.prefix()
 		if got != tt.want {
-			t.Errorf("%d. %+v.Prefix() => got %+v, want %+v", i, tt.in, got, tt.want)
+			t.Errorf("%d. %+v.prefix() =>\n\tgot %+v\n\twant %+v", i, tt.in, got, tt.want)
 		}
 	}
 }

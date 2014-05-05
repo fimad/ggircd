@@ -6,63 +6,63 @@ import (
 
 func TestMessageToString(t *testing.T) {
 	tests := []struct {
-		msg  Message
+		msg  message
 		want string
 		ok   bool
 	}{
 		{
-			msg:  Message{},
+			msg:  message{},
 			want: "",
 			ok:   false,
 		},
 		{
-			msg: Message{
-				Command: "cmd",
+			msg: message{
+				command: "cmd",
 			},
 			want: "cmd\r\n",
 			ok:   true,
 		},
 		{
-			msg: Message{
-				Prefix:  "prefix",
-				Command: "cmd",
+			msg: message{
+				prefix:  "prefix",
+				command: "cmd",
 			},
 			want: ":prefix cmd\r\n",
 			ok:   true,
 		},
 		{
-			msg: Message{
-				Prefix:  "prefix",
-				Command: "cmd",
-				Params:  []string{"1", "2", "3"},
+			msg: message{
+				prefix:  "prefix",
+				command: "cmd",
+				params:  []string{"1", "2", "3"},
 			},
 			want: ":prefix cmd 1 2 3\r\n",
 			ok:   true,
 		},
 		{
-			msg: Message{
-				Prefix:   "prefix",
-				Command:  "cmd",
-				Params:   []string{"1", "2", "3"},
-				Trailing: "hello world",
+			msg: message{
+				prefix:   "prefix",
+				command:  "cmd",
+				params:   []string{"1", "2", "3"},
+				trailing: "hello world",
 			},
 			want: ":prefix cmd 1 2 3 :hello world\r\n",
 			ok:   true,
 		},
 		{
-			msg: Message{
-				Prefix:   "prefix",
-				Command:  "cmd",
-				Params:   []string{"1", "2", "3"},
-				Trailing: "hello",
+			msg: message{
+				prefix:   "prefix",
+				command:  "cmd",
+				params:   []string{"1", "2", "3"},
+				trailing: "hello",
 			},
 			want: ":prefix cmd 1 2 3 :hello\r\n",
 			ok:   true,
 		},
 		{
-			msg: Message{
-				Command: "cmd",
-				Params:  []string{"hello world"},
+			msg: message{
+				command: "cmd",
+				params:  []string{"hello world"},
 			},
 			want: "",
 			ok:   false,
@@ -70,9 +70,9 @@ func TestMessageToString(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		got, ok := tt.msg.ToString()
+		got, ok := tt.msg.toString()
 		if tt.ok != ok || got != tt.want {
-			t.Errorf("%d.\nMessage.ToString(%+v) =>\n\tgot %q, %v\n\twant %q, %v",
+			t.Errorf("%d.\nmessage.toString(%+v) =>\n\tgot %q, %v\n\twant %q, %v",
 				i, tt.msg, got, ok, tt.want, tt.ok)
 		}
 	}

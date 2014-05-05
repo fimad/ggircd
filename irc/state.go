@@ -1,140 +1,140 @@
 package irc
 
-// State represents the state of this IRC server. State is not safe for
+// state represents the state of this IRC server. State is not safe for
 // concurrent access.
-type State interface {
+type state interface {
 	// GetConfig returns the IRC server's configuration.
-	GetConfig() Config
+	getConfig() Config
 
-	// ForChannels iterates over all of the registered channels and passes a
+	// forChannels iterates over all of the registered channels and passes a
 	// pointer to each to the supplied callback.
-	ForChannels(func(*Channel))
+	forChannels(func(*channel))
 
-	// ForUsers iterates over all of the registered users and passes a pointer to
+	// forUsers iterates over all of the registered users and passes a pointer to
 	// each to the supplied callback.
-	ForUsers(func(*User))
+	forUsers(func(*user))
 
-	// GetChannel returns a pointer to the channel struct corresponding to the
+	// getChannel returns a pointer to the channel struct corresponding to the
 	// given channel name.
-	GetChannel(string) *Channel
+	getChannel(string) *channel
 
-	// GetUser returns a pointer to the user struct corresponding to the given
+	// getUser returns a pointer to the user struct corresponding to the given
 	// nickname.
-	GetUser(string) *User
+	getUser(string) *user
 
-	// NewUser creates a new user with the given nickname and the appropriate
+	// newUser creates a new user with the given nickname and the appropriate
 	// default values.
-	NewUser(string) *User
+	newUser(string) *user
 
-	// RemoveUser removes a user from this IRC server. In addition, it forces the
+	// removeUser removes a user from this IRC server. In addition, it forces the
 	// user to part from all channels that they are in.
-	RemoveUser(*User)
+	removeUser(*user)
 
-	// SetNick updates the nickname for the given user. If there is a user with
+	// setNick updates the nickname for the given user. If there is a user with
 	// the given nickname then this method does nothing and returns false.
-	SetNick(*User, string) bool
+	setNick(*user, string) bool
 
-	// NewChannel creates a new channel with the given name and the appropriate
+	// newChannel creates a new channel with the given name and the appropriate
 	// default values.
-	NewChannel(string) *Channel
+	newChannel(string) *channel
 
-	// RecycleChannel removes a channel if there are no more joined users.
-	RecycleChannel(*Channel)
+	// recycleChannel removes a channel if there are no more joined users.
+	recycleChannel(*channel)
 
-	// JoinChannel adds a user to a channel. It does not perform any permissions
+	// joinChannel adds a user to a channel. It does not perform any permissions
 	// checking, it only updates pointers.
-	JoinChannel(*Channel, *User)
+	joinChannel(*channel, *user)
 
-	// PartChannel removes a user from this channel. It sends a parting message to
+	// partChannel removes a user from this channel. It sends a parting message to
 	// all remaining members of the channel, and removes the channel if there are
 	// no remaining users.
-	PartChannel(*Channel, *User, string)
+	partChannel(*channel, *user, string)
 
-	// RemoveFromChannel silently removes a user from the given channel. It does
+	// removeFromChannel silently removes a user from the given channel. It does
 	// not send any messages to the channel or user. The channel will also be
 	// reaped if there are no active users left.
-	RemoveFromChannel(*Channel, *User)
+	removeFromChannel(*channel, *user)
 }
 
 // stateImpl is a concrete implementation of the State interface.
 type stateImpl struct {
 	config   Config
-	channels map[string]*Channel
-	users    map[string]*User
+	channels map[string]*channel
+	users    map[string]*user
 }
 
-func NewState(config Config) State {
+func newState(config Config) state {
 	return &stateImpl{
 		config:   config,
-		channels: make(map[string]*Channel),
-		users:    make(map[string]*User),
+		channels: make(map[string]*channel),
+		users:    make(map[string]*user),
 	}
 }
 
-func (s stateImpl) GetConfig() Config {
+func (s stateImpl) getConfig() Config {
 	return s.config
 }
 
-func (s stateImpl) ForChannels(callback func(*Channel)) {
+func (s stateImpl) forChannels(callback func(*channel)) {
 	for _, ch := range s.channels {
 		callback(ch)
 	}
 }
 
-func (s stateImpl) ForUsers(callback func(*User)) {
+func (s stateImpl) forUsers(callback func(*user)) {
 	for _, u := range s.users {
 		callback(u)
 	}
 }
 
-func (s stateImpl) GetChannel(name string) *Channel {
-	return s.channels[Lowercase(name)]
+func (s stateImpl) getChannel(name string) *channel {
+	return s.channels[lowercase(name)]
 }
 
-func (s stateImpl) GetUser(nick string) *User {
-	return s.users[Lowercase(nick)]
+func (s stateImpl) getUser(nick string) *user {
+	return s.users[lowercase(nick)]
 }
 
-func (s *stateImpl) NewUser(nick string) *User {
-	nickLower := Lowercase(nick)
+func (s *stateImpl) newUser(nick string) *user {
+	nickLower := lowercase(nick)
 	if s.users[nickLower] != nil {
 		return nil
 	}
 
-	u := &User{
-		Nick:     nick,
-		Channels: make(map[*Channel]bool),
-		Mode:			ParseMode(UserModes, s.GetConfig().DefaultUserMode),
+	u := &user{
+		nick:     nick,
+		channels: make(map[*channel]bool),
+		mode:			parseMode(userModes, s.getConfig().DefaultUserMode),
 	}
 	s.users[nickLower] = u
 	return u
 }
 
-func (s *stateImpl) SetNick(user *User, nick string) bool {
-	lowerNick := Lowercase(nick)
+func (s *stateImpl) setNick(user *user, nick string) bool {
+	lowerNick := lowercase(nick)
 	if n := s.users[lowerNick]; n != nil && n != user {
 		return false
 	}
 
-	user.ForChannels(func(ch *Channel) {
-		ch.Send(CmdNick.WithPrefix(user.Prefix()).WithParams(nick))
+	user.forChannels(func(ch *channel) {
+		ch.send(cmdNick.withPrefix(user.prefix()).withParams(nick))
 	})
 
-	delete(s.users, user.Nick)
+	delete(s.users, user.nick)
 	s.users[lowerNick] = user
-	user.Nick = nick
+	user.nick = nick
 	return true
 }
 
-func (s *stateImpl) RemoveUser(user *User) {
-	user.ForChannels(func(ch *Channel) {
-		s.PartChannel(ch, user, "QUITing")
+func (s *stateImpl) removeUser(user *user) {
+	user.forChannels(func(ch *channel) {
+		s.partChannel(ch, user, "QUITing")
 	})
-	delete(s.users, user.Nick)
+	delete(s.users, user.nick)
 }
 
-func (s *stateImpl) NewChannel(name string) *Channel {
-	name = Lowercase(name)
+func (s *stateImpl) newChannel(name string) *channel {
+	name = lowercase(name)
 	if s.channels[name] != nil {
 		return nil
 	}
@@ -143,59 +143,59 @@ func (s *stateImpl) NewChannel(name string) *Channel {
 		return nil
 	}
 
-	ch := &Channel{
-		Name:    name,
-		Mode:    ParseMode(ChannelModes, s.GetConfig().DefaultChannelMode),
-		Users:   make(map[*User]bool),
-		Ops:     make(map[*User]bool),
-		Voices:  make(map[*User]bool),
-		Invited: make(map[*User]bool),
+	ch := &channel{
+		name:    name,
+		mode:    parseMode(channelModes, s.getConfig().DefaultChannelMode),
+		users:   make(map[*user]bool),
+		ops:     make(map[*user]bool),
+		voices:  make(map[*user]bool),
+		invited: make(map[*user]bool),
 	}
 	s.channels[name] = ch
 	return ch
 }
 
-func (s *stateImpl) RecycleChannel(channel *Channel) {
-	if channel == nil || len(channel.Users) != 0 {
+func (s *stateImpl) recycleChannel(channel *channel) {
+	if channel == nil || len(channel.users) != 0 {
 		return
 	}
-	delete(s.channels, channel.Name)
+	delete(s.channels, channel.name)
 }
 
-func (s *stateImpl) JoinChannel(channel *Channel, user *User) {
-	joinMsg := CmdJoin.WithPrefix(user.Prefix()).WithParams(channel.Name)
-	channel.Send(joinMsg)
+func (s *stateImpl) joinChannel(channel *channel, user *user) {
+	joinMsg := cmdJoin.withPrefix(user.prefix()).withParams(channel.name)
+	channel.send(joinMsg)
 
-	channel.Users[user] = true
-	user.Channels[channel] = true
+	channel.users[user] = true
+	user.channels[channel] = true
 
-	if len(channel.Users) == 1 {
-		channel.Ops[user] = true
+	if len(channel.users) == 1 {
+		channel.ops[user] = true
 	}
 
 	sendTopic(s, user, channel)
 	sendNames(s, user, channel)
 }
 
-func (s *stateImpl) PartChannel(ch *Channel, user *User, reason string) {
-	ch.Send(CmdPart.
-		WithPrefix(user.Prefix()).
-		WithParams(ch.Name).
-		WithTrailing(reason))
-	s.RemoveFromChannel(ch, user)
+func (s *stateImpl) partChannel(ch *channel, user *user, reason string) {
+	ch.send(cmdPart.
+		withPrefix(user.prefix()).
+		withParams(ch.name).
+		withTrailing(reason))
+	s.removeFromChannel(ch, user)
 }
 
-func (s *stateImpl) RemoveFromChannel(ch *Channel, user *User) {
-	delete(user.Channels, ch)
+func (s *stateImpl) removeFromChannel(ch *channel, user *user) {
+	delete(user.channels, ch)
 
-	if !ch.Users[user] {
+	if !ch.users[user] {
 		return
 	}
 
-	delete(ch.Users, user)
-	delete(ch.Voices, user)
-	delete(ch.Ops, user)
-	delete(ch.Invited, user)
+	delete(ch.users, user)
+	delete(ch.voices, user)
+	delete(ch.ops, user)
+	delete(ch.invited, user)
 
-	s.RecycleChannel(ch)
+	s.recycleChannel(ch)
 }

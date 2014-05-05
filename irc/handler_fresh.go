@@ -1,42 +1,42 @@
 package irc
 
-// FreshHandler is a handler for a brand new connection that has not been
+// freshHandler is a handler for a brand new connection that has not been
 // registered yet.
-type FreshHandler struct {
-	state chan State
+type freshHandler struct {
+	state chan state
 }
 
-func NewFreshHandler(state chan State) Handler {
-	return &FreshHandler{state: state}
+func newFreshHandler(state chan state) handler {
+	return &freshHandler{state: state}
 }
 
-func (h *FreshHandler) Handle(conn Connection, msg Message) Handler {
-	if msg.Command != CmdNick.Command {
+func (h *freshHandler) handle(conn connection, msg message) handler {
+	if msg.command != cmdNick.command {
 		return h
 	}
 	return h.handleNick(conn, msg)
 }
 
-func (_ *FreshHandler) Closed(c Connection) {
-	c.Kill()
+func (_ *freshHandler) closed(c connection) {
+	c.kill()
 }
 
-func (h *FreshHandler) handleNick(conn Connection, msg Message) Handler {
+func (h *freshHandler) handleNick(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	if len(msg.Params) < 1 {
-		sendNumeric(state, conn, ErrorNoNicknameGiven)
+	if len(msg.params) < 1 {
+		sendNumeric(state, conn, errorNoNicknameGiven)
 		return h
 	}
-	nick := msg.Params[0]
+	nick := msg.params[0]
 
-	user := state.NewUser(nick)
+	user := state.newUser(nick)
 	if user == nil {
-		sendNumeric(state, conn, ErrorNicknameInUse)
+		sendNumeric(state, conn, errorNicknameInUse)
 		return h
 	}
-	user.Sink = conn
+	user.sink = conn
 
 	return &freshUserHandler{state: h.state, user: user}
 }
@@ -44,40 +44,40 @@ func (h *FreshHandler) handleNick(conn Connection, msg Message) Handler {
 // freshUserHandler is a handler for a brand new connection that is in the
 // process of registering and has successfully set a nickname.
 type freshUserHandler struct {
-	user  *User
-	state chan State
+	user  *user
+	state chan state
 }
 
-func (h *freshUserHandler) Handle(conn Connection, msg Message) Handler {
-	if msg.Command != CmdUser.Command {
+func (h *freshUserHandler) handle(conn connection, msg message) handler {
+	if msg.command != cmdUser.command {
 		return h
 	}
 	return h.handleUser(conn, msg)
 }
 
-func (h *freshUserHandler) Closed(c Connection) {
+func (h *freshUserHandler) closed(c connection) {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	state.RemoveUser(h.user)
-	c.Kill()
+	state.removeUser(h.user)
+	c.kill()
 }
 
-func (h *freshUserHandler) handleUser(conn Connection, msg Message) Handler {
+func (h *freshUserHandler) handleUser(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	if len(msg.Params) < 3 || msg.Trailing == "" {
-		sendNumeric(state, h.user, ErrorNeedMoreParams)
+	if len(msg.params) < 3 || msg.trailing == "" {
+		sendNumeric(state, h.user, errorNeedMoreParams)
 		return h
 	}
 
-	h.user.User = msg.Params[0]
-	h.user.Host = msg.Params[1]
-	h.user.Server = msg.Params[2]
-	h.user.RealName = msg.Trailing
+	h.user.user = msg.params[0]
+	h.user.host = msg.params[1]
+	h.user.server = msg.params[2]
+	h.user.realName = msg.trailing
 
 	sendIntro(state, h.user)
 
-	return NewUserHandler(h.state, h.user.Nick)
+	return newUserHandler(h.state, h.user.nick)
 }

@@ -5,23 +5,23 @@ import (
 )
 
 func TestUserHandlerMotd(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-MOTD", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-MOTD", state, handler, []handlerTest{
 		{
 			desc: "no motd set",
-			in:   []Message{CmdMotd},
+			in:   []message{cmdMotd},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyMOTDStart.
-							WithPrefix("name").
-							WithParams("nick").
-							WithTrailing("- name Message of the day - "),
-						ReplyEndOfMOTD.
-							WithPrefix("name").
-							WithParams("nick").
-							WithTrailing(motdFooter),
+					messages: []message{
+						replyMOTDStart.
+							withPrefix("name").
+							withParams("nick").
+							withTrailing("- name Message of the day - "),
+						replyEndOfMOTD.
+							withPrefix("name").
+							withParams("nick").
+							withTrailing(motdFooter),
 					},
 				},
 			},
@@ -30,21 +30,21 @@ func TestUserHandlerMotd(t *testing.T) {
 		},
 		{
 			desc: "with motd set",
-			in:   []Message{CmdMotd},
+			in:   []message{cmdMotd},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyMOTDStart.
-							WithPrefix("name").
-							WithParams("nick").
-							WithTrailing("- name Message of the day - "),
-						ReplyMOTD.WithPrefix("name").WithParams("nick").WithTrailing("- a"),
-						ReplyMOTD.WithPrefix("name").WithParams("nick").WithTrailing("- b"),
-						ReplyMOTD.WithPrefix("name").WithParams("nick").WithTrailing("- c"),
-						ReplyEndOfMOTD.
-							WithPrefix("name").
-							WithParams("nick").
-							WithTrailing(motdFooter),
+					messages: []message{
+						replyMOTDStart.
+							withPrefix("name").
+							withParams("nick").
+							withTrailing("- name Message of the day - "),
+						replyMOTD.withPrefix("name").withParams("nick").withTrailing("- a"),
+						replyMOTD.withPrefix("name").withParams("nick").withTrailing("- b"),
+						replyMOTD.withPrefix("name").withParams("nick").withTrailing("- c"),
+						replyEndOfMOTD.
+							withPrefix("name").
+							withParams("nick").
+							withTrailing(motdFooter),
 					},
 				},
 			},

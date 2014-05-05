@@ -1,66 +1,66 @@
 package irc
 
-type Channel struct {
-	Name string
+type channel struct {
+	name string
 
-	Mode Mode
+	mode mode
 
-	Topic string
+	topic string
 
-	Limit int
-	Key   string
+	limit int
+	key   string
 
-	BanNick string
-	BanUser string
-	BanHost string
+	banNick string
+	banUser string
+	banHost string
 
-	Users  map[*User]bool
-	Ops    map[*User]bool
-	Voices map[*User]bool
+	users  map[*user]bool
+	ops    map[*user]bool
+	voices map[*user]bool
 
-	Invited map[*User]bool
+	invited map[*user]bool
 }
 
-func (ch Channel) Send(msg Message) {
-	for user := range ch.Users {
-		user.Sink.Send(msg)
+func (ch channel) send(msg message) {
+	for user := range ch.users {
+		user.sink.send(msg)
 	}
 }
 
-// Invite marks a user as invited to the channel. This only has an effect if the
+// invite marks a user as invited to the channel. This only has an effect if the
 // channel is invite only.
-func (ch Channel) Invite(user *User) {
-	if !ch.Mode[ChannelModeInvite] {
+func (ch channel) invite(user *user) {
+	if !ch.mode[channelModeInvite] {
 		return
 	}
-	ch.Invited[user] = true
+	ch.invited[user] = true
 }
 
-// ForUsers iterates over all of the users in the channel and passes a pointer
+// forUsers iterates over all of the users in the channel and passes a pointer
 // to each to the supplied callback.
-func (ch Channel) ForUsers(callback func(*User)) {
-	for u := range ch.Users {
+func (ch channel) forUsers(callback func(*user)) {
+	for u := range ch.users {
 		callback(u)
 	}
 }
 
-// IsBanned takes a user and returns a boolean indicating if that user is banned
+// isBanned takes a user and returns a boolean indicating if that user is banned
 // in this channel.
-func (ch Channel) IsBanned(user *User) bool {
+func (ch channel) isBanned(user *user) bool {
 	// TODO(will): Actually implement banned users.
 	return false
 }
 
-// CanPrivMsg returns a boolean indicating whether or not the given user has
+// canPrivMsg returns a boolean indicating whether or not the given user has
 // permission to message the channel.
-func (ch Channel) CanPrivMsg(user *User) bool {
-	if ch.Mode[ChannelModeNoOutside] && !ch.Users[user] {
+func (ch channel) canPrivMsg(user *user) bool {
+	if ch.mode[channelModeNoOutside] && !ch.users[user] {
 		return false
 	}
 
-	if ch.Mode[ChannelModeModerated] && !ch.Voices[user] && !ch.Ops[user] {
+	if ch.mode[channelModeModerated] && !ch.voices[user] && !ch.ops[user] {
 		return false
 	}
 
-	return !ch.IsBanned(user)
+	return !ch.isBanned(user)
 }

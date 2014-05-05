@@ -5,16 +5,16 @@ import (
 )
 
 func TestUserHandlerList(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-LIST", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-LIST", state, handler, []handlerTest{
 		{
 			desc: "list all w/ no channels",
-			in:   []Message{CmdList},
+			in:   []message{cmdList},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyListEnd,
+					messages: []message{
+						replyListEnd,
 					},
 				},
 			},
@@ -23,13 +23,13 @@ func TestUserHandlerList(t *testing.T) {
 		},
 		{
 			desc: "list all w/ channels",
-			in:   []Message{CmdList},
+			in:   []message{cmdList},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyList,
-						ReplyList,
-						ReplyListEnd,
+					messages: []message{
+						replyList,
+						replyList,
+						replyListEnd,
 					},
 				},
 			},
@@ -43,21 +43,21 @@ func TestUserHandlerList(t *testing.T) {
 		},
 		{
 			desc: "list subset of channels",
-			in:   []Message{CmdList.WithParams("#foo,#baz")},
+			in:   []message{cmdList.withParams("#foo,#baz")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyList.
-							WithPrefix("name").
-							WithParams("nick", "#foo", "2").
-							WithTrailing("topic"),
-						ReplyList.
-							WithPrefix("name").
-							WithParams("nick", "#baz", "1"),
-						ReplyListEnd.
-							WithPrefix("name").
-							WithParams("nick").
-							WithTrailing(endOfListMessage),
+					messages: []message{
+						replyList.
+							withPrefix("name").
+							withParams("nick", "#foo", "2").
+							withTrailing("topic"),
+						replyList.
+							withPrefix("name").
+							withParams("nick", "#baz", "1"),
+						replyListEnd.
+							withPrefix("name").
+							withParams("nick").
+							withTrailing(endOfListMessage),
 					},
 				},
 			},
@@ -74,11 +74,11 @@ func TestUserHandlerList(t *testing.T) {
 		},
 		{
 			desc: "list of invalid of channels",
-			in:   []Message{CmdList.WithParams("#foo,#baz")},
+			in:   []message{cmdList.withParams("#foo,#baz")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyListEnd,
+					messages: []message{
+						replyListEnd,
 					},
 				},
 			},

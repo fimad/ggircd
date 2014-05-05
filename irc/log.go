@@ -1,23 +1,23 @@
 package irc
 
-import "log"
-
-const (
-	Fatal = 0
-	Error = 1
-	Warn  = 2
-	Info  = 3
-	Debug = 4
+import (
+	"log"
 )
 
-var logLevel = Info
+const (
+	fatal = 0
+	warn  = 2
+	info  = 3
+	debug = 4
+)
+
+var logLevel = info
 
 var levelToSymbol = map[int]string{
-	Fatal: "F",
-	Error: "E",
-	Warn:  "W",
-	Info:  "I",
-	Debug: "D",
+	fatal: "F",
+	warn:  "W",
+	info:  "I",
+	debug: "D",
 }
 
 // SetLogLevel sets the verbosity of logging.

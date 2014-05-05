@@ -5,15 +5,15 @@ import (
 )
 
 func TestUserHandlerAway(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-AWAY", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-AWAY", state, handler, []handlerTest{
 		{
 			desc: "set away",
-			in:   []Message{CmdAway.WithTrailing("away right now")},
+			in:   []message{cmdAway.withTrailing("away right now")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ReplyNowAway},
+					messages: []message{replyNowAway},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -23,15 +23,15 @@ func TestUserHandlerAway(t *testing.T) {
 		},
 		{
 			desc: "set un-away",
-			in: []Message{
-				CmdAway.WithTrailing("away right now"),
-				CmdAway,
+			in: []message{
+				cmdAway.withTrailing("away right now"),
+				cmdAway,
 			},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNowAway,
-						ReplyUnaway,
+					messages: []message{
+						replyNowAway,
+						replyUnaway,
 					},
 				},
 			},
@@ -42,13 +42,13 @@ func TestUserHandlerAway(t *testing.T) {
 		},
 		{
 			desc: "automatic priv replies",
-			in: []Message{
-				CmdPrivMsg.WithParams("foo").WithTrailing("yo"),
+			in: []message{
+				cmdPrivMsg.withParams("foo").withTrailing("yo"),
 			},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdPrivMsg,
+					messages: []message{
+						cmdPrivMsg,
 					},
 				},
 			},

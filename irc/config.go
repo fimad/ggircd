@@ -23,13 +23,13 @@ func ConfigFromJSONFile(path string) Config {
 	var cfg Config
 	file, err := os.Open(path)
 	if err != nil {
-		logf(Fatal, "Could not open config file: %v.", err)
+		logf(fatal, "Could not open config file: %v.", err)
 	}
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&cfg)
 	if err != nil {
-		logf(Fatal, "Problem parsing config data: %v", err)
+		logf(fatal, "Problem parsing config data: %v", err)
 	}
 
 	return cfg

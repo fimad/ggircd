@@ -5,23 +5,23 @@ import (
 )
 
 func TestUserHandlerNotice(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-NOTICE", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-NOTICE", state, handler, []handlerTest{
 		{
 			desc:   "successful notice user",
-			in:     []Message{CmdNotice.WithParams("foo").WithTrailing("msg")},
+			in:     []message{cmdNotice.withParams("foo").withTrailing("msg")},
 			strict: true,
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdNotice.
-							WithPrefix("nick!nick@nick").
-							WithParams("foo").
-							WithTrailing("msg"),
+					messages: []message{
+						cmdNotice.
+							withPrefix("nick!nick@nick").
+							withParams("foo").
+							withTrailing("msg"),
 					},
 				},
 			},
@@ -31,18 +31,18 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc:   "successful notice channel",
-			in:     []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:     []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			strict: true,
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdNotice.
-							WithPrefix("nick!nick@nick").
-							WithParams("#channel").
-							WithTrailing("msg"),
+					messages: []message{
+						cmdNotice.
+							withPrefix("nick!nick@nick").
+							withParams("#channel").
+							withTrailing("msg"),
 					},
 				},
 			},
@@ -53,13 +53,13 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "successful notice -n channel from outside",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdNotice},
+					messages: []message{cmdNotice},
 				},
 			},
 			state: newMockState().
@@ -69,13 +69,13 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "successful notice moderated channel with voice",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdNotice},
+					messages: []message{cmdNotice},
 				},
 			},
 			state: newMockState().
@@ -86,13 +86,13 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "successful notice moderated channel with op",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"foo": mockConnection{
-					messages: []Message{CmdNotice},
+					messages: []message{cmdNotice},
 				},
 			},
 			state: newMockState().
@@ -103,10 +103,10 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - no channel or user",
-			in:   []Message{CmdNotice.WithTrailing("msg")},
+			in:   []message{cmdNotice.withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoRecipient},
+					messages: []message{errorNoRecipient},
 				},
 			},
 			state: newMockState().
@@ -114,10 +114,10 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - no message",
-			in:   []Message{CmdNotice.WithParams("foo")},
+			in:   []message{cmdNotice.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoTextToSend},
+					messages: []message{errorNoTextToSend},
 				},
 			},
 			state: newMockState().
@@ -126,10 +126,10 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - invalid user",
-			in:   []Message{CmdNotice.WithParams("foo").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("foo").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoSuchNick},
+					messages: []message{errorNoSuchNick},
 				},
 			},
 			state: newMockState().
@@ -137,10 +137,10 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - non-existent channel",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorCannotSendToChan},
+					messages: []message{errorCannotSendToChan},
 				},
 			},
 			state: newMockState().
@@ -148,13 +148,13 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - message from outside to +n channel",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorCannotSendToChan},
+					messages: []message{errorCannotSendToChan},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -164,13 +164,13 @@ func TestUserHandlerNotice(t *testing.T) {
 		},
 		{
 			desc: "failure - non-voice messaging moderated channel",
-			in:   []Message{CmdNotice.WithParams("#channel").WithTrailing("msg")},
+			in:   []message{cmdNotice.withParams("#channel").withTrailing("msg")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorCannotSendToChan},
+					messages: []message{errorCannotSendToChan},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().

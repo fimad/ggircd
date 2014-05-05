@@ -4,55 +4,55 @@ import (
 	"strings"
 )
 
-func (h *UserHandler) handleCmdKick(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) < 2 {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+func (h *userHandler) handleCmdKick(state state, user *user, conn connection, msg message) handler {
+	if len(msg.params) < 2 {
+		sendNumeric(state, user, errorNeedMoreParams)
 		return h
 	}
 
-	channelNames := strings.Split(msg.Params[0], ",")
-	nickNames := strings.Split(msg.Params[1], ",")
+	channelNames := strings.Split(msg.params[0], ",")
+	nickNames := strings.Split(msg.params[1], ",")
 
 	if len(channelNames) != 1 && len(nickNames) != len(channelNames) {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+		sendNumeric(state, user, errorNeedMoreParams)
 		return h
 	}
 
 	// A helper for kicking and sending a message.
-	kickUser := func(ch *Channel, nickName string) {
-		if !ch.Users[user] {
-			sendNumeric(state, user, ErrorNotOnChannel, ch.Name)
+	kickUser := func(ch *channel, nickName string) {
+		if !ch.users[user] {
+			sendNumeric(state, user, errorNotOnChannel, ch.name)
 			return
 		}
 
-		if !ch.Ops[user] {
-			sendNumeric(state, user, ErrorChanOPrivsNeeded, ch.Name)
+		if !ch.ops[user] {
+			sendNumeric(state, user, errorChanOPrivsNeeded, ch.name)
 			return
 		}
 
-		nick := state.GetUser(nickName)
+		nick := state.getUser(nickName)
 		if nick == nil {
-			sendNumeric(state, user, ErrorUserNotInChannel, nickName, ch.Name)
+			sendNumeric(state, user, errorUserNotInChannel, nickName, ch.name)
 			return
 		}
 
-		if !ch.Users[nick] {
-			sendNumeric(state, user, ErrorUserNotInChannel, nick.Nick, ch.Name)
+		if !ch.users[nick] {
+			sendNumeric(state, user, errorUserNotInChannel, nick.nick, ch.name)
 			return
 		}
 
-		ch.Send(CmdKick.
-			WithPrefix(user.Prefix()).
-			WithParams(ch.Name, nick.Nick))
-		state.RemoveFromChannel(ch, nick)
+		ch.send(cmdKick.
+			withPrefix(user.prefix()).
+			withParams(ch.name, nick.nick))
+		state.removeFromChannel(ch, nick)
 	}
 
 	// If only one channel is given, then kick all of the users given from that
 	// one channel.
 	if len(channelNames) == 1 {
-		channel := state.GetChannel(channelNames[0])
+		channel := state.getChannel(channelNames[0])
 		if channel == nil {
-			sendNumeric(state, user, ErrorNoSuchChannel, channelNames[0])
+			sendNumeric(state, user, errorNoSuchChannel, channelNames[0])
 			return h
 		}
 
@@ -65,9 +65,9 @@ func (h *UserHandler) handleCmdKick(state State, user *User, conn Connection, ms
 	// If there are equal number of nick names and channels, then step through
 	// them in parallel treating each as a single kick.
 	for i, nickName := range nickNames {
-		channel := state.GetChannel(channelNames[i])
+		channel := state.getChannel(channelNames[i])
 		if channel == nil {
-			sendNumeric(state, user, ErrorNoSuchChannel, channelNames[i])
+			sendNumeric(state, user, errorNoSuchChannel, channelNames[i])
 			continue
 		}
 		kickUser(channel, nickName)

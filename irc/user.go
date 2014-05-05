@@ -4,35 +4,35 @@ import (
 	"fmt"
 )
 
-type User struct {
-	Nick     string
-	User     string
-	Host     string
-	Server   string
-	RealName string
+type user struct {
+	nick     string
+	user     string
+	host     string
+	server   string
+	realName string
 
-	Channels map[*Channel]bool
+	channels map[*channel]bool
 
-	AwayMessage string
-	Mode        Mode
+	awayMessage string
+	mode        mode
 
-	Sink Sink
+	sink sink
 }
 
-func (u User) Send(msg Message) {
-	u.Sink.Send(msg)
+func (u user) send(msg message) {
+	u.sink.send(msg)
 }
 
-// ForChannels iterates over all of the channels that the user has joined and
+// forChannels iterates over all of the channels that the user has joined and
 // passes a pointer to each to the supplied callback.
-func (u User) ForChannels(callback func(*Channel)) {
-	for ch := range u.Channels {
+func (u user) forChannels(callback func(*channel)) {
+	for ch := range u.channels {
 		callback(ch)
 	}
 }
 
-// Prefix returns the prefix string that should be used in Messages originating
+// prefix returns the prefix string that should be used in messages originating
 // from this user.
-func (u *User) Prefix() string {
-	return fmt.Sprintf("%s!%s@%s", u.Nick, u.User, u.Host)
+func (u *user) prefix() string {
+	return fmt.Sprintf("%s!%s@%s", u.nick, u.user, u.host)
 }

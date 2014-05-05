@@ -5,21 +5,21 @@ import (
 )
 
 func TestUserHandlerInvite(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-INVITE", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-INVITE", state, handler, []handlerTest{
 		{
 			desc: "invite to current channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyInviting,
+					messages: []message{
+						replyInviting,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdInvite,
+					messages: []message{
+						cmdInvite,
 					},
 				},
 			},
@@ -30,15 +30,15 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite to not-joined channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNotOnChannel,
+					messages: []message{
+						errorNotOnChannel,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -49,16 +49,16 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite to non-existent channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyInviting,
+					messages: []message{
+						replyInviting,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdInvite,
+					messages: []message{
+						cmdInvite,
 					},
 				},
 			},
@@ -68,16 +68,16 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "op invite to current invite-only channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyInviting,
+					messages: []message{
+						replyInviting,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdInvite,
+					messages: []message{
+						cmdInvite,
 					},
 				},
 			},
@@ -89,15 +89,15 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "non-op invite to current invite-only channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorChanOPrivsNeeded,
+					messages: []message{
+						errorChanOPrivsNeeded,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -107,15 +107,15 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite to not-joined invite-only channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNotOnChannel,
+					messages: []message{
+						errorNotOnChannel,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -126,11 +126,11 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite bad nick",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNoSuchNick,
+					messages: []message{
+						errorNoSuchNick,
 					},
 				},
 			},
@@ -140,11 +140,11 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite already on channel",
-			in:   []Message{CmdInvite.WithParams("foo", "#channel")},
+			in:   []message{cmdInvite.withParams("foo", "#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorUserOnChannel,
+					messages: []message{
+						errorUserOnChannel,
 					},
 				},
 			},
@@ -155,11 +155,11 @@ func TestUserHandlerInvite(t *testing.T) {
 		},
 		{
 			desc: "invite with no channel",
-			in:   []Message{CmdInvite.WithParams("foo")},
+			in:   []message{cmdInvite.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNeedMoreParams,
+					messages: []message{
+						errorNeedMoreParams,
 					},
 				},
 			},

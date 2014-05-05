@@ -1,5 +1,5 @@
 package irc
 
-func (h *UserHandler) handleCmdNotice(state State, user *User, conn Connection, msg Message) Handler {
+func (h *userHandler) handleCmdNotice(state state, user *user, conn connection, msg message) handler {
 	return h.handleCmdPrivMsg(state, user, conn, msg)
 }

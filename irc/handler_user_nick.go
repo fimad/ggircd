@@ -1,13 +1,13 @@
 package irc
 
-func (h *UserHandler) handleCmdNick(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) != 1 {
-		sendNumeric(state, user, ErrorNoNicknameGiven)
+func (h *userHandler) handleCmdNick(state state, user *user, conn connection, msg message) handler {
+	if len(msg.params) != 1 {
+		sendNumeric(state, user, errorNoNicknameGiven)
 		return h
 	}
 
-	if !state.SetNick(user, msg.Params[0]) {
-		sendNumeric(state, user, ErrorNicknameInUse, msg.Params[0])
+	if !state.setNick(user, msg.params[0]) {
+		sendNumeric(state, user, errorNicknameInUse, msg.params[0])
 	}
 	return h
 }

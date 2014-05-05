@@ -5,21 +5,21 @@ import (
 )
 
 func TestUserHandlerKick(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-KICK", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-KICK", state, handler, []handlerTest{
 		{
 			desc: "op kick one user, one channel",
-			in:   []Message{CmdKick.WithParams("#channel", "foo")},
+			in:   []message{cmdKick.withParams("#channel", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdKick,
+					messages: []message{
+						cmdKick,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdKick,
+					messages: []message{
+						cmdKick,
 					},
 				},
 			},
@@ -34,31 +34,31 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "op kick many user, one channels",
-			in:   []Message{CmdKick.WithParams("#a", "foo,bar,baz")},
+			in:   []message{cmdKick.withParams("#a", "foo,bar,baz")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
+						cmdKick,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdKick,
+					messages: []message{
+						cmdKick,
 					},
 				},
 				"bar": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
 					},
 				},
 				"baz": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
+						cmdKick,
 					},
 				},
 			},
@@ -77,24 +77,24 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "op kick many users, many channels",
-			in:   []Message{CmdKick.WithParams("#a,#b", "foo,bar")},
+			in:   []message{cmdKick.withParams("#a,#b", "foo,bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
 					},
 				},
 				"bar": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
 					},
 				},
 			},
@@ -115,13 +115,13 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "non-op kick",
-			in:   []Message{CmdKick.WithParams("#a", "foo")},
+			in:   []message{cmdKick.withParams("#a", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorChanOPrivsNeeded},
+					messages: []message{errorChanOPrivsNeeded},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -134,19 +134,19 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "mixed op kick",
-			in:   []Message{CmdKick.WithParams("#a,#b,#c", "foo,foo,foo")},
+			in:   []message{cmdKick.withParams("#a,#b,#c", "foo,foo,foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						CmdKick,
-						ErrorChanOPrivsNeeded,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						errorChanOPrivsNeeded,
+						cmdKick,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{
-						CmdKick,
-						CmdKick,
+					messages: []message{
+						cmdKick,
+						cmdKick,
 					},
 				},
 			},
@@ -166,18 +166,18 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "kick with unequal users and channels",
-			in:   []Message{CmdKick.WithParams("#a,#b,#c", "foo,bar")},
+			in:   []message{cmdKick.withParams("#a,#b,#c", "foo,bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNeedMoreParams,
+					messages: []message{
+						errorNeedMoreParams,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 				"bar": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -201,15 +201,15 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "kick user not on channel",
-			in:   []Message{CmdKick.WithParams("#a", "foo")},
+			in:   []message{cmdKick.withParams("#a", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorUserNotInChannel,
+					messages: []message{
+						errorUserNotInChannel,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -220,15 +220,15 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "kick bad channel",
-			in:   []Message{CmdKick.WithParams("#b", "foo")},
+			in:   []message{cmdKick.withParams("#b", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNoSuchChannel,
+					messages: []message{
+						errorNoSuchChannel,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -242,15 +242,15 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "non-op kick",
-			in:   []Message{CmdKick.WithParams("#a", "foo")},
+			in:   []message{cmdKick.withParams("#a", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorChanOPrivsNeeded,
+					messages: []message{
+						errorChanOPrivsNeeded,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -263,15 +263,15 @@ func TestUserHandlerKick(t *testing.T) {
 		},
 		{
 			desc: "kick while not on channel",
-			in:   []Message{CmdKick.WithParams("#a", "foo")},
+			in:   []message{cmdKick.withParams("#a", "foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ErrorNotOnChannel,
+					messages: []message{
+						errorNotOnChannel,
 					},
 				},
 				"foo": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().

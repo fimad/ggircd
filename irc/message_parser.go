@@ -8,24 +8,24 @@ import (
 	"regexp"
 )
 
-// MessageParser is a function that returns a Message and a boolean indicating
+// messageParser is a function that returns a Message and a boolean indicating
 // if the end of the stream has been reached. If the boolean is false, then the
 // returned Message should be ignored and the end of the input has been reached.
-type MessageParser func() (Message, bool)
+type messageParser func() (message, bool)
 
-// NewMessageParser will create a new Parser function that can be called
+// newMessageParser will create a new Parser function that can be called
 // repeatedly to parse Messages from the given io.Reader.
-func NewMessageParser(reader io.Reader) MessageParser {
+func newMessageParser(reader io.Reader) messageParser {
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(splitFunc)
-	return func() (Message, bool) {
+	return func() (message, bool) {
 		for scanner.Scan() {
 			msg, ok := parseMessage(scanner.Text())
 			if ok {
 				return msg, true
 			}
 		}
-		return Message{}, false
+		return message{}, false
 	}
 }
 
@@ -49,25 +49,25 @@ func splitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
 var prefix = `(?::([^ ]+) )?`
 var command = `([a-zA-Z]+|[0-9]{3})`
 var params = `( .*)?`
-var message = regexp.MustCompile(`^` + prefix + command + params + `$`)
+var messageRegex = regexp.MustCompile(`^` + prefix + command + params + `$`)
 
 // parseMessage takes a raw line from the IRC protocol (minus the trailing CRLF)
 // and returns a parsed Message and a bool indicating success.
 //
 // TODO(will): This does not currently validate the prefix portion of the
 // message.
-func parseMessage(line string) (Message, bool) {
-	var msg Message
+func parseMessage(line string) (message, bool) {
+	var msg message
 
 	// Parse the message into prefix, command and parameter strings.
-	parts := message.FindStringSubmatch(line)
+	parts := messageRegex.FindStringSubmatch(line)
 	if parts == nil {
 		return msg, false
 	}
 
-	msg.Prefix = parts[1]
-	msg.Command = parts[2]
-	msg.Params = make([]string, 0)
+	msg.prefix = parts[1]
+	msg.command = parts[2]
+	msg.params = make([]string, 0)
 
 	// Split the parameters into separate strings.
 	i := 0
@@ -84,7 +84,7 @@ func parseMessage(line string) (Message, bool) {
 		// If the next character is a ':', then the parameter is the value of the
 		// remainder of the string.
 		if parts[3][i] == ':' {
-			msg.Trailing = parts[3][i+1:]
+			msg.trailing = parts[3][i+1:]
 			break
 		}
 
@@ -97,7 +97,7 @@ func parseMessage(line string) (Message, bool) {
 			}
 			i++
 		}
-		msg.Params = append(msg.Params, parts[3][start:i])
+		msg.params = append(msg.params, parts[3][start:i])
 	}
 
 	return msg, true

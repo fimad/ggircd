@@ -1,35 +1,35 @@
 package irc
 
-func (h *UserHandler) handleCmdTopic(state State, user *User, conn Connection, msg Message) Handler {
-	if len(msg.Params) < 1 {
-		sendNumeric(state, user, ErrorNeedMoreParams)
+func (h *userHandler) handleCmdTopic(state state, user *user, conn connection, msg message) handler {
+	if len(msg.params) < 1 {
+		sendNumeric(state, user, errorNeedMoreParams)
 		return h
 	}
 
-	name := msg.Params[0]
-	channel := state.GetChannel(name)
+	name := msg.params[0]
+	channel := state.getChannel(name)
 	if channel == nil {
-		sendNumeric(state, user, ErrorNoSuchChannel, name)
+		sendNumeric(state, user, errorNoSuchChannel, name)
 		return h
 	}
 
-	if msg.Trailing == "" {
+	if msg.trailing == "" {
 		sendTopic(state, user, channel)
 		return h
 	}
 
-	if !channel.Users[user] {
-		sendNumeric(state, user, ErrorNotOnChannel, name)
+	if !channel.users[user] {
+		sendNumeric(state, user, errorNotOnChannel, name)
 		return h
 	}
 
-	if channel.Mode[ChannelModeTopicOp] && !channel.Ops[user] {
-		sendNumeric(state, user, ErrorChanOPrivsNeeded, name)
+	if channel.mode[channelModeTopicOp] && !channel.ops[user] {
+		sendNumeric(state, user, errorChanOPrivsNeeded, name)
 		return h
 	}
 
-	msg.Prefix = user.Prefix()
-	channel.Topic = msg.Trailing
-	channel.Send(msg)
+	msg.prefix = user.prefix()
+	channel.topic = msg.trailing
+	channel.send(msg)
 	return h
 }

@@ -4,54 +4,54 @@ import (
 	"strings"
 )
 
-type Message struct {
-	Prefix   string
-	Command  string
-	Params   []string
-	Trailing string
+type message struct {
+	prefix   string
+	command  string
+	params   []string
+	trailing string
 }
 
-// WithParams creates a new copy of a message with the given parameters.
-func (m Message) WithParams(params ...string) Message {
-	m.Params = params
+// withParams creates a new copy of a message with the given parameters.
+func (m message) withParams(params ...string) message {
+	m.params = params
 	return m
 }
 
-// WithParams creates a new copy of a message with the given parameters.
-func (m Message) WithTrailing(trailing string) Message {
-	m.Trailing = trailing
+// withParams creates a new copy of a message with the given parameters.
+func (m message) withTrailing(trailing string) message {
+	m.trailing = trailing
 	return m
 }
 
-// WithPrefix creates a new copy of a message with the given prefix.
-func (m Message) WithPrefix(prefix string) Message {
-	m.Prefix = prefix
+// withPrefix creates a new copy of a message with the given prefix.
+func (m message) withPrefix(prefix string) message {
+	m.prefix = prefix
 	return m
 }
 
-// ToString serializes a Message to an IRC protocol compatible string.
-func (m Message) ToString() (string, bool) {
-	if m.Command == "" {
+// toString serializes a Message to an IRC protocol compatible string.
+func (m message) toString() (string, bool) {
+	if m.command == "" {
 		return "", false
 	}
 
 	var msg string
-	if len(m.Prefix) > 0 {
-		msg = ":" + m.Prefix + " "
+	if len(m.prefix) > 0 {
+		msg = ":" + m.prefix + " "
 	}
 
-	msg += m.Command
+	msg += m.command
 
-	for i := 0; i < len(m.Params); i++ {
-		param := m.Params[i]
+	for i := 0; i < len(m.params); i++ {
+		param := m.params[i]
 		if strings.Index(param, " ") != -1 {
 			return "", false
 		}
 		msg += " " + param
 	}
 
-	if m.Trailing != "" {
-		msg += " :" + m.Trailing
+	if m.trailing != "" {
+		msg += " :" + m.trailing
 	}
 
 	msg += "\r\n"

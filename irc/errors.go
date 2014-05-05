@@ -1,180 +1,180 @@
 package irc
 
 var (
-	ErrorNoSuchNick = Message{
-		Command:  "401",
-		Trailing: "No such nick",
+	errorNoSuchNick = message{
+		command:  "401",
+		trailing: "No such nick",
 	}
-	ErrorNoSuchServer = Message{
-		Command:  "402",
-		Trailing: "No such server",
+	errorNoSuchServer = message{
+		command:  "402",
+		trailing: "No such server",
 	}
-	ErrorNoSuchChannel = Message{
-		Command:  "403",
-		Trailing: "No such channel",
+	errorNoSuchChannel = message{
+		command:  "403",
+		trailing: "No such channel",
 	}
-	ErrorCannotSendToChan = Message{
-		Command:  "404",
-		Trailing: "Cannot send to channel",
+	errorCannotSendToChan = message{
+		command:  "404",
+		trailing: "Cannot send to channel",
 	}
-	ErrorTooManyChannels = Message{
-		Command:  "405",
-		Trailing: "Too many channels",
+	errorTooManyChannels = message{
+		command:  "405",
+		trailing: "Too many channels",
 	}
-	ErrorWasNoSuchNick = Message{
-		Command:  "406",
-		Trailing: "There was no such nick",
+	errorWasNoSuchNick = message{
+		command:  "406",
+		trailing: "There was no such nick",
 	}
-	ErrorTooManyTargets = Message{
-		Command:  "407",
-		Trailing: "Too many targets",
+	errorTooManyTargets = message{
+		command:  "407",
+		trailing: "Too many targets",
 	}
-	ErrorNoOrigin = Message{
-		Command:  "409",
-		Trailing: "No origin present",
+	errorNoOrigin = message{
+		command:  "409",
+		trailing: "No origin present",
 	}
-	ErrorNoRecipient = Message{
-		Command:  "411",
-		Trailing: "No recipient",
+	errorNoRecipient = message{
+		command:  "411",
+		trailing: "No recipient",
 	}
-	ErrorNoTextToSend = Message{
-		Command:  "412",
-		Trailing: "No text to send",
+	errorNoTextToSend = message{
+		command:  "412",
+		trailing: "No text to send",
 	}
-	ErrorNoTopLevel = Message{
-		Command:  "413",
-		Trailing: "No top level domain",
+	errorNoTopLevel = message{
+		command:  "413",
+		trailing: "No top level domain",
 	}
-	ErrorWildTopLevel = Message{
-		Command:  "414",
-		Trailing: "Wild top level domain",
+	errorWildTopLevel = message{
+		command:  "414",
+		trailing: "Wild top level domain",
 	}
-	ErrorUnknownCommand = Message{
-		Command:  "421",
-		Trailing: "Unknown command",
+	errorUnknowncommand = message{
+		command:  "421",
+		trailing: "Unknown command",
 	}
-	ErrorNoMOTD = Message{
-		Command:  "422",
-		Trailing: "No MOTD",
+	errorNoMOTD = message{
+		command:  "422",
+		trailing: "No MOTD",
 	}
-	ErrorNoAdminInfo = Message{
-		Command:  "423",
-		Trailing: "No admin info",
+	errorNoAdminInfo = message{
+		command:  "423",
+		trailing: "No admin info",
 	}
-	ErrorFileError = Message{
-		Command:  "424",
-		Trailing: "File error",
+	errorFileError = message{
+		command:  "424",
+		trailing: "File error",
 	}
-	ErrorNoNicknameGiven = Message{
-		Command:  "431",
-		Trailing: "No nickname given",
+	errorNoNicknameGiven = message{
+		command:  "431",
+		trailing: "No nickname given",
 	}
-	ErrorErroneusNickname = Message{
-		Command:  "432",
-		Trailing: "Erroneus nickname",
+	errorErroneusNickname = message{
+		command:  "432",
+		trailing: "Erroneus nickname",
 	}
-	ErrorNicknameInUse = Message{
-		Command:  "433",
-		Trailing: "Nickname in use",
+	errorNicknameInUse = message{
+		command:  "433",
+		trailing: "Nickname in use",
 	}
-	ErrorNickCollision = Message{
-		Command:  "436",
-		Trailing: "Nickname collision",
+	errorNickCollision = message{
+		command:  "436",
+		trailing: "Nickname collision",
 	}
-	ErrorUserNotInChannel = Message{
-		Command:  "441",
-		Trailing: "User not in channel",
+	errorUserNotInChannel = message{
+		command:  "441",
+		trailing: "User not in channel",
 	}
-	ErrorNotOnChannel = Message{
-		Command:  "442",
-		Trailing: "Not on channel",
+	errorNotOnChannel = message{
+		command:  "442",
+		trailing: "Not on channel",
 	}
-	ErrorUserOnChannel = Message{
-		Command:  "443",
-		Trailing: "User on channel",
+	errorUserOnChannel = message{
+		command:  "443",
+		trailing: "User on channel",
 	}
-	ErrorNoLogin = Message{
-		Command:  "444",
-		Trailing: "No login",
+	errorNoLogin = message{
+		command:  "444",
+		trailing: "No login",
 	}
-	ErrorSummonDisabled = Message{
-		Command:  "445",
-		Trailing: "Summon disabled",
+	errorSummonDisabled = message{
+		command:  "445",
+		trailing: "Summon disabled",
 	}
-	ErrorUsersDisabled = Message{
-		Command:  "446",
-		Trailing: "Users disabled",
+	errorUsersDisabled = message{
+		command:  "446",
+		trailing: "Users disabled",
 	}
-	ErrorNotRegistered = Message{
-		Command:  "451",
-		Trailing: "Not registered",
+	errorNotRegistered = message{
+		command:  "451",
+		trailing: "Not registered",
 	}
-	ErrorNeedMoreParams = Message{
-		Command:  "461",
-		Trailing: "Need more params",
+	errorNeedMoreParams = message{
+		command:  "461",
+		trailing: "Need more params",
 	}
-	ErrorAlreadyRegistred = Message{
-		Command:  "462",
-		Trailing: "Already registered",
+	errorAlreadyRegistred = message{
+		command:  "462",
+		trailing: "Already registered",
 	}
-	ErrorNoPermForHost = Message{
-		Command:  "463",
-		Trailing: "Insufficient permissions for host",
+	errorNoPermForHost = message{
+		command:  "463",
+		trailing: "Insufficient permissions for host",
 	}
-	ErrorPasswdMismatch = Message{
-		Command:  "464",
-		Trailing: "Password mismatch",
+	errorPasswdMismatch = message{
+		command:  "464",
+		trailing: "Password mismatch",
 	}
-	ErrorYoureBannedCreep = Message{
-		Command:  "465",
-		Trailing: "You're banned, creep",
+	errorYoureBannedCreep = message{
+		command:  "465",
+		trailing: "You're banned, creep",
 	}
-	ErrorKeySet = Message{
-		Command:  "467",
-		Trailing: "Key set",
+	errorKeySet = message{
+		command:  "467",
+		trailing: "Key set",
 	}
-	ErrorChannelIsFull = Message{
-		Command:  "471",
-		Trailing: "Channel is full",
+	errorChannelIsFull = message{
+		command:  "471",
+		trailing: "Channel is full",
 	}
-	ErrorUnknownMode = Message{
-		Command:  "472",
-		Trailing: "Unknown mode",
+	errorUnknownMode = message{
+		command:  "472",
+		trailing: "Unknown mode",
 	}
-	ErrorInviteOnlyChan = Message{
-		Command:  "473",
-		Trailing: "Invite only channel",
+	errorInviteOnlyChan = message{
+		command:  "473",
+		trailing: "Invite only channel",
 	}
-	ErrorBannedFromChan = Message{
-		Command:  "474",
-		Trailing: "Banned from channel",
+	errorBannedFromChan = message{
+		command:  "474",
+		trailing: "Banned from channel",
 	}
-	ErrorBadChannelKey = Message{
-		Command:  "475",
-		Trailing: "Bad channel key",
+	errorBadChannelKey = message{
+		command:  "475",
+		trailing: "Bad channel key",
 	}
-	ErrorNoPrivileges = Message{
-		Command:  "481",
-		Trailing: "No privileges",
+	errorNoPrivileges = message{
+		command:  "481",
+		trailing: "No privileges",
 	}
-	ErrorChanOPrivsNeeded = Message{
-		Command:  "482",
-		Trailing: "Channel +o privileges needed",
+	errorChanOPrivsNeeded = message{
+		command:  "482",
+		trailing: "Channel +o privileges needed",
 	}
-	ErrorCantKillServer = Message{
-		Command:  "483",
-		Trailing: "Cannot kill server",
+	errorCantKillServer = message{
+		command:  "483",
+		trailing: "Cannot kill server",
 	}
-	ErrorNoOperHost = Message{
-		Command:  "491",
-		Trailing: "No operator host",
+	errorNoOperHost = message{
+		command:  "491",
+		trailing: "No operator host",
 	}
-	ErrorUModeUnknownFlag = Message{
-		Command:  "501",
-		Trailing: "User mode unknown flag",
+	errorUModeUnknownFlag = message{
+		command:  "501",
+		trailing: "User mode unknown flag",
 	}
-	ErrorUsersDontMatch = Message{
-		Command:  "502",
-		Trailing: "Users don't match",
+	errorUsersDontMatch = message{
+		command:  "502",
+		trailing: "Users don't match",
 	}
 )

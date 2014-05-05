@@ -5,18 +5,18 @@ import (
 )
 
 func TestUserHandlerJoin(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-JOIN", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-JOIN", state, handler, []handlerTest{
 		{
 			desc: "successful join",
-			in:   []Message{CmdJoin.WithParams("#channel")},
+			in:   []message{cmdJoin.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNoTopic,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -24,13 +24,13 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "successful join with key",
-			in:   []Message{CmdJoin.WithParams("#channel", "key")},
+			in:   []message{cmdJoin.withParams("#channel", "key")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNoTopic,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -41,13 +41,13 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "successful join limited channel",
-			in:   []Message{CmdJoin.WithParams("#channel")},
+			in:   []message{cmdJoin.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNoTopic,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -58,16 +58,16 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "successful join multiple",
-			in:   []Message{CmdJoin.WithParams("#foo,#bar")},
+			in:   []message{cmdJoin.withParams("#foo,#bar")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNoTopic,
-						ReplyNamReply,
-						ReplyEndOfNames,
-						ReplyNoTopic,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -75,40 +75,40 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "no channel given",
-			in:   []Message{CmdJoin},
+			in:   []message{cmdJoin},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNeedMoreParams},
+					messages: []message{errorNeedMoreParams},
 				},
 			},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc: "bad channel name",
-			in:   []Message{CmdJoin.WithParams("channel")},
+			in:   []message{cmdJoin.withParams("channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorNoSuchChannel},
+					messages: []message{errorNoSuchChannel},
 				},
 			},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc: "invite only",
-			in:   []Message{CmdJoin.WithParams("#channel")},
+			in:   []message{cmdJoin.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorInviteOnlyChan},
+					messages: []message{errorInviteOnlyChan},
 				},
 			},
 			state: newMockState().withUser("nick").withChannel("#channel", "i", ""),
 		},
 		{
 			desc: "wrong channel key",
-			in:   []Message{CmdJoin.WithParams("#channel")},
+			in:   []message{cmdJoin.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorBadChannelKey},
+					messages: []message{errorBadChannelKey},
 				},
 			},
 			state: newMockState().
@@ -118,10 +118,10 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "channel full",
-			in:   []Message{CmdJoin.WithParams("#channel")},
+			in:   []message{cmdJoin.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{ErrorChannelIsFull},
+					messages: []message{errorChannelIsFull},
 				},
 			},
 			state: newMockState().

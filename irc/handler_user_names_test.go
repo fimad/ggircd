@@ -5,20 +5,20 @@ import (
 )
 
 func TestUserHandlerNames(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-NAMES", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-NAMES", state, handler, []handlerTest{
 		{
 			desc: "names successful",
-			in:   []Message{CmdNames.WithParams("#channel")},
+			in:   []message{cmdNames.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNamReply,
-						ReplyNamReply,
-						ReplyNamReply,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNamReply,
+						replyNamReply,
+						replyNamReply,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -34,14 +34,14 @@ func TestUserHandlerNames(t *testing.T) {
 		},
 		{
 			desc: "names all",
-			in:   []Message{CmdNames.WithParams()},
+			in:   []message{cmdNames.withParams()},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNamReply,
-						ReplyEndOfNames,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNamReply,
+						replyEndOfNames,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -57,10 +57,10 @@ func TestUserHandlerNames(t *testing.T) {
 		},
 		{
 			desc: "names all secret",
-			in:   []Message{CmdNames.WithParams()},
+			in:   []message{cmdNames.withParams()},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().
@@ -70,14 +70,14 @@ func TestUserHandlerNames(t *testing.T) {
 		},
 		{
 			desc: "names successful private",
-			in:   []Message{CmdNames.WithParams("#channel")},
+			in:   []message{cmdNames.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyNamReply,
-						ReplyNamReply,
-						ReplyNamReply,
-						ReplyEndOfNames,
+					messages: []message{
+						replyNamReply,
+						replyNamReply,
+						replyNamReply,
+						replyEndOfNames,
 					},
 				},
 			},
@@ -89,10 +89,10 @@ func TestUserHandlerNames(t *testing.T) {
 		},
 		{
 			desc: "names fails private",
-			in:   []Message{CmdNames.WithParams("#channel")},
+			in:   []message{cmdNames.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{},
+					messages: []message{},
 				},
 			},
 			state: newMockState().

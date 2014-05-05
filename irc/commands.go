@@ -1,24 +1,24 @@
 package irc
 
 var (
-	CmdAway    = Message{Command: "AWAY"}
-	CmdInvite  = Message{Command: "INVITE"}
-	CmdJoin    = Message{Command: "JOIN"}
-	CmdKick    = Message{Command: "KICK"}
-	CmdList    = Message{Command: "LIST"}
-	CmdMode    = Message{Command: "MODE"}
-	CmdMotd    = Message{Command: "MOTD"}
-	CmdNames   = Message{Command: "NAMES"}
-	CmdNick    = Message{Command: "NICK"}
-	CmdNotice  = Message{Command: "NOTICE"}
-	CmdPart    = Message{Command: "PART"}
-	CmdPass    = Message{Command: "PASS"}
-	CmdPing    = Message{Command: "PING"}
-	CmdPong    = Message{Command: "PONG"}
-	CmdPrivMsg = Message{Command: "PRIVMSG"}
-	CmdQuit    = Message{Command: "QUIT"}
-	CmdServer  = Message{Command: "SERVER"}
-	CmdTopic   = Message{Command: "TOPIC"}
-	CmdUser    = Message{Command: "USER"}
-	CmdWho     = Message{Command: "WHO"}
+	cmdAway    = message{command: "AWAY"}
+	cmdInvite  = message{command: "INVITE"}
+	cmdJoin    = message{command: "JOIN"}
+	cmdKick    = message{command: "KICK"}
+	cmdList    = message{command: "LIST"}
+	cmdMode    = message{command: "MODE"}
+	cmdMotd    = message{command: "MOTD"}
+	cmdNames   = message{command: "NAMES"}
+	cmdNick    = message{command: "NICK"}
+	cmdNotice  = message{command: "NOTICE"}
+	cmdPart    = message{command: "PART"}
+	cmdPass    = message{command: "PASS"}
+	cmdPing    = message{command: "PING"}
+	cmdPong    = message{command: "PONG"}
+	cmdPrivMsg = message{command: "PRIVMSG"}
+	cmdQuit    = message{command: "QUIT"}
+	cmdServer  = message{command: "SERVER"}
+	cmdTopic   = message{command: "TOPIC"}
+	cmdUser    = message{command: "USER"}
+	cmdWho     = message{command: "WHO"}
 )

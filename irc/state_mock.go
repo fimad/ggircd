@@ -7,8 +7,8 @@ type mockState struct {
 func newMockState() *mockState {
 	return &mockState{
 		stateImpl{
-			users:    make(map[string]*User),
-			channels: make(map[string]*Channel),
+			users:    make(map[string]*user),
+			channels: make(map[string]*channel),
 			config: Config{
 				Name:    "name",
 				Network: "network",
@@ -20,35 +20,35 @@ func newMockState() *mockState {
 }
 
 func (s *mockState) withChannel(name, mode, topic string) *mockState {
-	s.channels[name] = &Channel{
-		Name:    name,
-		Mode:    ParseMode(ChannelModes, mode),
-		Topic:   topic,
-		Limit:   0,
-		Key:     "",
-		BanNick: "",
-		BanUser: "",
-		BanHost: "",
-		Users:   make(map[*User]bool),
-		Ops:     make(map[*User]bool),
-		Voices:  make(map[*User]bool),
-		Invited: make(map[*User]bool),
+	s.channels[name] = &channel{
+		name:    name,
+		mode:    parseMode(channelModes, mode),
+		topic:   topic,
+		limit:   0,
+		key:     "",
+		banNick: "",
+		banUser: "",
+		banHost: "",
+		users:   make(map[*user]bool),
+		ops:     make(map[*user]bool),
+		voices:  make(map[*user]bool),
+		invited: make(map[*user]bool),
 	}
 	return s
 }
 
 func (s *mockState) withChannelKey(name, key string) *mockState {
-	s.channels[name].Key = key
+	s.channels[name].key = key
 	return s
 }
 
 func (s *mockState) withChannelLimit(name string, limit int) *mockState {
-	s.channels[name].Limit = limit
+	s.channels[name].limit = limit
 	return s
 }
 
 func (s *mockState) withUser(nick string, channels ...string) *mockState {
-	chanMap := make(map[*Channel]bool)
+	chanMap := make(map[*channel]bool)
 	for _, name := range channels {
 		ch := s.channels[name]
 		if ch == nil {
@@ -57,39 +57,39 @@ func (s *mockState) withUser(nick string, channels ...string) *mockState {
 		chanMap[ch] = true
 	}
 
-	s.users[nick] = &User{
-		Nick:     nick,
-		User:     nick,
-		Host:     nick,
-		Server:   nick,
-		RealName: nick,
-		Channels: chanMap,
-		Mode:     make(Mode),
-		Sink:     &mockConnection{},
+	s.users[nick] = &user{
+		nick:     nick,
+		user:     nick,
+		host:     nick,
+		server:   nick,
+		realName: nick,
+		channels: chanMap,
+		mode:     make(mode),
+		sink:     &mockConnection{},
 	}
 
 	for ch := range chanMap {
-		ch.Users[s.users[nick]] = true
+		ch.users[s.users[nick]] = true
 	}
 
 	return s
 }
 
 func (s *mockState) withUserMode(nick, modeLine string) *mockState {
-	s.users[nick].Mode = ParseMode(ChannelModes, modeLine)
+	s.users[nick].mode = parseMode(channelModes, modeLine)
 	return s
 }
 
 func (s *mockState) withUserAway(nick, awayMessage string) *mockState {
-	s.users[nick].Mode[UserModeAway] = awayMessage != ""
-	s.users[nick].AwayMessage = awayMessage
+	s.users[nick].mode[userModeAway] = awayMessage != ""
+	s.users[nick].awayMessage = awayMessage
 	return s
 }
 
 func (s *mockState) withOps(channel string, nicks ...string) *mockState {
 	ch := s.channels[channel]
 	for _, nick := range nicks {
-		ch.Ops[s.users[nick]] = true
+		ch.ops[s.users[nick]] = true
 	}
 	return s
 }
@@ -97,7 +97,7 @@ func (s *mockState) withOps(channel string, nicks ...string) *mockState {
 func (s *mockState) withVoices(channel string, nicks ...string) *mockState {
 	ch := s.channels[channel]
 	for _, nick := range nicks {
-		ch.Voices[s.users[nick]] = true
+		ch.voices[s.users[nick]] = true
 	}
 	return s
 }

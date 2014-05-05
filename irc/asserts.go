@@ -10,14 +10,14 @@ import (
 type assert func(*mockState) error
 
 func assertChannelMode(channel, modeLine string) assert {
-	want := ParseMode(ChannelModes, modeLine)
+	want := parseMode(channelModes, modeLine)
 	return func(state *mockState) error {
-		ch := state.GetChannel(channel)
+		ch := state.getChannel(channel)
 		if ch == nil {
 			return fmt.Errorf("expected channel %q to exist, but does not", channel)
 		}
 
-		got := ch.Mode
+		got := ch.mode
 		// delete all keys with false values from got
 		for k, v := range got {
 			if !v {
@@ -35,17 +35,17 @@ func assertChannelMode(channel, modeLine string) assert {
 
 func assertChannelOp(channel, nick string) assert {
 	return func(state *mockState) error {
-		ch := state.GetChannel(channel)
+		ch := state.getChannel(channel)
 		if ch == nil {
 			return fmt.Errorf("expected channel %q to exist, but does not", channel)
 		}
 
-		user := state.GetUser(nick)
+		user := state.getUser(nick)
 		if user == nil {
 			return fmt.Errorf("expected user %q to exist, but does not", nick)
 		}
 
-		if !ch.Ops[user] {
+		if !ch.ops[user] {
 			return fmt.Errorf("user %q should be op on %q but isn't", nick, channel)
 		}
 		return nil
@@ -54,17 +54,17 @@ func assertChannelOp(channel, nick string) assert {
 
 func assertChannelVoice(channel, nick string) assert {
 	return func(state *mockState) error {
-		ch := state.GetChannel(channel)
+		ch := state.getChannel(channel)
 		if ch == nil {
 			return fmt.Errorf("expected channel %q to exist, but does not", channel)
 		}
 
-		user := state.GetUser(nick)
+		user := state.getUser(nick)
 		if user == nil {
 			return fmt.Errorf("expected user %q to exist, but does not", nick)
 		}
 
-		if !ch.Voices[user] {
+		if !ch.voices[user] {
 			return fmt.Errorf("user %q should be voice on %q but doesn't", nick, channel)
 		}
 		return nil
@@ -73,17 +73,17 @@ func assertChannelVoice(channel, nick string) assert {
 
 func assertUserOnChannel(nick, channel string) assert {
 	return func(state *mockState) error {
-		ch := state.GetChannel(channel)
+		ch := state.getChannel(channel)
 		if ch == nil {
 			return fmt.Errorf("expected channel %q to exist, but does not", channel)
 		}
 
-		user := state.GetUser(nick)
+		user := state.getUser(nick)
 		if user == nil {
 			return fmt.Errorf("expected user %q to exist, but does not", nick)
 		}
 
-		if !ch.Users[user] {
+		if !ch.users[user] {
 			return fmt.Errorf("user %q should be on %q but isn't", nick, channel)
 		}
 		return nil
@@ -92,17 +92,17 @@ func assertUserOnChannel(nick, channel string) assert {
 
 func assertUserNotOnChannel(nick, channel string) assert {
 	return func(state *mockState) error {
-		ch := state.GetChannel(channel)
+		ch := state.getChannel(channel)
 		if ch == nil {
 			return fmt.Errorf("expected channel %q to exist, but does not", channel)
 		}
 
-		user := state.GetUser(nick)
+		user := state.getUser(nick)
 		if user == nil {
 			return fmt.Errorf("expected user %q to exist, but does not", nick)
 		}
 
-		if ch.Users[user] {
+		if ch.users[user] {
 			return fmt.Errorf("user %q should not be on %q but is", nick, channel)
 		}
 		return nil
@@ -110,14 +110,14 @@ func assertUserNotOnChannel(nick, channel string) assert {
 }
 
 func assertUserMode(nick, modeLine string) assert {
-	want := ParseMode(UserModes, modeLine)
+	want := parseMode(userModes, modeLine)
 	return func(state *mockState) error {
-		user := state.GetUser(nick)
+		user := state.getUser(nick)
 		if user == nil {
 			return fmt.Errorf("expected user %q to exist, but does not", nick)
 		}
 
-		got := user.Mode
+		got := user.mode
 		// delete all keys with false values from got
 		for k, v := range got {
 			if !v {

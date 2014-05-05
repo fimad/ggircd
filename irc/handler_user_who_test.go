@@ -5,16 +5,16 @@ import (
 )
 
 func TestUserHandlerWho(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-WHO", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-WHO", state, handler, []handlerTest{
 		{
 			desc: "who with no params",
-			in:   []Message{CmdWho},
+			in:   []message{cmdWho},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyEndOfWho,
+					messages: []message{
+						replyEndOfWho,
 					},
 				},
 			},
@@ -27,15 +27,15 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ nick",
-			in:   []Message{CmdWho.WithParams("foo")},
+			in:   []message{cmdWho.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply.
-							WithPrefix("name").
-							WithParams("*", "foo", "foo", "name", "foo", "H@").
-							WithTrailing("0 foo"),
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply.
+							withPrefix("name").
+							withParams("*", "foo", "foo", "name", "foo", "H@").
+							withTrailing("0 foo"),
+						replyEndOfWho,
 					},
 				},
 			},
@@ -46,15 +46,15 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ channel (verify op)",
-			in:   []Message{CmdWho.WithParams("#channel")},
+			in:   []message{cmdWho.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply.
-							WithPrefix("name").
-							WithParams("#channel", "nick", "nick", "name", "nick", "H@").
-							WithTrailing("0 nick"),
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply.
+							withPrefix("name").
+							withParams("#channel", "nick", "nick", "name", "nick", "H@").
+							withTrailing("0 nick"),
+						replyEndOfWho,
 					},
 				},
 			},
@@ -65,15 +65,15 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ channel (verify voice)",
-			in:   []Message{CmdWho.WithParams("#channel")},
+			in:   []message{cmdWho.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply.
-							WithPrefix("name").
-							WithParams("#channel", "nick", "nick", "name", "nick", "H+").
-							WithTrailing("0 nick"),
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply.
+							withPrefix("name").
+							withParams("#channel", "nick", "nick", "name", "nick", "H+").
+							withTrailing("0 nick"),
+						replyEndOfWho,
 					},
 				},
 			},
@@ -84,15 +84,15 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ channel (verify no op/voice)",
-			in:   []Message{CmdWho.WithParams("#channel")},
+			in:   []message{cmdWho.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply.
-							WithPrefix("name").
-							WithParams("#channel", "nick", "nick", "name", "nick", "H").
-							WithTrailing("0 nick"),
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply.
+							withPrefix("name").
+							withParams("#channel", "nick", "nick", "name", "nick", "H").
+							withTrailing("0 nick"),
+						replyEndOfWho,
 					},
 				},
 			},
@@ -102,14 +102,14 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ channel",
-			in:   []Message{CmdWho.WithParams("#channel")},
+			in:   []message{cmdWho.withParams("#channel")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply,
-						ReplyWhoReply,
-						ReplyWhoReply,
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply,
+						replyWhoReply,
+						replyWhoReply,
+						replyEndOfWho,
 					},
 				},
 			},
@@ -122,12 +122,12 @@ func TestUserHandlerWho(t *testing.T) {
 		},
 		{
 			desc: "who w/ channel and op",
-			in:   []Message{CmdWho.WithParams("#channel", "o")},
+			in:   []message{cmdWho.withParams("#channel", "o")},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []Message{
-						ReplyWhoReply,
-						ReplyEndOfWho,
+					messages: []message{
+						replyWhoReply,
+						replyEndOfWho,
 					},
 				},
 			},

@@ -1,91 +1,91 @@
 package irc
 
 const (
-	ChannelModeOp        = "o"
-	ChannelModePrivate   = "p"
-	ChannelModeSecret    = "s"
-	ChannelModeInvite    = "i"
-	ChannelModeTopicOp   = "t"
-	ChannelModeNoOutside = "n"
-	ChannelModeModerated = "m"
-	ChannelModeUserLimit = "l"
-	ChannelModeBanMask   = "b"
-	ChannelModeVoice     = "v"
-	ChannelModeKey       = "k"
+	channelModeOp        = "o"
+	channelModePrivate   = "p"
+	channelModeSecret    = "s"
+	channelModeInvite    = "i"
+	channelModeTopicOp   = "t"
+	channelModeNoOutside = "n"
+	channelModeModerated = "m"
+	channelModeUserLimit = "l"
+	channelModeBanMask   = "b"
+	channelModeVoice     = "v"
+	channelModeKey       = "k"
 
-	UserModeAway      = "a"
-	UserModeInvisible = "i"
+	userModeAway      = "a"
+	userModeInvisible = "i"
 )
 
-type Mode map[string]bool
+type mode map[string]bool
 
-var ChannelModes = Mode{
-	ChannelModeOp:        true,
-	ChannelModePrivate:   true,
-	ChannelModeSecret:    true,
-	ChannelModeInvite:    true,
-	ChannelModeTopicOp:   true,
-	ChannelModeNoOutside: true,
-	ChannelModeModerated: true,
-	ChannelModeUserLimit: true,
-	ChannelModeBanMask:   true,
-	ChannelModeVoice:     true,
-	ChannelModeKey:       true,
+var channelModes = mode{
+	channelModeOp:        true,
+	channelModePrivate:   true,
+	channelModeSecret:    true,
+	channelModeInvite:    true,
+	channelModeTopicOp:   true,
+	channelModeNoOutside: true,
+	channelModeModerated: true,
+	channelModeUserLimit: true,
+	channelModeBanMask:   true,
+	channelModeVoice:     true,
+	channelModeKey:       true,
 }
 
-var ChannelPosParamModes = Mode{
-	ChannelModeOp:        true,
-	ChannelModeUserLimit: true,
-	ChannelModeBanMask:   true,
-	ChannelModeVoice:     true,
-	ChannelModeKey:       true,
+var channelPosParamModes = mode{
+	channelModeOp:        true,
+	channelModeUserLimit: true,
+	channelModeBanMask:   true,
+	channelModeVoice:     true,
+	channelModeKey:       true,
 }
 
-var ChannelNegParamModes = Mode{
-	ChannelModeOp:      true,
-	ChannelModeBanMask: true,
-	ChannelModeVoice:   true,
+var channelNegParamModes = mode{
+	channelModeOp:      true,
+	channelModeBanMask: true,
+	channelModeVoice:   true,
 }
 
-var UserModes = Mode{
-	UserModeAway:      true,
-	UserModeInvisible: true,
+var userModes = mode{
+	userModeAway:      true,
+	userModeInvisible: true,
 }
 
-var UserModesSettable = Mode{
-	UserModeInvisible: true,
+var userModesSettable = mode{
+	userModeInvisible: true,
 }
 
-var UserPosParamModes = Mode{}
-var UserNegParamModes = Mode{}
+var userPosParamModes = mode{}
+var userNegParamModes = mode{}
 
-// ParseMode takes a mode map containing all of the valid modes and a string
+// parseMode takes a mode map containing all of the valid modes and a string
 // where each character is a mode flag. It returns a mode map of containing all
 // of the valid modes that were present in the given line.
-func ParseMode(valid Mode, line string) Mode {
-	mode := make(Mode)
+func parseMode(valid mode, line string) mode {
+	mode := make(mode)
 	for _, r := range line {
 		f := string(r)
 		if valid[f] {
 			mode[f] = true
 		} else {
-			logf(Debug, "Unknown flag: %s", f)
+			logf(debug, "Unknown flag: %s", f)
 		}
 	}
 	return mode
 }
 
-// ParseModeDiff takes a set of valid modes, modes that take parameters and an
+// parseModeDiff takes a set of valid modes, modes that take parameters and an
 // array of strings and returns a mapping from modes that are present in the
 // mode line to their parameters.
 //
 // NOTE: Modes that do not take parameters will map to the empty string.
-func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, unknownModeMessage Message, line []string) (pos map[string][]string, neg map[string][]string, errs []Message) {
+func parseModeDiff(valid mode, posTakesParam mode, negTakesParam mode, unknownModeMessage message, line []string) (pos map[string][]string, neg map[string][]string, errs []message) {
 	pos = make(map[string][]string)
 	neg = make(map[string][]string)
 
 	if len(line) < 1 {
-		return nil, nil, []Message{ErrorNeedMoreParams}
+		return nil, nil, []message{errorNeedMoreParams}
 	}
 
 	other := neg
@@ -111,7 +111,7 @@ func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, unknownMo
 		}
 
 		if !valid[mode] {
-			errs = append(errs, unknownModeMessage.WithParams(mode))
+			errs = append(errs, unknownModeMessage.withParams(mode))
 			continue
 		}
 
@@ -122,7 +122,7 @@ func ParseModeDiff(valid Mode, posTakesParam Mode, negTakesParam Mode, unknownMo
 		}
 
 		if len(params) == 0 {
-			errs = []Message{ErrorNeedMoreParams}
+			errs = []message{errorNeedMoreParams}
 			break
 		}
 

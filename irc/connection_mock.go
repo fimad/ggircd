@@ -1,16 +1,16 @@
 package irc
 
 type mockConnection struct {
-	messages []Message
+	messages []message
 	killed   bool
 }
 
-func (c *mockConnection) Send(msg Message) {
+func (c *mockConnection) send(msg message) {
 	c.messages = append(c.messages, msg)
 }
 
-func (c *mockConnection) Kill() {
+func (c *mockConnection) kill() {
 	c.killed = true
 }
 
-func (c *mockConnection) Loop() {}
+func (c *mockConnection) loop() {}

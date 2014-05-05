@@ -5,14 +5,14 @@ const (
 	replyYouAreUnaway = "You are no longer marked as being away"
 )
 
-func (h *UserHandler) handleCmdAway(state State, user *User, conn Connection, msg Message) Handler {
-	user.AwayMessage = msg.Trailing
-	if len(msg.Trailing) == 0 {
-		delete(user.Mode, UserModeAway)
-		sendNumericTrailing(state, user, ReplyUnaway, replyYouAreUnaway)
+func (h *userHandler) handleCmdAway(state state, user *user, conn connection, msg message) handler {
+	user.awayMessage = msg.trailing
+	if len(msg.trailing) == 0 {
+		delete(user.mode, userModeAway)
+		sendNumericTrailing(state, user, replyUnaway, replyYouAreUnaway)
 	} else {
-		user.Mode[UserModeAway] = true
-		sendNumericTrailing(state, user, ReplyNowAway, replyYouAreAway)
+		user.mode[userModeAway] = true
+		sendNumericTrailing(state, user, replyNowAway, replyYouAreAway)
 	}
 	return h
 }

@@ -5,18 +5,18 @@ import (
 )
 
 func TestUserHandlerQuit(t *testing.T) {
-	state := make(chan State, 1)
-	handler := func() Handler { return NewUserHandler(state, "nick") }
-	testHandler(t, "UserHandler-QUIT", state, handler, []handlerTest{
+	state := make(chan state, 1)
+	handler := func() handler { return newUserHandler(state, "nick") }
+	testHandler(t, "userHandler-QUIT", state, handler, []handlerTest{
 		{
 			desc:  "successful quit",
-			in:    []Message{CmdQuit},
+			in:    []message{cmdQuit},
 			want:  mockConnection{killed: true},
 			state: newMockState().withUser("nick"),
 		},
 		{
 			desc:  "handles no messages after quiting",
-			in:    []Message{CmdQuit, CmdPing},
+			in:    []message{cmdQuit, cmdPing},
 			want:  mockConnection{killed: true},
 			state: newMockState().withUser("nick"),
 		},

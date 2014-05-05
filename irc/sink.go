@@ -1,20 +1,20 @@
 package irc
 
-// Sink is a abstraction over network connections that is able to take a Message
+// sink is a abstraction over network connections that is able to take a message
 // and forward it to the appropriated connection.
-type Sink interface {
-	Send(Message)
+type sink interface {
+	send(message)
 }
 
-// NullSink is an implementation of sink that drops all messages on the floor.
-type NullSink struct{}
+// nullSink is an implementation of sink that drops all messages on the floor.
+type nullSink struct{}
 
-func (_ NullSink) Send(msg Message) {}
+func (_ nullSink) send(msg message) {}
 
-// SliceSink is an implementation of sink that stores all received messages in a
+// sliceSink is an implementation of sink that stores all received messages in a
 // slice.
-type SliceSink []Message
+type sliceSink []message
 
-func (s *SliceSink) Send(msg Message) {
+func (s *sliceSink) send(msg message) {
 	*s = append(*s, msg)
 }
