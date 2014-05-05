@@ -16,6 +16,7 @@ func NewUserHandler(state chan State, nick string) Handler {
 		nick:  nick,
 	}
 	handler.commands = commandMap{
+		CmdAway.Command:    handler.handleCmdAway,
 		CmdInvite.Command:  handler.handleCmdInvite,
 		CmdJoin.Command:    handler.handleCmdJoin,
 		CmdKick.Command:    handler.handleCmdKick,

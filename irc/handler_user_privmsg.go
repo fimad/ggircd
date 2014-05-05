@@ -21,6 +21,13 @@ func (h *UserHandler) handleCmdPrivMsg(state State, user *User, conn Connection,
 			return h
 		}
 		targetUser.Send(msg)
+
+		if targetUser.Mode[UserModeAway] {
+			user.Send(CmdPrivMsg.
+				WithPrefix(targetUser.Prefix()).
+				WithParams(user.Nick).
+				WithTrailing(targetUser.AwayMessage))
+		}
 		return h
 	}
 

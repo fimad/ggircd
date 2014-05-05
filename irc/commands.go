@@ -1,6 +1,7 @@
 package irc
 
 var (
+	CmdAway    = Message{Command: "AWAY"}
 	CmdInvite  = Message{Command: "INVITE"}
 	CmdJoin    = Message{Command: "JOIN"}
 	CmdKick    = Message{Command: "KICK"}

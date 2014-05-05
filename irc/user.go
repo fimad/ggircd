@@ -13,7 +13,8 @@ type User struct {
 
 	Channels map[*Channel]bool
 
-	Mode Mode
+	AwayMessage string
+	Mode        Mode
 
 	Sink Sink
 }

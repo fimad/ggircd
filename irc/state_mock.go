@@ -80,6 +80,12 @@ func (s *mockState) withUserMode(nick, modeLine string) *mockState {
 	return s
 }
 
+func (s *mockState) withUserAway(nick, awayMessage string) *mockState {
+	s.users[nick].Mode[UserModeAway] = awayMessage != ""
+	s.users[nick].AwayMessage = awayMessage
+	return s
+}
+
 func (s *mockState) withOps(channel string, nicks ...string) *mockState {
 	ch := s.channels[channel]
 	for _, nick := range nicks {
