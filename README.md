@@ -1,7 +1,7 @@
 # GGircd #
 
 GGircd is a minimalistic IRC server written in Go with the primary goal of being
-feature compatible with [zhenya_bot](https://github.com/numberten/zhenya_bot)
+feature compatible with the [zhenya_bot](https://github.com/numberten/zhenya_bot)
 IRC bot and a secondary goal of being easy to configure and deploy.
 
 ## Implementation Status ##
@@ -28,8 +28,8 @@ installed Go, you can find easy to follow instructions
 
 If you already have Go installed, installing GGircd is as easy as:
 
-  go get -u github.com/fimad/ggircd/ggircd
-  go install github.com/fimad/ggircd/ggircd
+    go get -u github.com/fimad/ggircd/ggircd
+    go install github.com/fimad/ggircd/ggircd
 
 ## Running ##
 
