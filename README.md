@@ -93,3 +93,9 @@ Example: "t"
 This is the default mode all users will have when they first connect.
 
 Example: "i"
+
+#### SpoofHostName (Optional) ####
+
+If given all connected users will be listed as having this host name.
+
+Example: "i.love.plan9.bell-labs.com"

@@ -73,8 +73,8 @@ func (h *freshUserHandler) handleUser(conn connection, msg message) handler {
 	}
 
 	h.user.user = msg.params[0]
-	h.user.host = msg.params[1]
-	h.user.server = msg.params[2]
+	h.user.host = state.getConfig().SpoofHostName
+	h.user.server = state.getConfig().Name
 	h.user.realName = msg.trailing
 
 	sendIntro(state, h.user)

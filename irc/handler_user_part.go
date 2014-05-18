@@ -10,11 +10,7 @@ func (h *userHandler) handleCmdPart(state state, user *user, conn connection, ms
 		return h
 	}
 
-	reason := "PARTing"
-	if len(msg.params) > 1 {
-		reason = msg.params[1]
-	}
-
+	reason := msg.trailing
 	channels := strings.Split(msg.params[0], ",")
 	for i := 0; i < len(channels); i++ {
 		name := channels[i]

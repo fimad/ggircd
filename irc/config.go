@@ -15,6 +15,8 @@ type Config struct {
 
 	DefaultChannelMode string
 	DefaultUserMode    string
+
+	SpoofHostName string
 }
 
 // ConfigFromJSONFile reads a Config struct from a file containing a JSON

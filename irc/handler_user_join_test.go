@@ -14,6 +14,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []message{
+						cmdJoin,
 						replyNoTopic,
 						replyNamReply,
 						replyEndOfNames,
@@ -28,6 +29,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []message{
+						cmdJoin,
 						replyNoTopic,
 						replyNamReply,
 						replyEndOfNames,
@@ -45,6 +47,7 @@ func TestUserHandlerJoin(t *testing.T) {
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []message{
+						cmdJoin,
 						replyNoTopic,
 						replyNamReply,
 						replyEndOfNames,
@@ -62,9 +65,11 @@ func TestUserHandlerJoin(t *testing.T) {
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []message{
+						cmdJoin,
 						replyNoTopic,
 						replyNamReply,
 						replyEndOfNames,
+						cmdJoin,
 						replyNoTopic,
 						replyNamReply,
 						replyEndOfNames,

@@ -104,7 +104,7 @@ func (s *stateImpl) newUser(nick string) *user {
 	u := &user{
 		nick:     nick,
 		channels: make(map[*channel]bool),
-		mode:			parseMode(userModes, s.getConfig().DefaultUserMode),
+		mode:     parseMode(userModes, s.getConfig().DefaultUserMode),
 	}
 	s.users[nickLower] = u
 	return u
@@ -163,15 +163,15 @@ func (s *stateImpl) recycleChannel(channel *channel) {
 }
 
 func (s *stateImpl) joinChannel(channel *channel, user *user) {
-	joinMsg := cmdJoin.withPrefix(user.prefix()).withParams(channel.name)
-	channel.send(joinMsg)
-
 	channel.users[user] = true
 	user.channels[channel] = true
 
 	if len(channel.users) == 1 {
 		channel.ops[user] = true
 	}
+
+	joinMsg := cmdJoin.withPrefix(user.prefix()).withParams(channel.name)
+	channel.send(joinMsg)
 
 	sendTopic(s, user, channel)
 	sendNames(s, user, channel)
