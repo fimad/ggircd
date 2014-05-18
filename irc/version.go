@@ -1,3 +1,3 @@
 package irc
 
-const version = "0.3"
+const version = "1.0"
