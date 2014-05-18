@@ -2,7 +2,6 @@ package irc
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"io"
 	"regexp"
@@ -29,18 +28,33 @@ func newMessageParser(reader io.Reader) messageParser {
 	}
 }
 
-// splitFunc is a split function used by a scanner. It splits at CR-LF. A result
-// of this is that the returned line will not contain the CR-LF token.
+// splitFunc is a split function used by a scanner. It splits at CR-LF, LF-CR,
+// CR and LF. A result of this is that the returned line will not contain the
+// CR-LF token.
 func splitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	lines := bytes.SplitN(data, []byte("\x0d\x0a"), 2)
+	for i := range data {
+		// Handle the case where a '\r' or '\n' is encountered at the very end of
+		// the buffer.
+		if (data[i] == '\x0d' || data[i] == '\x0a') && i == len(data)-1 {
+			return i + 1, data[0:i], nil
+		}
 
-	if len(lines) < 2 && !atEOF {
-		return 0, nil, nil
-	} else if len(lines) < 2 {
-		return 0, nil, errors.New("no end of line token in input")
-	} else {
-		return len(lines[0]) + 2, lines[0], nil
+		// Handle the case where either a CR-LF or LF-CR is encountered.
+		if (data[i] == '\x0d' && data[i+1] == '\x0a') ||
+			(data[i] == '\x0a' && data[i+1] == '\x0d') {
+			return i + 2, data[0:i], nil
+		}
+
+		// Handle the case where either a lone CR or LF is encountered.
+		if data[i] == '\x0d' || data[i] == '\x0a' {
+			return i + 1, data[0:i], nil
+		}
 	}
+
+	if atEOF {
+		return 0, nil, errors.New("no end of line token in input")
+	}
+	return 0, nil, nil
 }
 
 // See RFC 952 for the definition of a host name.

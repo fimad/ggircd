@@ -73,6 +73,15 @@ func TestMessageParser(t *testing.T) {
 				{command: "c", params: []string{}},
 			},
 		},
+		{
+			raw: "a\nb\rc\n\rd\r\n",
+			want: []message{
+				{command: "a", params: []string{}},
+				{command: "b", params: []string{}},
+				{command: "c", params: []string{}},
+				{command: "d", params: []string{}},
+			},
+		},
 	}
 
 	for i, tt := range tests {

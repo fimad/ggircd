@@ -66,6 +66,7 @@ func (h *freshUserHandler) closed(c connection) {
 func (h *freshUserHandler) handleUser(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
+	logf(warn, "USER!!! %+v", msg)
 
 	if len(msg.params) < 3 || msg.trailing == "" {
 		sendNumeric(state, h.user, errorNeedMoreParams)
