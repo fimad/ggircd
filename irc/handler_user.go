@@ -108,7 +108,7 @@ func (h *userHandler) pingLoop() {
 		case <-pingTicker.C:
 			state := <-h.state
 			user := state.getUser(h.nick)
-			user.send(cmdPing.withPrefix(config.Name).withParams(user.nick))
+			user.send(cmdPing.withPrefix(config.Name).withParams(config.Name))
 			pongTimer = time.After(pongDuration)
 			h.state <- state
 		}
