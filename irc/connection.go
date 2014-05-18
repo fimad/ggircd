@@ -68,8 +68,14 @@ func (c *connectionImpl) readLoop() {
 			logf(debug, "< %+v", msg)
 			didQuit = didQuit || msg.command == cmdQuit.command
 			c.handler = c.handler.handle(c, msg)
+
+			if !hasMore {
+				break
+			}
 		}
 	}
+
+	c.conn.Close()
 
 	// If there was never a QUIT message then this is a premature termination and
 	// a quit message should be faked.
@@ -80,7 +86,7 @@ func (c *connectionImpl) readLoop() {
 	if alive {
 		_ = <-c.killRead
 	}
-	c.conn.Close()
+	close(c.killRead)
 }
 
 func (c *connectionImpl) writeLoop() {
@@ -105,7 +111,11 @@ func (c *connectionImpl) writeLoop() {
 		}
 	}
 
+	c.conn.Close()
+
 	if alive {
 		_ = <-c.killWrite
 	}
+	close(c.inbox)
+	close(c.killWrite)
 }
