@@ -3,6 +3,7 @@ package irc
 import (
 	"io"
 	"net"
+	"time"
 )
 
 // connection corresponds to some end-point that has connected to the IRC
@@ -18,6 +19,7 @@ type connection interface {
 }
 
 type connectionImpl struct {
+	config    Config
 	conn      net.Conn
 	handler   handler
 	inbox     chan message
@@ -27,13 +29,14 @@ type connectionImpl struct {
 
 // newConnection creates a new connection with the given network connection and
 // handler.
-func newConnection(conn net.Conn, handler handler) connection {
+func newConnection(config Config, conn net.Conn, handler handler) connection {
 	return &connectionImpl{
+		config:    config,
 		conn:      conn,
 		handler:   handler,
 		inbox:     make(chan message),
-		killRead:  make(chan struct{}),
-		killWrite: make(chan struct{}),
+		killRead:  make(chan struct{}, 1),
+		killWrite: make(chan struct{}, 1),
 	}
 }
 
@@ -56,14 +59,17 @@ func (c *connectionImpl) kill() {
 func (c *connectionImpl) readLoop() {
 	var msg message
 	parser := newMessageParser(c.conn)
+	readTimeout := time.Duration(
+		c.config.PingFrequency+c.config.PongMaxLatency*2) * time.Second
 
 	didQuit := false
 	alive, hasMore := true, true
 	for hasMore && alive {
 		select {
-		case _ = <-c.killRead:
+		case <-c.killRead:
 			alive = false
 		default:
+			c.conn.SetReadDeadline(time.Now().Add(readTimeout))
 			msg, hasMore = parser()
 			logf(debug, "< %+v", msg)
 			didQuit = didQuit || msg.command == cmdQuit.command
@@ -80,20 +86,18 @@ func (c *connectionImpl) readLoop() {
 	// If there was never a QUIT message then this is a premature termination and
 	// a quit message should be faked.
 	if !didQuit {
+		logf(debug, "Injecting QUIT for prematurely disconnected client.")
 		c.handler = c.handler.handle(c, cmdQuit.withTrailing("QUITing"))
 	}
 
-	if alive {
-		_ = <-c.killRead
-	}
-	close(c.killRead)
+	logf(debug, "Closing read loop.")
 }
 
 func (c *connectionImpl) writeLoop() {
 	alive := true
 	for alive {
 		select {
-		case _ = <-c.killWrite:
+		case <-c.killWrite:
 			alive = false
 		case msg := <-c.inbox:
 			logf(debug, "> %+v", msg)
@@ -111,11 +115,6 @@ func (c *connectionImpl) writeLoop() {
 		}
 	}
 
+	logf(debug, "Closing write loop.")
 	c.conn.Close()
-
-	if alive {
-		_ = <-c.killWrite
-	}
-	close(c.inbox)
-	close(c.killWrite)
 }

@@ -99,3 +99,17 @@ Example: "i"
 If given all connected users will be listed as having this host name.
 
 Example: "i.love.plan9.bell-labs.com"
+
+#### PingFrequency (Optional) ####
+
+The frequency (in seconds) to send out PING messages to all connected clients.
+If no value is given, defaults to 30 seconds.
+
+Example: 30
+
+#### PongMaxLatency (Optional) ####
+
+The maximum latency a client can respond to a PING message with without being
+forcefully disconnected. If no value is given, defaults to 5 seconds.
+
+Example: 5

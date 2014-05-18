@@ -101,6 +101,8 @@ func (s *stateImpl) newUser(nick string) *user {
 		return nil
 	}
 
+	logf(debug, "Adding new user %s", nick)
+
 	u := &user{
 		nick:     nick,
 		channels: make(map[*channel]bool),
@@ -127,10 +129,14 @@ func (s *stateImpl) setNick(user *user, nick string) bool {
 }
 
 func (s *stateImpl) removeUser(user *user) {
+	logf(debug, "Removing user %s", user.nick)
+
 	user.forChannels(func(ch *channel) {
 		s.partChannel(ch, user, "QUITing")
 	})
-	delete(s.users, user.nick)
+
+	nickLower := lowercase(user.nick)
+	delete(s.users, nickLower)
 }
 
 func (s *stateImpl) newChannel(name string) *channel {
@@ -156,6 +162,8 @@ func (s *stateImpl) newChannel(name string) *channel {
 }
 
 func (s *stateImpl) recycleChannel(channel *channel) {
+	logf(debug, "Recycling channel %s", channel.name)
+
 	if channel == nil || len(channel.users) != 0 {
 		return
 	}
@@ -163,6 +171,8 @@ func (s *stateImpl) recycleChannel(channel *channel) {
 }
 
 func (s *stateImpl) joinChannel(channel *channel, user *user) {
+	logf(debug, "Adding %s to %s", user.nick, channel.name)
+
 	channel.users[user] = true
 	user.channels[channel] = true
 
@@ -186,6 +196,8 @@ func (s *stateImpl) partChannel(ch *channel, user *user, reason string) {
 }
 
 func (s *stateImpl) removeFromChannel(ch *channel, user *user) {
+	logf(debug, "Removing %s from %s", user.nick, ch.name)
+
 	delete(user.channels, ch)
 
 	if !ch.users[user] {

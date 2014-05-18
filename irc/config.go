@@ -17,6 +17,9 @@ type Config struct {
 	DefaultUserMode    string
 
 	SpoofHostName string
+
+	PingFrequency  int
+	PongMaxLatency int
 }
 
 // ConfigFromJSONFile reads a Config struct from a file containing a JSON
@@ -32,6 +35,20 @@ func ConfigFromJSONFile(path string) Config {
 	err = decoder.Decode(&cfg)
 	if err != nil {
 		logf(fatal, "Problem parsing config data: %v", err)
+	}
+
+	return setConfigDefaults(cfg)
+}
+
+// setConfigDefaults fills in the default values of the Config if no value is
+// specified for a field.
+func setConfigDefaults(cfg Config) Config {
+	if cfg.PingFrequency == 0 {
+		cfg.PingFrequency = 30
+	}
+
+	if cfg.PongMaxLatency == 0 {
+		cfg.PongMaxLatency = 5
 	}
 
 	return cfg
