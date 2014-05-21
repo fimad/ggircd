@@ -23,6 +23,9 @@ type connectionImpl struct {
 	conn      net.Conn
 	handler   handler
 	inbox     chan message
+	inject    chan message // Allows the connection to inject messages.
+	gotPong   chan struct{}
+	killPing  chan struct{}
 	killRead  chan struct{}
 	killWrite chan struct{}
 }
@@ -35,6 +38,9 @@ func newConnection(config Config, conn net.Conn, handler handler) connection {
 		conn:      conn,
 		handler:   handler,
 		inbox:     make(chan message),
+		inject:    make(chan message, 1),
+		gotPong:   make(chan struct{}, 1),
+		killPing:  make(chan struct{}, 1),
 		killRead:  make(chan struct{}, 1),
 		killWrite: make(chan struct{}, 1),
 	}
@@ -46,21 +52,22 @@ func (c *connectionImpl) send(msg message) {
 
 func (c *connectionImpl) loop() {
 	go c.writeLoop()
-	c.readLoop()
+	go c.readLoop()
+	c.pingLoop()
 }
 
 func (c *connectionImpl) kill() {
 	go func() {
 		c.killRead <- struct{}{}
 		c.killWrite <- struct{}{}
+		c.killPing <- struct{}{}
 	}()
 }
 
 func (c *connectionImpl) readLoop() {
 	var msg message
 	parser := newMessageParser(c.conn)
-	readTimeout := time.Duration(
-		c.config.PingFrequency+c.config.PongMaxLatency*2) * time.Second
+	readTimeout := time.Duration(c.config.PongMaxLatency) * time.Second
 
 	didQuit := false
 	alive, hasMore := true, true
@@ -68,16 +75,25 @@ func (c *connectionImpl) readLoop() {
 		select {
 		case <-c.killRead:
 			alive = false
+		case msg = <-c.inject:
+			logf(debug, "< (injected) %+v", msg)
+			didQuit = didQuit || msg.command == cmdQuit.command
+			c.handler = c.handler.handle(c, msg)
 		default:
 			c.conn.SetReadDeadline(time.Now().Add(readTimeout))
 			msg, hasMore = parser()
+			if msg.command == "" {
+				continue
+			}
+
+			// Notify the ping thread that we got a ping.
+			if msg.command == cmdPong.command {
+				c.gotPong <- struct{}{}
+			}
+
 			logf(debug, "< %+v", msg)
 			didQuit = didQuit || msg.command == cmdQuit.command
 			c.handler = c.handler.handle(c, msg)
-
-			if !hasMore {
-				break
-			}
 		}
 	}
 
@@ -117,4 +133,27 @@ func (c *connectionImpl) writeLoop() {
 
 	logf(debug, "Closing write loop.")
 	c.conn.Close()
+}
+
+func (c *connectionImpl) pingLoop() {
+	pingDuration := time.Duration(c.config.PingFrequency) * time.Second
+	pongDuration := time.Duration(c.config.PongMaxLatency) * time.Second
+
+	alive := true
+	var pongTimer <-chan time.Time
+	for alive {
+		select {
+		case <-c.killPing:
+			alive = false
+		case <-c.gotPong:
+			pongTimer = nil
+		case <-pongTimer:
+			c.inject <- cmdQuit.withTrailing("Timed out")
+		case <-time.After(pingDuration):
+			c.inbox <- cmdPing.withTrailing(c.config.Name)
+			pongTimer = time.After(pongDuration)
+		}
+	}
+
+	logf(debug, "Closing ping loop.")
 }

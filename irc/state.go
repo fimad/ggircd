@@ -162,7 +162,7 @@ func (s *stateImpl) newChannel(name string) *channel {
 }
 
 func (s *stateImpl) recycleChannel(channel *channel) {
-	logf(debug, "Recycling channel %s", channel.name)
+	logf(debug, "Recycling channel %+v", channel)
 
 	if channel == nil || len(channel.users) != 0 {
 		return
@@ -171,7 +171,7 @@ func (s *stateImpl) recycleChannel(channel *channel) {
 }
 
 func (s *stateImpl) joinChannel(channel *channel, user *user) {
-	logf(debug, "Adding %s to %s", user.nick, channel.name)
+	logf(debug, "Adding %+v to %+v", user, channel)
 
 	channel.users[user] = true
 	user.channels[channel] = true
@@ -196,7 +196,7 @@ func (s *stateImpl) partChannel(ch *channel, user *user, reason string) {
 }
 
 func (s *stateImpl) removeFromChannel(ch *channel, user *user) {
-	logf(debug, "Removing %s from %s", user.nick, ch.name)
+	logf(debug, "Removing %+v from %+v", user, ch)
 
 	delete(user.channels, ch)
 

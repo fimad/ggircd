@@ -11,6 +11,10 @@ func newFreshHandler(state chan state) handler {
 }
 
 func (h *freshHandler) handle(conn connection, msg message) handler {
+	if msg.command == cmdQuit.command {
+		conn.kill()
+		return nullHandler{}
+	}
 	if msg.command != cmdNick.command {
 		return h
 	}
@@ -49,6 +53,13 @@ type freshUserHandler struct {
 }
 
 func (h *freshUserHandler) handle(conn connection, msg message) handler {
+	if msg.command == cmdQuit.command {
+		state := <-h.state
+		state.removeUser(h.user)
+		h.state <- state
+		conn.kill()
+		return nullHandler{}
+	}
 	if msg.command != cmdUser.command {
 		return h
 	}

@@ -1,60 +1,100 @@
 package irc
 
 import (
-	"bufio"
-	"errors"
 	"io"
+	"net"
 	"regexp"
 )
 
 // messageParser is a function that returns a Message and a boolean indicating
 // if the end of the stream has been reached. If the boolean is false, then the
 // returned Message should be ignored and the end of the input has been reached.
+// It is also possible that there was no available message but the end of the
+// stream has not been reached. This case is denoted by returning a message with
+// an empty command field.
 type messageParser func() (message, bool)
 
-// newMessageParser will create a new Parser function that can be called
-// repeatedly to parse Messages from the given io.Reader.
 func newMessageParser(reader io.Reader) messageParser {
-	scanner := bufio.NewScanner(reader)
-	scanner.Split(splitFunc)
+	buffer := make([]byte, 512)
+	hasMore := true
+	startOfBuffer := 0
+	throwAway := false
 	return func() (message, bool) {
-		for scanner.Scan() {
-			msg, ok := parseMessage(scanner.Text())
-			if ok {
-				return msg, true
+		var message message
+
+		// Check if there is already a newline character. If there is, then don't
+		// bother waiting for another io op.
+		hasNewLine := false
+		for j := 0; j < startOfBuffer; j++ {
+			if buffer[j] == '\n' || buffer[j] == '\r' {
+				hasNewLine = true
+				break
 			}
 		}
-		return message{}, false
-	}
-}
 
-// splitFunc is a split function used by a scanner. It splits at CR-LF, LF-CR,
-// CR and LF. A result of this is that the returned line will not contain the
-// CR-LF token.
-func splitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	for i := range data {
-		// Handle the case where a '\r' or '\n' is encountered at the very end of
+		// Only deal with network io if we don't have another message ready to go in
 		// the buffer.
-		if (data[i] == '\x0d' || data[i] == '\x0a') && i == len(data)-1 {
-			return i + 1, data[0:i], nil
+		var n int
+		var err error
+		if !hasNewLine {
+			n, err = reader.Read(buffer[startOfBuffer:])
+
+			// Handle the error. If it is a timeout or temporary then the connection
+			// still has more data. Otherwise signal that there isn't any more data to
+			// be had.
+			if startOfBuffer == 0 && err != nil {
+				netErr, castOk := err.(*net.OpError)
+				if !castOk || (!netErr.Timeout() && !netErr.Temporary()) {
+					hasMore = false
+				}
+				return message, hasMore
+			}
 		}
 
-		// Handle the case where either a CR-LF or LF-CR is encountered.
-		if (data[i] == '\x0d' && data[i+1] == '\x0a') ||
-			(data[i] == '\x0a' && data[i+1] == '\x0d') {
-			return i + 2, data[0:i], nil
+		// Scan over the buffer looking for some combination of CR-LF.
+		var i int
+		for i = 0; i < n+startOfBuffer; i++ {
+			if buffer[i] != '\r' && buffer[i] != '\n' {
+				continue
+			}
+
+			// We found a new line. If we are throwing away this message, don't throw
+			// away the next one. Otherwise parse the message and store it in the
+			// variable that we will eventually return.
+			if throwAway {
+				throwAway = false
+			} else {
+				// Parse the message up to but not including the new line character.
+				message, _ = parseMessage(string(buffer[0:i]))
+			}
+
+			// Copy the remainder of the buffer to the head of the buffer. Do not
+			// clobber i since it is used to determine if we ran out of space in the
+			// buffer.
+			k := i
+			if i < len(buffer) && (buffer[i+1] == '\n' || buffer[i+1] == '\r') {
+				k++
+			}
+			k++
+			j := 0
+			for k < n+startOfBuffer {
+				buffer[j] = buffer[k]
+				k++
+				j++
+			}
+			startOfBuffer = j
+			break
 		}
 
-		// Handle the case where either a lone CR or LF is encountered.
-		if data[i] == '\x0d' || data[i] == '\x0a' {
-			return i + 1, data[0:i], nil
+		// If we scan the entire buffer and can't find a line terminating character,
+		// then all data we read is thrown away until we read a new line.
+		if i == len(buffer) {
+			throwAway = true
+			startOfBuffer = 0
 		}
+
+		return message, hasMore
 	}
-
-	if atEOF {
-		return 0, nil, errors.New("no end of line token in input")
-	}
-	return 0, nil, nil
 }
 
 // See RFC 952 for the definition of a host name.
