@@ -171,6 +171,11 @@ func (s *stateImpl) recycleChannel(channel *channel) {
 }
 
 func (s *stateImpl) joinChannel(channel *channel, user *user) {
+	// Don't add a user to a channel more than once.
+	if channel.users[user] {
+		return
+	}
+
 	logf(debug, "Adding %+v to %+v", user, channel)
 
 	channel.users[user] = true

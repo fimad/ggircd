@@ -24,6 +24,24 @@ func TestUserHandlerJoin(t *testing.T) {
 			state: newMockState().withUser("nick"),
 		},
 		{
+			desc: "successful join, and then rejoin",
+			in:   []message{
+				cmdJoin.withParams("#channel"),
+				cmdJoin.withParams("#channel"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						cmdJoin,
+						replyNoTopic,
+						replyNamReply,
+						replyEndOfNames,
+					},
+				},
+			},
+			state: newMockState().withUser("nick"),
+		},
+		{
 			desc: "successful join with key",
 			in:   []message{cmdJoin.withParams("#channel", "key")},
 			wantNicks: map[string]mockConnection{
