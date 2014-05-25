@@ -1,6 +1,7 @@
 package irc
 
 import (
+	"bufio"
 	"io"
 	"net"
 	"regexp"
@@ -15,85 +16,104 @@ import (
 type messageParser func() (message, bool)
 
 func newMessageParser(reader io.Reader) messageParser {
-	buffer := make([]byte, 512)
-	hasMore := true
-	startOfBuffer := 0
-	throwAway := false
+	bufReader := bufio.NewReader(reader)
+	buffer := make([]byte, 1)
+	parseBuffer := make([]byte, 0, 512)
+
+	var newConsumeNewLineState func(func() (message, bool)) func() (message, bool)
+	var newParseState func() func() (message, bool)
+	var throwAwayState func() (message, bool)
+	var currentState func() (message, bool)
+
+	hasMore := func(err error) bool {
+		netErr, castOk := err.(*net.OpError)
+		return castOk && (netErr.Timeout() || netErr.Temporary())
+	}
+
+	// Consumes input while the current character is a newline character. Then it
+	// transitions to the supplied next state.
+	newConsumeNewLineState = func(nextState func() (message, bool)) func() (message, bool) {
+		var fn func() (message, bool)
+		fn = func() (message, bool) {
+			buf, err := bufReader.Peek(1)
+			if err != nil {
+				return message{}, hasMore(err)
+			}
+
+			// If the character is a new line character, keep reading.
+			if buf[0] == '\r' || buf[0] == '\n' {
+				bufReader.Read(buffer)
+				return fn()
+			}
+
+			currentState = nextState
+			return currentState()
+		}
+
+		return fn
+	}
+
+	// A state that corresponds to consuming input until a newline character is
+	// encountered. Then the state is switched to parsing.
+	throwAwayState = func() (message, bool) {
+		_, err := bufReader.Read(buffer)
+		if err != nil {
+			return message{}, hasMore(err)
+		}
+
+		// If the character is a new line character, switch to consume newline state
+		// followed by a parsing state.
+		if buffer[0] == '\r' || buffer[0] == '\n' {
+			currentState = newConsumeNewLineState(newParseState())
+			return currentState()
+		}
+
+		return throwAwayState()
+	}
+
+	// Returns a new state that will read a line up to 512 characters long
+	// including a terminating newline character and parse it into a message.
+	newParseState = func() func() (message, bool) {
+		// Reset the parse buffer.
+		parseBuffer = parseBuffer[0:0]
+
+		var fn func() (message, bool)
+		fn = func() (message, bool) {
+			// If the parse buffer has filled up, then throwaway input until a new
+			// line character is encountered.
+			if len(parseBuffer) == 512 {
+				currentState = throwAwayState
+				return currentState()
+			}
+
+			_, err := bufReader.Read(buffer)
+			if err != nil {
+				return message{}, hasMore(err)
+			}
+
+			// If the character is a new line character, parse the message, and switch
+			// to consume newline state followed by a parsing state.
+			if buffer[0] == '\r' || buffer[0] == '\n' {
+				// The ordering matters here since the same parseBuffer is used for
+				// every parse state.
+				message, _ := parseMessage(string(parseBuffer))
+				currentState = newConsumeNewLineState(newParseState())
+				return message, true
+			}
+
+			// Save the current character to the parse buffer and keep reading.
+			parseBuffer = append(parseBuffer, buffer[0])
+			return fn()
+		}
+
+		return fn
+	}
+
+	// Return a wrapper function that evaluates the function corresponding to the
+	// current state.
+	currentState = newParseState()
 	return func() (message, bool) {
-		var message message
-
-		// Check if there is already a newline character. If there is, then don't
-		// bother waiting for another io op.
-		hasNewLine := false
-		for j := 0; j < startOfBuffer; j++ {
-			if buffer[j] == '\n' || buffer[j] == '\r' {
-				hasNewLine = true
-				break
-			}
-		}
-
-		// Only deal with network io if we don't have another message ready to go in
-		// the buffer.
-		var n int
-		var err error
-		if !hasNewLine {
-			n, err = reader.Read(buffer[startOfBuffer:])
-
-			// Handle the error. If it is a timeout or temporary then the connection
-			// still has more data. Otherwise signal that there isn't any more data to
-			// be had.
-			if startOfBuffer == 0 && err != nil {
-				netErr, castOk := err.(*net.OpError)
-				if !castOk || (!netErr.Timeout() && !netErr.Temporary()) {
-					hasMore = false
-				}
-				return message, hasMore
-			}
-		}
-
-		// Scan over the buffer looking for some combination of CR-LF.
-		var i int
-		for i = 0; i < n+startOfBuffer; i++ {
-			if buffer[i] != '\r' && buffer[i] != '\n' {
-				continue
-			}
-
-			// We found a new line. If we are throwing away this message, don't throw
-			// away the next one. Otherwise parse the message and store it in the
-			// variable that we will eventually return.
-			if throwAway {
-				throwAway = false
-			} else {
-				// Parse the message up to but not including the new line character.
-				message, _ = parseMessage(string(buffer[0:i]))
-			}
-
-			// Copy the remainder of the buffer to the head of the buffer. Do not
-			// clobber i since it is used to determine if we ran out of space in the
-			// buffer.
-			k := i
-			if i < len(buffer) && (buffer[i+1] == '\n' || buffer[i+1] == '\r') {
-				k++
-			}
-			k++
-			j := 0
-			for k < n+startOfBuffer {
-				buffer[j] = buffer[k]
-				k++
-				j++
-			}
-			startOfBuffer = j
-			break
-		}
-
-		// If we scan the entire buffer and can't find a line terminating character,
-		// then all data we read is thrown away until we read a new line.
-		if i == len(buffer) {
-			throwAway = true
-			startOfBuffer = 0
-		}
-
-		return message, hasMore
+		return currentState()
 	}
 }
 
