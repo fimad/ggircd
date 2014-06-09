@@ -44,7 +44,7 @@ binary takes the following command line arguments:
 
 ## Configuration ##
 
-Before you can run GGircd, you'll need to configure you're server.
+Before you can run GGircd, you'll need to configure your server.
 Configuration is done in via a JSON encoded file, the default location of which
 is `/etc/ggircd/ggircd.conf`.
 
