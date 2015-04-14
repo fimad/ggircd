@@ -1,4 +1,4 @@
-# GGircd #
+# GGircd [![Build Status](https://travis-ci.org/fimad/ggircd.svg?branch=master)](https://travis-ci.org/fimad/ggircd) #
 
 GGircd is a minimalistic IRC server written in Go with the primary goal of being
 feature compatible with the [zhenya_bot](https://github.com/numberten/zhenya_bot)
