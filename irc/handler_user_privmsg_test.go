@@ -30,6 +30,26 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 				withUser("foo"),
 		},
 		{
+			desc:   "successful privmsg user w/ no trailing",
+			in:     []message{cmdPrivMsg.withParams("foo", "msg")},
+			strict: true,
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{},
+				},
+				"foo": mockConnection{
+					messages: []message{
+						cmdPrivMsg.
+							withPrefix("nick!nick@nick").
+							withParams("foo", "msg"),
+					},
+				},
+			},
+			state: newMockState().
+				withUser("nick").
+				withUser("foo"),
+		},
+		{
 			desc:   "successful privmsg channel",
 			in:     []message{cmdPrivMsg.withParams("#channel").withTrailing("msg")},
 			strict: true,

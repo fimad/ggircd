@@ -22,6 +22,19 @@ func TestUserHandlerAway(t *testing.T) {
 			},
 		},
 		{
+			desc: "set away w/ no trailing",
+			in:   []message{cmdAway.withParams("away")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{replyNowAway},
+				},
+			},
+			state: newMockState().withUser("nick"),
+			assert: []assert{
+				assertUserMode("nick", "a"),
+			},
+		},
+		{
 			desc: "set un-away",
 			in: []message{
 				cmdAway.withTrailing("away right now"),

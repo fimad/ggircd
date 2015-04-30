@@ -10,7 +10,7 @@ func (h *userHandler) handleCmdPart(state state, user *user, conn connection, ms
 		return h
 	}
 
-	reason := msg.trailing
+	reason := msg.laxTrailing(1)
 	channels := strings.Split(msg.params[0], ",")
 	for i := 0; i < len(channels); i++ {
 		name := channels[i]

@@ -6,7 +6,7 @@ func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, ms
 		return h
 	}
 
-	if msg.trailing == "" {
+	if msg.laxTrailing(1) == "" {
 		sendNumeric(state, u, errorNoTextToSend)
 		return h
 	}

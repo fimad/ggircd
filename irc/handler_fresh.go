@@ -78,7 +78,8 @@ func (h *freshUserHandler) handleUser(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
 
-	if len(msg.params) < 3 || msg.trailing == "" {
+	var trailing = msg.laxTrailing(3)
+	if len(msg.params) < 3 || trailing == "" {
 		sendNumeric(state, h.user, errorNeedMoreParams)
 		return h
 	}
@@ -89,7 +90,7 @@ func (h *freshUserHandler) handleUser(conn connection, msg message) handler {
 		h.user.host = msg.params[1]
 	}
 	h.user.server = state.getConfig().Name
-	h.user.realName = msg.trailing
+	h.user.realName = trailing
 
 	sendIntro(state, h.user)
 

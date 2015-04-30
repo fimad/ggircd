@@ -29,6 +29,21 @@ func (m message) withPrefix(prefix string) message {
 	return m
 }
 
+// laxTrailing returns the trailing portion of an IRC message or the last
+// parameter.
+func (m message) laxTrailing(minIndex int) string {
+	if m.trailing != "" {
+		return m.trailing
+	}
+
+	l := len(m.params)
+	if l <= minIndex {
+		return ""
+	}
+
+	return m.params[l-1]
+}
+
 // toString serializes a Message to an IRC protocol compatible string.
 func (m message) toString() (string, bool) {
 	if m.command == "" {

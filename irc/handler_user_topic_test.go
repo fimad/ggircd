@@ -45,6 +45,18 @@ func TestUserHandlerTopic(t *testing.T) {
 				withUser("nick", "#channel"),
 		},
 		{
+			desc: "successful set topic w/ no trailing",
+			in:   []message{cmdTopic.withParams("#channel", "topic")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{cmdTopic},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "", "").
+				withUser("nick", "#channel"),
+		},
+		{
 			desc: "successful set topic op",
 			in:   []message{cmdTopic.withParams("#channel").withTrailing("topic")},
 			wantNicks: map[string]mockConnection{

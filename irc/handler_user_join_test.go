@@ -25,7 +25,7 @@ func TestUserHandlerJoin(t *testing.T) {
 		},
 		{
 			desc: "successful join, and then rejoin",
-			in:   []message{
+			in: []message{
 				cmdJoin.withParams("#channel"),
 				cmdJoin.withParams("#channel"),
 			},

@@ -13,7 +13,8 @@ func (h *userHandler) handleCmdTopic(state state, user *user, conn connection, m
 		return h
 	}
 
-	if msg.trailing == "" {
+	var topic = msg.laxTrailing(1)
+	if topic == "" {
 		sendTopic(state, user, channel)
 		return h
 	}
@@ -29,7 +30,7 @@ func (h *userHandler) handleCmdTopic(state state, user *user, conn connection, m
 	}
 
 	msg.prefix = user.prefix()
-	channel.topic = msg.trailing
+	channel.topic = topic
 	channel.send(msg)
 	return h
 }

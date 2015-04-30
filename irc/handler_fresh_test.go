@@ -64,5 +64,21 @@ func TestFreshHandlerHandle(t *testing.T) {
 			},
 			state: newMockState(),
 		},
+		{
+			desc: "successful registration w/ no trailing",
+			in: []message{
+				cmdNick.withParams("foo"),
+				cmdUser.withParams("user", "host", "server", "realname"),
+			},
+			want: mockConnection{
+				messages: []message{
+					replyWelcome,
+					replyYourHost,
+					replyMOTDStart,
+					replyEndOfMOTD,
+				},
+			},
+			state: newMockState(),
+		},
 	})
 }

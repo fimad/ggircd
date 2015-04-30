@@ -6,8 +6,8 @@ const (
 )
 
 func (h *userHandler) handleCmdAway(state state, user *user, conn connection, msg message) handler {
-	user.awayMessage = msg.trailing
-	if len(msg.trailing) == 0 {
+	user.awayMessage = msg.laxTrailing(0)
+	if len(user.awayMessage) == 0 {
 		delete(user.mode, userModeAway)
 		sendNumericTrailing(state, user, replyUnaway, replyYouAreUnaway)
 	} else {
