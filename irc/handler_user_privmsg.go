@@ -6,13 +6,21 @@ func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, ms
 		return h
 	}
 
-	if msg.laxTrailing(1) == "" {
+	msgContents := msg.laxTrailing(1)
+	if msgContents == "" {
 		sendNumeric(state, u, errorNoTextToSend)
 		return h
 	}
 
 	target := msg.params[0]
-	msg.prefix = u.prefix()
+
+	// Construct a new PRIVMSG command from the users. This ensures that the
+	// message is normalized and in a format that is recognizable by all IRC
+	// clients.
+	msgToSend := msg.
+		withPrefix(u.prefix()).
+		withParams(target).
+		withTrailing(msgContents)
 
 	if target[0] != '#' && target[0] != '&' {
 		targetUser := state.getUser(target)
@@ -20,7 +28,7 @@ func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, ms
 			sendNumeric(state, u, errorNoSuchNick, target)
 			return h
 		}
-		targetUser.send(msg)
+		targetUser.send(msgToSend)
 
 		if targetUser.mode[userModeAway] {
 			u.send(cmdPrivMsg.
@@ -40,7 +48,7 @@ func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, ms
 
 	channel.forUsers(func(n *user) {
 		if n != u {
-			n.send(msg)
+			n.send(msgToSend)
 		}
 	})
 	return h

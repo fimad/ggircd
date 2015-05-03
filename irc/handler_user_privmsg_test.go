@@ -41,7 +41,8 @@ func TestUserHandlerPrivMsg(t *testing.T) {
 					messages: []message{
 						cmdPrivMsg.
 							withPrefix("nick!nick@nick").
-							withParams("foo", "msg"),
+							withParams("foo").
+							withTrailing("msg"),
 					},
 				},
 			},
