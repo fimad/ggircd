@@ -71,6 +71,10 @@ func newState(config Config) state {
 	}
 }
 
+func isValidNick(nick string) bool {
+	return len(nick) <= 9
+}
+
 func (s stateImpl) getConfig() Config {
 	return s.config
 }
@@ -101,6 +105,10 @@ func (s *stateImpl) newUser(nick string) *user {
 		return nil
 	}
 
+	if !isValidNick(nickLower) {
+		return nil
+	}
+
 	logf(debug, "Adding new user %s", nick)
 
 	u := &user{
@@ -120,7 +128,7 @@ func (s *stateImpl) setNick(user *user, nick string) bool {
 		return false
 	}
 
-	if len(lowerNick) > 9 {
+	if !isValidNick(lowerNick) {
 		return false
 	}
 

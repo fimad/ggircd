@@ -40,6 +40,12 @@ func TestFreshHandlerHandle(t *testing.T) {
 			state: newMockState().withUser("foo"),
 		},
 		{
+			desc:  "nick using too long nickname",
+			in:    []message{cmdNick.withParams("0123456789")},
+			want:  mockConnection{messages: []message{errorNicknameInUse}},
+			state: newMockState().withUser("foo"),
+		},
+		{
 			desc: "user missing parameters",
 			in: []message{
 				cmdNick.withParams("foo"),
