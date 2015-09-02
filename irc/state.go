@@ -118,6 +118,10 @@ func (s *stateImpl) setNick(user *user, nick string) bool {
 		return false
 	}
 
+	if len(lowerNick) > 9 {
+		return false
+	}
+
 	user.forChannels(func(ch *channel) {
 		ch.send(cmdNick.withPrefix(user.prefix()).withParams(nick))
 	})
