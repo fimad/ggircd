@@ -113,6 +113,8 @@ func (s *stateImpl) newUser(nick string) *user {
 }
 
 func (s *stateImpl) setNick(user *user, nick string) bool {
+	logf(debug, "User requesting nick change from %s to %s.", user.nick, nick)
+
 	lowerNick := lowercase(nick)
 	if n := s.users[lowerNick]; n != nil && n != user {
 		return false
@@ -122,9 +124,16 @@ func (s *stateImpl) setNick(user *user, nick string) bool {
 		return false
 	}
 
-	user.forChannels(func(ch *channel) {
-		ch.send(cmdNick.withPrefix(user.prefix()).withParams(nick))
-	})
+	if len(user.channels) == 0 {
+		// Always send the user requesting a nick change a confirmation message
+		// since some clients will be left in a strange state if they do not receive
+		// either a success or error message.
+		user.send(cmdNick.withPrefix(user.prefix()).withParams(nick))
+	} else {
+		user.forChannels(func(ch *channel) {
+			ch.send(cmdNick.withPrefix(user.prefix()).withParams(nick))
+		})
+	}
 
 	delete(s.users, user.nick)
 	s.users[lowerNick] = user

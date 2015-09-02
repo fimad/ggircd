@@ -13,7 +13,7 @@ func TestUserHandlerNicks(t *testing.T) {
 			in:   []message{cmdNick.withParams("foo")},
 			wantNicks: map[string]mockConnection{
 				"foo": mockConnection{
-					messages: []message{},
+					messages: []message{cmdNick},
 				},
 			},
 			state: newMockState().withUser("nick"),
@@ -56,7 +56,7 @@ func TestUserHandlerNicks(t *testing.T) {
 		},
 		{
 			desc: "nick fails too long",
-			in:   []message{cmdNick.withParams("0123456789")},  // Max is 9 chars.
+			in:   []message{cmdNick.withParams("0123456789")}, // Max is 9 chars.
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
 					messages: []message{errorNicknameInUse},
