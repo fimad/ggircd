@@ -64,5 +64,29 @@ func TestUserHandlerNicks(t *testing.T) {
 			},
 			state: newMockState().withUser("nick"),
 		},
+		{
+			desc: "nick change with capitalized nick",
+			in: []message{
+				cmdNick.withParams("FOO"),
+				cmdNick.withParams("nick"),
+				cmdWho.withParams("nick"),
+				cmdWho.withParams("FOO"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						// Verify that the reference to "Nick" is properly cleaned up. If it
+						// is not cleaned up, then there will be a replyWhoReply between
+						// that last two replyEndOfWho.
+						cmdNick,
+						cmdNick,
+						replyWhoReply,
+						replyEndOfWho,
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().withUser("nick"),
+		},
 	})
 }

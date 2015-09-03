@@ -143,7 +143,7 @@ func (s *stateImpl) setNick(user *user, nick string) bool {
 		})
 	}
 
-	delete(s.users, user.nick)
+	delete(s.users, lowercase(user.nick))
 	s.users[lowerNick] = user
 	user.nick = nick
 	return true
