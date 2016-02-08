@@ -1,6 +1,7 @@
 package irc
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 )
@@ -12,8 +13,29 @@ func RunServer(cfg Config) {
 		logf(fatal, "Could not create server: %v", err)
 	}
 
+	var lnSSL net.Listener
+	certFile := cfg.SSLCertificate.CertFile
+	keyFile := cfg.SSLCertificate.KeyFile
+	if keyFile != "" && certFile != "" {
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			logf(fatal, "Could not create TLS server: %v", err)
+		}
+
+		sslCfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+
+		lnSSL, err = tls.Listen("tcp", fmt.Sprintf(":%d", cfg.SSLPort), sslCfg)
+		if err != nil {
+			logf(fatal, "Could not create TLS server: %v", err)
+		}
+	}
+
 	state := make(chan state, 1)
 	state <- newState(cfg)
+
+	if lnSSL != nil {
+		go acceptLoop(cfg, lnSSL, state)
+	}
 	acceptLoop(cfg, ln, state)
 }
 

@@ -75,6 +75,20 @@ The port that GGircd should listen on.
 
 Example: 6667
 
+#### SSLPort ####
+
+The port that GGircd should listen on for SSL connections.
+
+Example: 6697
+
+#### SSLCertificate ####
+
+An object contain the paths for the private key and certificate files (PEM
+encoded) that are to be used for SSL connections. If this option is empty, then
+no SSL port will be opened.
+
+Example: {"KeyFile": "./key.pem", "CertFile": "./cert.pem"}
+
 #### MOTD ####
 
 The path to a file containing the message of the day. This file should be line
