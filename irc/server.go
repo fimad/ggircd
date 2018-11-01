@@ -13,6 +13,8 @@ func RunServer(cfg Config) {
 		logf(fatal, "Could not create server: %v", err)
 	}
 
+	go runPrometheus(cfg)
+
 	var lnSSL net.Listener
 	certFile := cfg.SSLCertificate.CertFile
 	keyFile := cfg.SSLCertificate.KeyFile
