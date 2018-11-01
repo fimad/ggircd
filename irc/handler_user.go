@@ -1,5 +1,9 @@
 package irc
 
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
+
 type commandMap map[string]func(state, *user, connection, message) handler
 
 // userHandler is a handler that handles messages coming from a user connection
@@ -47,6 +51,13 @@ func (h *userHandler) closed(conn connection) {
 func (h *userHandler) handle(conn connection, msg message) handler {
 	state := <-h.state
 	defer func() { h.state <- state }()
+
+	command_received.With(
+		prometheus.Labels{
+			"nick":    h.nick,
+			"command": msg.command,
+		},
+	).Inc()
 
 	command := h.commands[msg.command]
 	if command == nil {
