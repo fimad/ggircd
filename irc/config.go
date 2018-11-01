@@ -22,6 +22,10 @@ type Config struct {
 	PingFrequency  int
 	PongMaxLatency int
 
+	Prometheus struct {
+		Port int
+	}
+
 	SSLCertificate SSLCertificate
 }
 
