@@ -1,5 +1,9 @@
 package irc
 
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
+
 // state represents the state of this IRC server. State is not safe for
 // concurrent access.
 type state interface {
@@ -197,6 +201,12 @@ func (s *stateImpl) joinChannel(channel *channel, user *user) {
 		return
 	}
 
+	nicks_in_channel.With(
+		prometheus.Labels{
+			"channel": channel.name,
+		},
+	).Inc()
+
 	logf(debug, "Adding %+v to %+v", user, channel)
 
 	channel.users[user] = true
@@ -213,27 +223,33 @@ func (s *stateImpl) joinChannel(channel *channel, user *user) {
 	sendNames(s, user, channel)
 }
 
-func (s *stateImpl) partChannel(ch *channel, user *user, reason string) {
-	ch.send(cmdPart.
+func (s *stateImpl) partChannel(channel *channel, user *user, reason string) {
+	nicks_in_channel.With(
+		prometheus.Labels{
+			"channel": channel.name,
+		},
+	).Dec()
+
+	channel.send(cmdPart.
 		withPrefix(user.prefix()).
-		withParams(ch.name).
+		withParams(channel.name).
 		withTrailing(reason))
-	s.removeFromChannel(ch, user)
+	s.removeFromChannel(channel, user)
 }
 
-func (s *stateImpl) removeFromChannel(ch *channel, user *user) {
-	logf(debug, "Removing %+v from %+v", user, ch)
+func (s *stateImpl) removeFromChannel(channel *channel, user *user) {
+	logf(debug, "Removing %+v from %+v", user, channel)
 
-	delete(user.channels, ch)
+	delete(user.channels, channel)
 
-	if !ch.users[user] {
+	if !channel.users[user] {
 		return
 	}
 
-	delete(ch.users, user)
-	delete(ch.voices, user)
-	delete(ch.ops, user)
-	delete(ch.invited, user)
+	delete(channel.users, user)
+	delete(channel.voices, user)
+	delete(channel.ops, user)
+	delete(channel.invited, user)
 
-	s.recycleChannel(ch)
+	s.recycleChannel(channel)
 }

@@ -9,6 +9,11 @@ import (
 )
 
 var (
+	active_connections = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "active_connections",
+			Help: "The number of active connections.",
+		})
 	command_received = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "command_received_total",
@@ -16,16 +21,19 @@ var (
 		},
 		[]string{"nick", "command"},
 	)
-	active_connections = prometheus.NewGauge(
+	nicks_in_channel = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "active_connections",
-			Help: "The number of active connections.",
-		})
+			Name: "nicks_in_channel",
+			Help: "The number of nicks in a channel.",
+		},
+		[]string{"channel"},
+	)
 )
 
 func init() {
-	prometheus.MustRegister(command_received)
 	prometheus.MustRegister(active_connections)
+	prometheus.MustRegister(command_received)
+	prometheus.MustRegister(nicks_in_channel)
 }
 
 // runPrometheus starts an HTTP server with a /metrics endpoint for publishing
