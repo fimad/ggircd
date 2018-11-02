@@ -51,6 +51,7 @@ func (c *connectionImpl) send(msg message) {
 }
 
 func (c *connectionImpl) loop() {
+	active_connections.Inc()
 	go c.writeLoop()
 	go c.readLoop()
 	c.pingLoop()
@@ -98,6 +99,7 @@ func (c *connectionImpl) readLoop() {
 	}
 
 	c.conn.Close()
+	active_connections.Dec()
 
 	// If there was never a QUIT message then this is a premature termination and
 	// a quit message should be faked.

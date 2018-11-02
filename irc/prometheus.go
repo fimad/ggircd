@@ -16,10 +16,16 @@ var (
 		},
 		[]string{"nick", "command"},
 	)
+	active_connections = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "active_connections",
+			Help: "The number of active connections.",
+		})
 )
 
 func init() {
 	prometheus.MustRegister(command_received)
+	prometheus.MustRegister(active_connections)
 }
 
 // runPrometheus starts an HTTP server with a /metrics endpoint for publishing
