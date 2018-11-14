@@ -11,19 +11,19 @@ import (
 var (
 	active_connections = prometheus.NewGauge(
 		prometheus.GaugeOpts{
-			Name: "active_connections",
+			Name: "ggircd_active_connections",
 			Help: "The number of active connections.",
 		})
 	command_received = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "command_received_total",
+			Name: "ggircd_command_received_total",
 			Help: "Number of irc commands received.",
 		},
 		[]string{"nick", "command"},
 	)
 	nicks_in_channel = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "nicks_in_channel",
+			Name: "ggircd_nicks_in_channel",
 			Help: "The number of nicks in a channel.",
 		},
 		[]string{"channel"},
