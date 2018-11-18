@@ -26,6 +26,11 @@ type Config struct {
 		Port int
 	}
 
+	Logs struct {
+		LogChannelMessages bool
+		Path               string
+	}
+
 	SSLCertificate SSLCertificate
 }
 

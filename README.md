@@ -129,3 +129,23 @@ The maximum latency a client can respond to a PING message with without being
 forcefully disconnected. If no value is given, this defaults to 5 seconds.
 
 Example: 5
+
+#### Prometheus.Port (Optional) ####
+
+If supplied the port that Prometheus metrics will be exposed on. If zero or
+unspecified Prometheus metrics will not be collected.
+
+Example: 4000
+
+#### Logs.Path (Optional) ####
+
+A path to a directory that the IRC server will write logs files to.
+
+Example: /var/log/irc/
+
+#### Logs.LogChannelMessages (Optional) ####
+
+If true, a log file will be created in the log directory for each channel. Each
+file will contain JSON serialized IRC message.
+
+Example: true

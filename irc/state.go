@@ -1,7 +1,11 @@
 package irc
 
 import (
+	"encoding/json"
 	"github.com/prometheus/client_golang/prometheus"
+	"os"
+	"path"
+	"time"
 )
 
 // state represents the state of this IRC server. State is not safe for
@@ -58,6 +62,10 @@ type state interface {
 	// not send any messages to the channel or user. The channel will also be
 	// reaped if there are no active users left.
 	removeFromChannel(*channel, *user)
+
+	// logChannelMessage writes an IRC message to the given channels log file (if
+	// logging is enabled).
+	logChannelMessage(channel *channel, nick, message string)
 }
 
 // stateImpl is a concrete implementation of the State interface.
@@ -252,4 +260,42 @@ func (s *stateImpl) removeFromChannel(channel *channel, user *user) {
 	delete(channel.invited, user)
 
 	s.recycleChannel(channel)
+}
+
+type channelMessage struct {
+	Nick      string `json:"nick"`
+	Message   string `json:"message"`
+	Timestamp int64  `json:"timestamp,string"`
+}
+
+func (s *stateImpl) logChannelMessage(channel *channel, nick, message string) {
+	if !s.getConfig().Logs.LogChannelMessages {
+		return
+	}
+
+	logPath := path.Join(s.getConfig().Logs.Path, channel.name)
+	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		logf(warn, "Unable to open channel log file (%s) for writing: %v", logPath, err)
+		return
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			logf(warn, "Unable to close channel log file (%s): %v ", logPath, err)
+		}
+	}()
+
+	msg := channelMessage{
+		Nick:      nick,
+		Message:   message,
+		Timestamp: time.Now().Unix(),
+	}
+
+	msgJson, err := json.Marshal(msg)
+	if err != nil {
+		logf(warn, "Unable to write log line to channel log file (%s): %v ", logPath, err)
+	}
+	if _, err := f.WriteString(string(msgJson) + "\n"); err != nil {
+		logf(warn, "Unable to write log line to channel log file (%s): %v ", logPath, err)
+	}
 }

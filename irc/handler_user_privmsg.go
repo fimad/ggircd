@@ -46,6 +46,7 @@ func (h *userHandler) handleCmdPrivMsg(state state, u *user, conn connection, ms
 		return h
 	}
 
+	state.logChannelMessage(channel, u.nick, msgContents)
 	channel.forUsers(func(n *user) {
 		if n != u {
 			n.send(msgToSend)
