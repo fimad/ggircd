@@ -21,12 +21,16 @@ func RunServer(cfg Config) {
 	certFile := cfg.SSLCertificate.CertFile
 	keyFile := cfg.SSLCertificate.KeyFile
 	if keyFile != "" && certFile != "" {
-		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-		if err != nil {
-			logf(fatal, "Could not create TLS server: %v", err)
+		getCertificate := func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+			if err != nil {
+				return &cert, nil
+			} else {
+				return nil, err
+			}
 		}
 
-		sslCfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+		sslCfg := &tls.Config{GetCertificate: getCertificate}
 
 		lnSSL, err = tls.Listen("tcp", fmt.Sprintf(":%d", cfg.SSLPort), sslCfg)
 		if err != nil {
