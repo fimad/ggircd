@@ -23,9 +23,10 @@ func RunServer(cfg Config) {
 	if keyFile != "" && certFile != "" {
 		getCertificate := func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 			cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-			if err != nil {
+			if err == nil {
 				return &cert, nil
 			} else {
+				logf(error, "Could not create TLS server: %v", err)
 				return nil, err
 			}
 		}
