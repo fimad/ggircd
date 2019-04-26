@@ -26,7 +26,7 @@ func RunServer(cfg Config) {
 			if err == nil {
 				return &cert, nil
 			} else {
-				logf(error, "Could not create TLS server: %v", err)
+				logf(warn, "Could not create TLS server: %v", err)
 				return nil, err
 			}
 		}
