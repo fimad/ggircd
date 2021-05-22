@@ -132,5 +132,41 @@ func TestUserHandlerTopic(t *testing.T) {
 				withChannel("#channel", "t", "").
 				withUser("nick", "#channel"),
 		},
+		{
+			desc: "can query topic from outside private channel",
+			in:   []message{cmdTopic.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{replyTopic},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "p", "topic").
+				withUser("nick"),
+		},
+		{
+			desc: "cannot query topic from outside secret channel",
+			in:   []message{cmdTopic.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{errorNoSuchChannel},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "topic").
+				withUser("nick"),
+		},
+		{
+			desc: "can query topic from inside secret channel",
+			in:   []message{cmdTopic.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{replyTopic},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "topic").
+				withUser("nick", "#channel"),
+		},
 	})
 }
