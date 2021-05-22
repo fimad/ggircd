@@ -8,7 +8,8 @@ func (h *userHandler) handleCmdTopic(state state, user *user, conn connection, m
 
 	name := msg.params[0]
 	channel := state.getChannel(name)
-	if channel == nil {
+	// Treat secret channels that the user is not on as not existing.
+	if channel == nil || (!channel.users[user] && channel.mode[channelModeSecret]) {
 		sendNumeric(state, user, errorNoSuchChannel, name)
 		return h
 	}
