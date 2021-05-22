@@ -52,6 +52,10 @@ func (h *userHandler) handleCmdWho(state state, u *user, conn connection, msg me
 	if ch == nil {
 		return h
 	}
+	isSecretOrPrivate := ch.mode[channelModePrivate] || ch.mode[channelModeSecret]
+	if !ch.users[u] && isSecretOrPrivate {
+		return h
+	}
 	ch.forUsers(func(nick *user) { sendWho(ch, nick) })
 
 	return h
