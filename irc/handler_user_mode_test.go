@@ -132,7 +132,7 @@ func TestUserHandlerMode(t *testing.T) {
 				},
 			},
 			assert: []assert{
-				assertChannelMode("#foo", "p"),
+				assertChannelMode("#foo", "s"),
 			},
 			state: newMockState().
 				withChannel("#foo", "", "").
