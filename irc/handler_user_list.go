@@ -9,6 +9,10 @@ const endOfListMessage = "End of /LIST"
 
 func (h *userHandler) handleCmdList(state state, user *user, conn connection, msg message) handler {
 	sendListElem := func(ch *channel) {
+		isHidden := ch.mode[channelModePrivate] || ch.mode[channelModeSecret]
+		if isHidden && !ch.users[user] {
+			return
+		}
 		size := strconv.Itoa(len(ch.users))
 		sendNumericTrailing(state, user, replyList, ch.topic, ch.name, size)
 	}
