@@ -56,7 +56,7 @@ func TestUserHandlerNames(t *testing.T) {
 				withUserMode("baz", "i"),
 		},
 		{
-			desc: "names all secret",
+			desc: "names all private",
 			in:   []message{cmdNames.withParams()},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
@@ -64,7 +64,7 @@ func TestUserHandlerNames(t *testing.T) {
 				},
 			},
 			state: newMockState().
-				withChannel("#foo", "s", "").
+				withChannel("#foo", "p", "").
 				withUser("nick").
 				withUser("foo", "#foo"),
 		},
@@ -97,6 +97,52 @@ func TestUserHandlerNames(t *testing.T) {
 			},
 			state: newMockState().
 				withChannel("#channel", "p", "").
+				withUser("nick").
+				withUser("foo", "#channel").
+				withUser("bar", "#channel"),
+		},
+		{
+			desc: "names all secret",
+			in:   []message{cmdNames.withParams()},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{},
+				},
+			},
+			state: newMockState().
+				withChannel("#foo", "s", "").
+				withUser("nick").
+				withUser("foo", "#foo"),
+		},
+		{
+			desc: "names successful secret",
+			in:   []message{cmdNames.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyNamReply,
+						replyNamReply,
+						replyNamReply,
+						replyEndOfNames,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "").
+				withUser("nick", "#channel").
+				withUser("foo", "#channel").
+				withUser("bar", "#channel"),
+		},
+		{
+			desc: "names fails secret",
+			in:   []message{cmdNames.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "").
 				withUser("nick").
 				withUser("foo", "#channel").
 				withUser("bar", "#channel"),

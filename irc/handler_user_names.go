@@ -15,11 +15,8 @@ func (h *userHandler) handleCmdNames(state state, user *user, conn connection, m
 
 func (h *userHandler) handleCmdNamesAll(state state, user *user, msg message) {
 	state.forChannels(func(ch *channel) {
-		if ch.mode[channelModePrivate] && ch.users[user] {
-			return
-		}
-
-		if ch.mode[channelModeSecret] && !ch.users[user] {
+		isHidden := ch.mode[channelModePrivate] || ch.mode[channelModeSecret]
+		if isHidden && !ch.users[user] {
 			return
 		}
 
@@ -30,15 +27,16 @@ func (h *userHandler) handleCmdNamesAll(state state, user *user, msg message) {
 func (h *userHandler) handleCmdNamesChannel(state state, user *user, msg message) {
 	names := strings.Split(msg.params[0], ",")
 	for _, name := range names {
-		channel := state.getChannel(name)
-		if channel == nil {
+		ch := state.getChannel(name)
+		if ch == nil {
 			break
 		}
 
-		if channel.mode[channelModePrivate] && !channel.users[user] {
+		isHidden := ch.mode[channelModePrivate] || ch.mode[channelModeSecret]
+		if isHidden && !ch.users[user] {
 			break
 		}
 
-		sendNames(state, user, channel)
+		sendNames(state, user, ch)
 	}
 }
