@@ -122,17 +122,17 @@ func TestUserHandlerMode(t *testing.T) {
 				withOps("#foo", "nick"),
 		},
 		{
-			desc: "failure - channel cannot be both secret and private",
+			desc: "successful channel cannot be both secret and private",
 			in: []message{
 				cmdMode.withParams("#foo", "+sp"),
 			},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []message{},
+					messages: []message{cmdMode},
 				},
 			},
 			assert: []assert{
-				assertChannelMode("#foo", ""),
+				assertChannelMode("#foo", "p"),
 			},
 			state: newMockState().
 				withChannel("#foo", "", "").
@@ -140,14 +140,14 @@ func TestUserHandlerMode(t *testing.T) {
 				withOps("#foo", "nick"),
 		},
 		{
-			desc: "failure - channel cannot be both secret and then also private",
+			desc: "successful channel secret resets private",
 			in: []message{
-				cmdMode.withParams("#foo", "+s"),
 				cmdMode.withParams("#foo", "+p"),
+				cmdMode.withParams("#foo", "+s"),
 			},
 			wantNicks: map[string]mockConnection{
 				"nick": mockConnection{
-					messages: []message{cmdMode},
+					messages: []message{cmdMode, cmdMode},
 				},
 			},
 			assert: []assert{
