@@ -110,6 +110,12 @@ func (h *userHandler) handleCmdModeChannel(state state, user *user, msg message)
 					channel.key = value
 
 				case channelModePrivate:
+					// The ordering of modes in a mode command is unspecified since they
+					// are stored in a hash map. Give priority to secret mode sets if
+					// there private and secret both appear in the same mode setting.
+					if affinity && pos[channelModeSecret] != nil {
+						break
+					}
 					channel.mode[mode] = affinity
 					if affinity {
 						channel.mode[channelModeSecret] = false
