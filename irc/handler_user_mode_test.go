@@ -71,6 +71,94 @@ func TestUserHandlerMode(t *testing.T) {
 				withOps("#foo", "nick"),
 		},
 		{
+			desc: "successful set channel private",
+			in:   []message{cmdMode.withParams("#foo", "+p")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{cmdMode},
+				},
+			},
+			assert: []assert{
+				assertChannelMode("#foo", "p"),
+			},
+			state: newMockState().
+				withChannel("#foo", "", "").
+				withUser("nick", "#foo").
+				withOps("#foo", "nick"),
+		},
+		{
+			desc: "successful set channel secret",
+			in:   []message{cmdMode.withParams("#foo", "+s")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{cmdMode},
+				},
+			},
+			assert: []assert{
+				assertChannelMode("#foo", "s"),
+			},
+			state: newMockState().
+				withChannel("#foo", "", "").
+				withUser("nick", "#foo").
+				withOps("#foo", "nick"),
+		},
+		{
+			desc: "successful swap channel secret/private",
+			in: []message{
+				cmdMode.withParams("#foo", "+s"),
+				cmdMode.withParams("#foo", "+p-s"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{cmdMode, cmdMode},
+				},
+			},
+			assert: []assert{
+				assertChannelMode("#foo", "p"),
+			},
+			state: newMockState().
+				withChannel("#foo", "", "").
+				withUser("nick", "#foo").
+				withOps("#foo", "nick"),
+		},
+		{
+			desc: "failure - channel cannot be both secret and private",
+			in: []message{
+				cmdMode.withParams("#foo", "+sp"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{},
+				},
+			},
+			assert: []assert{
+				assertChannelMode("#foo", ""),
+			},
+			state: newMockState().
+				withChannel("#foo", "", "").
+				withUser("nick", "#foo").
+				withOps("#foo", "nick"),
+		},
+		{
+			desc: "failure - channel cannot be both secret and then also private",
+			in: []message{
+				cmdMode.withParams("#foo", "+s"),
+				cmdMode.withParams("#foo", "+p"),
+			},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{cmdMode},
+				},
+			},
+			assert: []assert{
+				assertChannelMode("#foo", "s"),
+			},
+			state: newMockState().
+				withChannel("#foo", "", "").
+				withUser("nick", "#foo").
+				withOps("#foo", "nick"),
+		},
+		{
 			desc: "failure - non-existent channel",
 			in:   []message{cmdMode.withParams("#foo", "+n")},
 			wantNicks: map[string]mockConnection{

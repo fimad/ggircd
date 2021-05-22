@@ -51,7 +51,9 @@ func (h *userHandler) handleCmdModeChannel(state state, user *user, msg message)
 
 	// Perform a dry run first
 	ok := true
-	dryRun := func(curr map[string][]string) {
+	setSecret := channel.mode[channelModeSecret]
+	setPrivate := channel.mode[channelModeSecret]
+	dryRun := func(curr map[string][]string, affinity bool) {
 		for mode, values := range curr {
 			for _, value := range values {
 				switch mode {
@@ -69,14 +71,19 @@ func (h *userHandler) handleCmdModeChannel(state state, user *user, msg message)
 							state, user, errorUnknownMode, "Not a number", value)
 						ok = false
 					}
+				case channelModePrivate:
+					setPrivate = affinity
+				case channelModeSecret:
+					setSecret = affinity
 					// TODO(will): Handle ban masks...
 				}
 			}
 		}
 	}
 
-	dryRun(pos)
-	dryRun(neg)
+	dryRun(pos, true)
+	dryRun(neg, false)
+	ok = ok && !(setSecret && setPrivate)
 	if !ok {
 		return
 	}
