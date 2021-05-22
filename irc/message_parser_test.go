@@ -25,6 +25,33 @@ func TestMessageParser(t *testing.T) {
 			},
 		},
 		{
+			raw: "foobar \r\n",
+			want: []message{
+				{
+					command: "foobar",
+					params:  []string{},
+				},
+			},
+		},
+		{
+			raw: "foobar  \r\n",
+			want: []message{
+				{
+					command: "foobar",
+					params:  []string{},
+				},
+			},
+		},
+		{
+			raw: "foobar  1   2     3  \r\n",
+			want: []message{
+				{
+					command: "foobar",
+					params:  []string{"1", "2", "3"},
+				},
+			},
+		},
+		{
 			raw: ":test foobar\r\n",
 			want: []message{
 				{

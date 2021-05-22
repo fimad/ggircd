@@ -151,8 +151,14 @@ func parseMessage(line string) (message, bool) {
 			return msg, false
 		}
 		// Skip extra white space.
-		for parts[3][i] == ' ' {
+		for i < len(parts[3]) && parts[3][i] == ' ' {
 			i++
+		}
+
+		// Skipped white space and ran out of data... This looks like a malformed
+		// message.
+		if i == len(parts[3]) {
+			return msg, false
 		}
 
 		// If the next character is a ':', then the parameter is the value of the
