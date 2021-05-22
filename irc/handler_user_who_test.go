@@ -137,5 +137,93 @@ func TestUserHandlerWho(t *testing.T) {
 				withUser("foo", "#channel").
 				withOps("#channel", "nick"),
 		},
+		{
+			desc: "who not on channel",
+			in:   []message{cmdWho.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyWhoReply,
+						replyWhoReply,
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "", "").
+				withUser("nick").
+				withUser("bar", "#channel").
+				withUser("foo", "#channel"),
+		},
+		{
+			desc: "who on channel (private)",
+			in:   []message{cmdWho.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyWhoReply,
+						replyWhoReply,
+						replyWhoReply,
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "p", "").
+				withUser("nick", "#channel").
+				withUser("bar", "#channel").
+				withUser("foo", "#channel"),
+		},
+		{
+			desc: "who on channel (secret)",
+			in:   []message{cmdWho.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyWhoReply,
+						replyWhoReply,
+						replyWhoReply,
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "").
+				withUser("nick", "#channel").
+				withUser("bar", "#channel").
+				withUser("foo", "#channel"),
+		},
+		{
+			desc: "who not on channel (private)",
+			in:   []message{cmdWho.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "p", "").
+				withUser("nick").
+				withUser("bar", "#channel").
+				withUser("foo", "#channel"),
+		},
+		{
+			desc: "who not on channel (secret)",
+			in:   []message{cmdWho.withParams("#channel")},
+			wantNicks: map[string]mockConnection{
+				"nick": mockConnection{
+					messages: []message{
+						replyEndOfWho,
+					},
+				},
+			},
+			state: newMockState().
+				withChannel("#channel", "s", "").
+				withUser("nick").
+				withUser("bar", "#channel").
+				withUser("foo", "#channel"),
+		},
 	})
 }
